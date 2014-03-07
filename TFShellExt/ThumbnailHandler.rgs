@@ -1,0 +1,44 @@
+HKCR
+{
+	NoRemove CLSID
+	{
+		ForceRemove {37F80C61-7D4E-4BF0-877D-535C9C9CCE83} = s 'ThumbFish Thumbnail Viewer'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+			TypeLib = s '{506A7C6B-81F0-459A-8A31-6479713762D0}'
+			Version = s '1.0'
+		}
+	}
+
+	NoRemove .cdx
+	{
+		NoRemove ShellEx
+		{
+			ForceRemove {E357FCCD-A995-4576-B01F-234630154E96} = s '{37F80C61-7D4E-4BF0-877D-535C9C9CCE83}'
+		}
+	}
+	NoRemove .cdxml
+	{
+		NoRemove ShellEx
+		{
+			ForceRemove {E357FCCD-A995-4576-B01F-234630154E96} = s '{37F80C61-7D4E-4BF0-877D-535C9C9CCE83}'
+		}
+	}
+	NoRemove .mol
+	{
+		NoRemove ShellEx
+		{
+			ForceRemove {E357FCCD-A995-4576-B01F-234630154E96} = s '{37F80C61-7D4E-4BF0-877D-535C9C9CCE83}'
+		}
+	}
+	NoRemove .sdf
+	{
+		NoRemove ShellEx
+		{
+			ForceRemove {E357FCCD-A995-4576-B01F-234630154E96} = s '{37F80C61-7D4E-4BF0-877D-535C9C9CCE83}'
+		}
+	}
+}

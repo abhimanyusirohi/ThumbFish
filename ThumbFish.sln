@@ -1,0 +1,72 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Setup", "Setup", "{2D52A22D-50F3-47FB-AC9D-16CC5DD2CF75}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ThumbFishSetupx32", "Setup\ThumbFishSetupx32\ThumbFishSetupx32.vdproj", "{B15C7672-F76D-473D-AA91-88237F1F884E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E} = {9DC18603-8FFD-4A47-B96E-B09C84F2914E}
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2} = {19C6D687-C13B-4C64-B578-5B1F3999F4D2}
+	EndProjectSection
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ThumbFishSetupx64", "Setup\ThumbFishSetupx64\ThumbFishSetupx64.vdproj", "{6878ADF0-F814-4AEB-B75B-D0B1C43D88DA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E} = {9DC18603-8FFD-4A47-B96E-B09C84F2914E}
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2} = {19C6D687-C13B-4C64-B578-5B1F3999F4D2}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Providers", "Providers", "{AE774474-7C46-42F9-8A7A-BDE5682CE5A1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Indigo", "Indigo", "{699AD368-0DCC-4523-BE21-50913A2EA3BA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IndigoProvider", "Providers\IndigoProvider\IndigoProvider.vcxproj", "{19C6D687-C13B-4C64-B578-5B1F3999F4D2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThumbFish", "TFShellExt\ThumbFish.vcxproj", "{9DC18603-8FFD-4A47-B96E-B09C84F2914E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Debug|x64 = Debug|x64
+		Release|Win32 = Release|Win32
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B15C7672-F76D-473D-AA91-88237F1F884E}.Debug|Win32.ActiveCfg = Release
+		{B15C7672-F76D-473D-AA91-88237F1F884E}.Debug|x64.ActiveCfg = Release
+		{B15C7672-F76D-473D-AA91-88237F1F884E}.Release|Win32.ActiveCfg = Release
+		{B15C7672-F76D-473D-AA91-88237F1F884E}.Release|Win32.Build.0 = Release
+		{B15C7672-F76D-473D-AA91-88237F1F884E}.Release|x64.ActiveCfg = Release
+		{B15C7672-F76D-473D-AA91-88237F1F884E}.Release|x64.Build.0 = Release
+		{6878ADF0-F814-4AEB-B75B-D0B1C43D88DA}.Debug|Win32.ActiveCfg = Release
+		{6878ADF0-F814-4AEB-B75B-D0B1C43D88DA}.Debug|x64.ActiveCfg = Release
+		{6878ADF0-F814-4AEB-B75B-D0B1C43D88DA}.Release|Win32.ActiveCfg = Release
+		{6878ADF0-F814-4AEB-B75B-D0B1C43D88DA}.Release|Win32.Build.0 = Release
+		{6878ADF0-F814-4AEB-B75B-D0B1C43D88DA}.Release|x64.ActiveCfg = Release
+		{6878ADF0-F814-4AEB-B75B-D0B1C43D88DA}.Release|x64.Build.0 = Release
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2}.Debug|Win32.Build.0 = Debug|Win32
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2}.Debug|x64.ActiveCfg = Debug|x64
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2}.Debug|x64.Build.0 = Debug|x64
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2}.Release|Win32.ActiveCfg = Release|Win32
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2}.Release|Win32.Build.0 = Release|Win32
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2}.Release|x64.ActiveCfg = Release|x64
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2}.Release|x64.Build.0 = Release|x64
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Debug|Win32.Build.0 = Debug|Win32
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Debug|x64.ActiveCfg = Debug|x64
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Debug|x64.Build.0 = Debug|x64
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Release|Win32.ActiveCfg = Release|Win32
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Release|Win32.Build.0 = Release|Win32
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Release|x64.ActiveCfg = Release|x64
+		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B15C7672-F76D-473D-AA91-88237F1F884E} = {2D52A22D-50F3-47FB-AC9D-16CC5DD2CF75}
+		{6878ADF0-F814-4AEB-B75B-D0B1C43D88DA} = {2D52A22D-50F3-47FB-AC9D-16CC5DD2CF75}
+		{699AD368-0DCC-4523-BE21-50913A2EA3BA} = {AE774474-7C46-42F9-8A7A-BDE5682CE5A1}
+		{19C6D687-C13B-4C64-B578-5B1F3999F4D2} = {699AD368-0DCC-4523-BE21-50913A2EA3BA}
+	EndGlobalSection
+EndGlobal

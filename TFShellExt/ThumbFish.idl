@@ -1,0 +1,69 @@
+// ThumbFish.idl : IDL source for ThumbFish
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ThumbFish.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	uuid(AAA59AED-6460-487D-BD22-854128D97F75),
+	pointer_default(unique)
+]
+interface IPreview : IUnknown
+{
+};
+
+[
+	object,
+	uuid(1CBE7B28-8E2B-48EE-AA11-0C3D294ECA37),
+	pointer_default(unique)
+]
+interface IThumbnail : IUnknown
+{
+};
+
+[
+	object,
+	uuid(E0989131-E810-4FA6-8472-B6B2806F5D87),
+	pointer_default(unique)
+]
+interface ISearch : IUnknown
+{
+};
+
+[
+	uuid(506A7C6B-81F0-459A-8A31-6479713762D0),
+	version(1.0),
+]
+library ThumbFishLib
+{
+	importlib("stdole2.tlb");
+	[
+		uuid(4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E)
+	]
+	coclass Preview
+	{
+		[default] interface IPreviewHandler;
+	};
+	[
+		uuid(37F80C61-7D4E-4BF0-877D-535C9C9CCE83)
+	]
+	coclass Thumbnail
+	{
+		[default] interface IThumbnailProvider;
+	};
+	[
+		uuid(759D803C-F6C6-464A-AD39-5E2353DB05A3)
+	]
+	coclass Search
+	{
+		[default] interface IFilter;
+	};
+};
+
+import "shobjidl.idl";
+import "thumbcache.idl";
+import "filter.idl";

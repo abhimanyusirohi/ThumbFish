@@ -1,0 +1,4 @@
+20140306-191939.156: failed to write message to log file
+20140306-191939.195: failed to write message to log file
+20140306-191939.198: failed to write message to log file
+20140306-191939.212: failed to write message to log file

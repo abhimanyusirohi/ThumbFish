@@ -1,0 +1,45 @@
+HKLM
+{
+	NoRemove Software
+	{
+		NoRemove Classes
+		{
+			NoRemove .cdx
+			{
+				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+			}
+			NoRemove .cdxml
+			{
+				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+			}
+			NoRemove .mol
+			{
+				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+			}
+
+			NoRemove CLSID
+			{
+				ForceRemove {2D3AF1F7-1AB0-46CF-9678-A22580032AF2}
+				{
+					PersistentAddinsRegistered
+					{
+						{89BCB740-6119-101A-BCB7-00DD010655AF} = s '{759D803C-F6C6-464A-AD39-5E2353DB05A3}'
+					}
+				}
+				ForceRemove {759D803C-F6C6-464A-AD39-5E2353DB05A3} = s 'ThumbFish Filter Handler'
+				{
+					InprocServer32 = s '%MODULE%'
+					{
+						val ThreadingModel = s 'Both'
+					}
+				}
+			}
+		}
+	}
+}
+
+
+
+
+
+

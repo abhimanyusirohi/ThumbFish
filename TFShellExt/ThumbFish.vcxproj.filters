@@ -1,0 +1,136 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{fa197529-e8ad-4b1e-90af-bba3b903d217}</UniqueIdentifier>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Header Files\Thumbnail">
+      <UniqueIdentifier>{3dcc180c-9211-4f1f-bc60-208031c5df3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Preview">
+      <UniqueIdentifier>{c132a155-fe3d-46ec-ae43-bd1f4678a77f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\IFilter">
+      <UniqueIdentifier>{64328685-c301-462a-9129-748c48215470}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Thumbnail">
+      <UniqueIdentifier>{f01c59b0-c872-4567-9e36-c0dbb0c74b14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Preview">
+      <UniqueIdentifier>{3ebb4303-b158-4ddc-825d-2436b0ffeabc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\IFilter">
+      <UniqueIdentifier>{8c303fd2-a952-4913-986d-8cbaa1f19ba1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThumbFish.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xdlldata.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThumbFishDocument.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ThumbFish_i.c">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PreviewCtrl.cpp">
+      <Filter>Source Files\Preview</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dllmain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xdlldata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThumbFishDocument.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThumbFish_i.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ThumbnailHandler.h">
+      <Filter>Header Files\Thumbnail</Filter>
+    </ClInclude>
+    <ClInclude Include="atldlgpreviewctrlimpl.h">
+      <Filter>Header Files\Preview</Filter>
+    </ClInclude>
+    <ClInclude Include="PreviewCtrl.h">
+      <Filter>Header Files\Preview</Filter>
+    </ClInclude>
+    <ClInclude Include="PreviewHandler.h">
+      <Filter>Header Files\Preview</Filter>
+    </ClInclude>
+    <ClInclude Include="FilterHandler.h">
+      <Filter>Header Files\IFilter</Filter>
+    </ClInclude>
+    <ClInclude Include="Types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ThumbFish.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ThumbFish.rgs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ThumbFish.def">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="PreviewHandler.rgs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ThumbnailHandler.rgs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="FilterHandler.rgs">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ResTempl.rct">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="ThumbFish.idl">
+      <Filter>Source Files</Filter>
+    </Midl>
+  </ItemGroup>
+</Project>
