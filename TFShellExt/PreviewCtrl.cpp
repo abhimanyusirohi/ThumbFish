@@ -33,12 +33,13 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 			// get handle of property ListView
 			HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
 
-			TCHAR** props = NULL;
-			int propCount = pGetPropsFunc(&pDoc->m_Buffer, &props, options);
-			if((props != NULL) && (propCount > 0))
+			// avoid refilling properties
+			if(ListView_GetItemCount(hWndList) == 0)
 			{
-				// avoid refilling properties
-				if(ListView_GetItemCount(hWndList) == 0)
+				TCHAR** props = NULL;
+				int propCount = pGetPropsFunc(&pDoc->m_Buffer, &props, options);
+
+				if((props != NULL) && (propCount > 0))
 				{
 					// insert property values into list view control
 					for(int i = 0; i < propCount; i++)
@@ -48,13 +49,14 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 
 					// auto size to content - last column
 					ListView_SetColumnWidth(hWndList, 1, LVSCW_AUTOSIZE_USEHEADER);
+					delete[] props;
 				}
-			}
-			else
-			{
-				// no properties to display, hide listview and show static message
-				::ShowWindow(hWndList, SW_HIDE);
-				::ShowWindow(::GetDlgItem(m_hWnd, IDC_NOPREVIEWTEXT), SW_SHOW);
+				else
+				{
+					// no properties to display, hide listview and show static message
+					::ShowWindow(hWndList, SW_HIDE);
+					::ShowWindow(::GetDlgItem(m_hWnd, IDC_NOPREVIEWTEXT), SW_SHOW);
+				}
 			}
 		}
 	}
@@ -260,6 +262,8 @@ LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 	HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
 
 	TCHAR largeText[FOUR_KB];
+	memset(largeText, 0, FOUR_KB);
+
 	int count = ListView_GetItemCount(hWndList);
 	for(int index = 0; index < count; index++)
 	{

@@ -18,3 +18,4 @@
 #pragma comment(lib, "Shlwapi.lib")
 
 #include "..\..\TFShellExt\Types.h"
+#include <ObjIdl.h>

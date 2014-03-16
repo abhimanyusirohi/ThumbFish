@@ -41,7 +41,7 @@ public:
 		{
 			// do not delete IStream pointer
 			if(m_Buffer.pData != NULL && !m_Buffer.isStream) 
-				delete m_Buffer.pData;
+				delete[] ((char*)m_Buffer.pData);
 		}
 	}
 

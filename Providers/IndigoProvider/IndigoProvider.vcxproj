@@ -92,10 +92,13 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;INDIGOPROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\ThirdParty\Indigo\vssolution\build\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)\$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)\build\$(Platform)\$(Configuration)\Provider.dll"
@@ -110,11 +113,14 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;INDIGOPROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;INDIGOPROVIDER_EXPORTS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\..\..\ThirdParty\Indigo\vssolution\build\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)\$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)\build\$(Platform)\$(Configuration)\Provider.dll"
@@ -132,12 +138,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;INDIGOPROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\..\..\ThirdParty\Indigo\vssolution\build\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)\$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)\build\$(Platform)\$(Configuration)\Provider.dll"
@@ -155,12 +164,15 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;INDIGOPROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\..\..\ThirdParty\Indigo\vssolution\build\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(ProjectDir)\$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)\build\$(Platform)\$(Configuration)\Provider.dll"
