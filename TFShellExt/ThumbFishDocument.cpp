@@ -81,8 +81,11 @@ void ThumbFishDocument::SetSearchContent(CString& value)
 
 void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 {
-	//if(pDrawThumbnailFunc != NULL)
-	//	pDrawThumbnailFunc(hDrawDC, lprcBounds, &m_Buffer, &_thumbnailOptions, false);
+	if(pDrawFunc != NULL)
+	{
+		int options[32];
+		pDrawFunc(hDrawDC, lprcBounds, &m_Buffer, options);
+	}
 }
 
 BOOL ThumbFishDocument::Load(IStream* stream, ULONG size)

@@ -6,9 +6,9 @@
 
 void CPreviewCtrl::DoPaint(HDC hdc)
 {
-	pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint called"));
+	//pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint called"));
 
-	if(m_pDocument == NULL) return;
+	//if(m_pDocument == NULL) return;
 
 	int options[32];
 	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
@@ -16,7 +16,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 	if((pDrawFunc != NULL) && (pDoc != NULL) && (pDoc->m_Buffer.DataLength > 0))
 	{
 		//TODO: Remove this DEBUG ONLY
-		if(pDoc->m_Buffer.DataLength < 100) return;
+		//if(pDoc->m_Buffer.DataLength < 100) return;
 
 		HWND hPict = GetDlgItem(IDC_PICT);
 		if(hPict != NULL)
@@ -62,10 +62,10 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 	}
 	else
 	{
-		pantheios::log_ERROR(_T("CPreviewCtrl::DoPaint> Unable to draw Preview"));/*, 
-			_T("pDrawThumbnailFunc="), (pDrawFunc == NULL),
-			_T("pDoc="), (pDoc == NULL), 
-			_T("BufferLength="), (pDoc == NULL) ? 0 : pDoc->m_Buffer.DataLength);*/
+		//pantheios::log_ERROR(_T("CPreviewCtrl::DoPaint> Unable to draw Preview"));/*, 
+		//	_T("pDrawThumbnailFunc="), (pDrawFunc == NULL),
+		//	_T("pDoc="), (pDoc == NULL), 
+		//	_T("BufferLength="), (pDoc == NULL) ? 0 : pDoc->m_Buffer.DataLength);*/
 	}
 }
 

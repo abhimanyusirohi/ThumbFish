@@ -33,3 +33,4 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, int* options);
 INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, int* options);
 
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value);
+std::string GetData(LPBUFFER buffer);

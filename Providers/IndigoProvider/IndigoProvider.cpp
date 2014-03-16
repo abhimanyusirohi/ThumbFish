@@ -4,21 +4,33 @@
 #include "stdafx.h"
 #include "IndigoProvider.h"
 
-//#include "molecule/molecule.h"
-
-//#include "base_cpp/scanner.h"
-//#include "molecule/sdf_loader.h"
-//#include "molecule/molfile_loader.h"
-//#include "molecule/molecule_arom.h"
-//#include "molecule/molecule_fingerprint.h"
-//#include "base_c/bitarray.h"
-
 #include "api\indigo.h"
 #include "api\plugins\inchi\indigo-inchi.h"
+#include "plugins\renderer\indigo-renderer.h"
 
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, int* options)
 {
-	::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(GRAY_BRUSH));
+	if(buffer->DataLength <= 0) return 0;
+
+	std::string cdxBytes = GetData(buffer);
+	if(cdxBytes.size() > 0)
+	{
+		// V2000& V3000: MOL, RXN, SDF, RDF, CML
+		// SMI, SMILES, SMARTS
+		int mol = indigoLoadMoleculeFromString(cdxBytes.c_str());
+		
+		indigoSetOptionBool("render-coloring", 1);
+		indigoSetOptionBool("render-highlight-thickness-enabled", 1);
+		indigoSetOptionXY("render-margins", 20, 20);
+		indigoSetOptionXY("render-image-size", rect.right - rect.left, rect.bottom - rect.top);
+
+		::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
+
+		int dc = indigoRenderWriteHDC((void*)hDC, 0);
+		int ret = indigoRender(mol, dc);
+
+		indigoFree(mol);
+	}
 
 	return true;
 }
@@ -29,24 +41,7 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, int* 
 
 	if(buffer->DataLength <= 0) return 0;
 
-	std::string cdxBytes;
-	if(buffer->isStream)
-	{
-		IStream* stream = (IStream*)buffer->pData;
-
-		// read IStream data into a char buffer
-		ULONG read = 0;
-		std::auto_ptr<char> temp(new char[buffer->DataLength]);
-		if(stream->Read(temp.get(), buffer->DataLength, &read) == S_OK)
-		{
-			cdxBytes.assign(temp.get(), read);
-		}
-	}
-	else
-	{
-		cdxBytes.assign((char*)buffer->pData, buffer->DataLength);
-	}
-
+	std::string cdxBytes = GetData(buffer);
 	if(cdxBytes.size() > 0)
 	{	
 		int mol = indigoLoadMoleculeFromString(cdxBytes.c_str());
@@ -129,6 +124,27 @@ void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value)
 	_tcscpy_s((*properties)[startIndex + 1], len, value);
 }
 
+std::string GetData(LPBUFFER buffer)
+{
+	std::string cdxBytes;
+	if(buffer->isStream)
+	{
+		IStream* stream = (IStream*)buffer->pData;
+
+		// read IStream data into a char buffer
+		ULONG read = 0;
+		std::auto_ptr<char> temp(new char[buffer->DataLength]);
+		if(stream->Read(temp.get(), buffer->DataLength, &read) == S_OK)
+		{
+			cdxBytes.assign(temp.get(), read);
+		}
+	}
+	else
+	{
+		cdxBytes.assign((char*)buffer->pData, buffer->DataLength);
+	}
+	return cdxBytes;
+}
 
 // This is the constructor of a class that has been exported.
 // see IndigoProvider.h for the class definition
