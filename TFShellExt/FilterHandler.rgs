@@ -4,15 +4,35 @@ HKLM
 	{
 		NoRemove Classes
 		{
-			NoRemove .cdx
+			NoRemove .rxn
 			{
 				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
 			}
-			NoRemove .cdxml
+			NoRemove .rdf
 			{
 				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
 			}
 			NoRemove .mol
+			{
+				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+			}
+			NoRemove .sdf
+			{
+				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+			}
+			NoRemove .cml
+			{
+				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+			}
+			NoRemove .smi
+			{
+				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+			}
+			NoRemove .smiles
+			{
+				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+			}
+			NoRemove .smarts
 			{
 				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
 			}
