@@ -37,11 +37,14 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, int* 
 	int mol = LoadMolecule(buffer);
 	if(mol != -1)
 	{	
-		propCount = 15;
+		propCount = 16;
 		*properties = new TCHAR*[propCount * 2];
 
 		int index = -2;
 		wchar_t temp[500];
+
+		_snwprintf_s(temp, 500, 500, L"%hs", indigoName(mol));
+		AddProperty(properties, index+=2, _T("Name"), temp);
 
 		_snwprintf_s(temp, 500, 500, L"%d", indigoCountAtoms(mol));
 		AddProperty(properties, index+=2, _T("Num Atoms"), temp);
