@@ -19,3 +19,4 @@
 
 #include "..\..\TFShellExt\Types.h"
 #include <ObjIdl.h>
+#include <Shlwapi.h>

@@ -34,3 +34,4 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, int* 
 
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value);
 std::string GetData(LPBUFFER buffer);
+int LoadMolecule(LPBUFFER buffer);

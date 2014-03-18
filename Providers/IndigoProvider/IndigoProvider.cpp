@@ -10,15 +10,9 @@
 
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, int* options)
 {
-	if(buffer->DataLength <= 0) return 0;
-
-	std::string cdxBytes = GetData(buffer);
-	if(cdxBytes.size() > 0)
+	int mol = LoadMolecule(buffer);
+	if(mol != -1)
 	{
-		// V2000& V3000: MOL, RXN, SDF, RDF, CML
-		// SMI, SMILES, SMARTS
-		int mol = indigoLoadMoleculeFromString(cdxBytes.c_str());
-		
 		indigoSetOptionBool("render-coloring", 1);
 		indigoSetOptionBool("render-highlight-thickness-enabled", 1);
 		indigoSetOptionXY("render-margins", 20, 20);
@@ -27,87 +21,82 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, int* options)
 		::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
 
 		int dc = indigoRenderWriteHDC((void*)hDC, 0);
-		int ret = indigoRender(mol, dc);
+		indigoRender(mol, dc);
 
 		indigoFree(mol);
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, int* options)
 {
 	int propCount = 0;
 
-	if(buffer->DataLength <= 0) return 0;
-
-	std::string cdxBytes = GetData(buffer);
-	if(cdxBytes.size() > 0)
+	int mol = LoadMolecule(buffer);
+	if(mol != -1)
 	{	
-		int mol = indigoLoadMoleculeFromString(cdxBytes.c_str());
-		if(mol != -1)
-		{
-			propCount = 15;
-			*properties = new TCHAR*[propCount * 2];
+		propCount = 15;
+		*properties = new TCHAR*[propCount * 2];
 
-			int index = -2;
-			wchar_t temp[500];
+		int index = -2;
+		wchar_t temp[500];
 
-			_snwprintf_s(temp, 500, 500, L"%d", indigoCountAtoms(mol));
-			AddProperty(properties, index+=2, _T("Num Atoms"), temp);
+		_snwprintf_s(temp, 500, 500, L"%d", indigoCountAtoms(mol));
+		AddProperty(properties, index+=2, _T("Num Atoms"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%d", indigoCountBonds(mol));
-			AddProperty(properties, index+=2, _T("Num Bonds"), temp);
+		_snwprintf_s(temp, 500, 500, L"%d", indigoCountBonds(mol));
+		AddProperty(properties, index+=2, _T("Num Bonds"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%d", indigoCountImplicitHydrogens(mol));
-			AddProperty(properties, index+=2, _T("Implicit Hydrogens"), temp);
+		_snwprintf_s(temp, 500, 500, L"%d", indigoCountImplicitHydrogens(mol));
+		AddProperty(properties, index+=2, _T("Implicit Hydrogens"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%d", indigoCountHeavyAtoms(mol));
-			AddProperty(properties, index+=2, _T("Heavy Atoms"), temp);
+		_snwprintf_s(temp, 500, 500, L"%d", indigoCountHeavyAtoms(mol));
+		AddProperty(properties, index+=2, _T("Heavy Atoms"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%hs", indigoToString(indigoGrossFormula(mol)));
-			AddProperty(properties, index+=2, _T("Gross Formula"), temp);
+		_snwprintf_s(temp, 500, 500, L"%hs", indigoToString(indigoGrossFormula(mol)));
+		AddProperty(properties, index+=2, _T("Gross Formula"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMolecularWeight(mol));
-			AddProperty(properties, index+=2, _T("Molecular Weight"), temp);
+		_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMolecularWeight(mol));
+		AddProperty(properties, index+=2, _T("Molecular Weight"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMostAbundantMass(mol));
-			AddProperty(properties, index+=2, _T("Most Abundant Mass"), temp);
+		_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMostAbundantMass(mol));
+		AddProperty(properties, index+=2, _T("Most Abundant Mass"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMonoisotopicMass(mol));
-			AddProperty(properties, index+=2, _T("Mono Isotopic Mass"), temp);
+		_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMonoisotopicMass(mol));
+		AddProperty(properties, index+=2, _T("Mono Isotopic Mass"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%d", indigoCountHeavyAtoms(mol));
-			AddProperty(properties, index+=2, _T("Heavy Atom Count"), temp);
+		_snwprintf_s(temp, 500, 500, L"%d", indigoCountHeavyAtoms(mol));
+		AddProperty(properties, index+=2, _T("Heavy Atom Count"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%s", (indigoIsChiral(mol) == 0) ? _T("No") : _T("Yes"));
-			AddProperty(properties, index+=2, _T("Is Chiral"), temp);
+		_snwprintf_s(temp, 500, 500, L"%s", (indigoIsChiral(mol) == 0) ? _T("No") : _T("Yes"));
+		AddProperty(properties, index+=2, _T("Is Chiral"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%s", (indigoHasCoord(mol) == 0) ? _T("No") : _T("Yes"));
-			AddProperty(properties, index+=2, _T("Has Coordinates"), temp);
+		_snwprintf_s(temp, 500, 500, L"%s", (indigoHasCoord(mol) == 0) ? _T("No") : _T("Yes"));
+		AddProperty(properties, index+=2, _T("Has Coordinates"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%s", (indigoHasZCoord(mol) == 0) ? _T("No") : _T("Yes"));
-			AddProperty(properties, index+=2, _T("Has Z Coordinates"), temp);
+		_snwprintf_s(temp, 500, 500, L"%s", (indigoHasZCoord(mol) == 0) ? _T("No") : _T("Yes"));
+		AddProperty(properties, index+=2, _T("Has Z Coordinates"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%hs", indigoSmiles(mol));
-			AddProperty(properties, index+=2, _T("SMILES"), temp);
+		_snwprintf_s(temp, 500, 500, L"%hs", indigoSmiles(mol));
+		AddProperty(properties, index+=2, _T("SMILES"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%hs", indigoCanonicalSmiles(mol));
-			AddProperty(properties, index+=2, _T("Canonical SMILES"), temp);
+		_snwprintf_s(temp, 500, 500, L"%hs", indigoCanonicalSmiles(mol));
+		AddProperty(properties, index+=2, _T("Canonical SMILES"), temp);
 
-			_snwprintf_s(temp, 500, 500, L"%hs", indigoLayeredCode(mol));
-			AddProperty(properties, index+=2, _T("Layered Code"), temp);
+		_snwprintf_s(temp, 500, 500, L"%hs", indigoLayeredCode(mol));
+		AddProperty(properties, index+=2, _T("Layered Code"), temp);
 
-			//TODO: INCHI CALCULATION FAILS - malloc_dbg fails
-			//const char* inchi = indigoInchiGetInchi(mol);
-			//_snwprintf_s(temp, 500, 500, L"%hs", inchi);
-			//AddProperty(properties, 22, _T("InChi"), temp);
+		//TODO: INCHI CALCULATION FAILS - malloc_dbg fails
+		//const char* inchi = indigoInchiGetInchi(mol);
+		//_snwprintf_s(temp, 500, 500, L"%hs", inchi);
+		//AddProperty(properties, 22, _T("InChi"), temp);
 
-			//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));
-			//AddProperty(properties, 24, _T("InChi Key"), temp);
+		//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));
+		//AddProperty(properties, 24, _T("InChi Key"), temp);
 
-			indigoFree(mol);
-		}
+		indigoFree(mol);
 	}
 
 	return propCount;
@@ -144,6 +133,30 @@ std::string GetData(LPBUFFER buffer)
 		cdxBytes.assign((char*)buffer->pData, buffer->DataLength);
 	}
 	return cdxBytes;
+}
+
+int LoadMolecule(LPBUFFER buffer)
+{
+	if((buffer == NULL) || (buffer->DataLength <= 0)) return -1;
+
+	std::string cdxBytes = GetData(buffer);
+	if(cdxBytes.size() > 0)
+	{
+		LPTSTR ext = ::PathFindExtension(buffer->FileName);
+
+		//TODO: Add CML
+		if(StrCmpI(ext, _T(".smarts")) == 0)
+			return indigoLoadSmartsFromString(cdxBytes.c_str());
+		else if((StrCmpI(ext, _T(".mol")) == 0) || (StrCmpI(ext, _T(".sdf")) == 0)
+			|| (StrCmpI(ext, _T(".smi")) == 0) || (StrCmpI(ext, _T(".smiles")) == 0))
+			return indigoLoadMoleculeFromString(cdxBytes.c_str());
+		else if((StrCmpI(ext, _T(".rxn")) == 0) || (StrCmpI(ext, _T(".rdf")) == 0))
+			return indigoLoadReactionFromString(cdxBytes.c_str());
+		else
+			return -1;
+	}
+
+	return -1;
 }
 
 // This is the constructor of a class that has been exported.
