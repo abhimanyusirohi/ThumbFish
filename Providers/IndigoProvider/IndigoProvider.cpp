@@ -8,6 +8,13 @@
 #include "api\plugins\inchi\indigo-inchi.h"
 #include "plugins\renderer\indigo-renderer.h"
 
+const enum PropFlags {
+	propName = 0x1, propNumAtoms = 0x2, propNumBonds = 0x4, propImplH = 0x8, propHeavyAtoms = 0x10, propGrossFormula = 0x20,
+	propMolWeight = 0x40, propMostAbundantMass = 0x80, propMonoIsotopicMass = 0x100, propIsChiral = 0x200, propHasCoord = 0x400,
+	propHasZCoord = 0x800, propSmiles = 0x1000, propCanonicalSmiles = 0x2000, propLayeredCode = 0x4000, propInChI = 0x8000, 
+	propInChIKey = 0x10000
+};
+
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options)
 {
 	int mol = LoadMolecule(buffer);
@@ -34,68 +41,115 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 
 	int mol = LoadMolecule(buffer);
 	if(mol != -1)
-	{	
-		propCount = 16;
-		*properties = new TCHAR*[propCount * 2];
+	{
+		// get properties to display for this file type
+		INT64 flags = GetPropFlagsForFile(buffer->FileName, &propCount);
 
-		int index = -2;
-		wchar_t temp[500];
+		if(propCount > 0)
+		{
+			*properties = new TCHAR*[propCount * 2];
 
-		_snwprintf_s(temp, 500, 500, L"%hs", indigoName(mol));
-		AddProperty(properties, index+=2, _T("Name"), temp);
+			int index = -2;
+			wchar_t temp[500];
 
-		_snwprintf_s(temp, 500, 500, L"%d", indigoCountAtoms(mol));
-		AddProperty(properties, index+=2, _T("Num Atoms"), temp);
+			if(flags & propName)
+			{
+				_snwprintf_s(temp, 500, 500, L"%hs", indigoName(mol));
+				AddProperty(properties, index+=2, _T("Name"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%d", indigoCountBonds(mol));
-		AddProperty(properties, index+=2, _T("Num Bonds"), temp);
+			if(flags & propNumAtoms)
+			{
+				_snwprintf_s(temp, 500, 500, L"%d", indigoCountAtoms(mol));
+				AddProperty(properties, index+=2, _T("Num Atoms"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%d", indigoCountImplicitHydrogens(mol));
-		AddProperty(properties, index+=2, _T("Implicit Hydrogens"), temp);
+			if(flags & propNumBonds)
+			{
+				_snwprintf_s(temp, 500, 500, L"%d", indigoCountBonds(mol));
+				AddProperty(properties, index+=2, _T("Num Bonds"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%d", indigoCountHeavyAtoms(mol));
-		AddProperty(properties, index+=2, _T("Heavy Atoms"), temp);
+			if(flags & propImplH)
+			{
+				_snwprintf_s(temp, 500, 500, L"%d", indigoCountImplicitHydrogens(mol));
+				AddProperty(properties, index+=2, _T("Implicit Hydrogens"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%hs", indigoToString(indigoGrossFormula(mol)));
-		AddProperty(properties, index+=2, _T("Gross Formula"), temp);
+			if(flags & propHeavyAtoms)
+			{
+				_snwprintf_s(temp, 500, 500, L"%d", indigoCountHeavyAtoms(mol));
+				AddProperty(properties, index+=2, _T("Heavy Atoms"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMolecularWeight(mol));
-		AddProperty(properties, index+=2, _T("Molecular Weight"), temp);
+			if(flags & propGrossFormula)
+			{
+				_snwprintf_s(temp, 500, 500, L"%hs", indigoToString(indigoGrossFormula(mol)));
+				AddProperty(properties, index+=2, _T("Gross Formula"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMostAbundantMass(mol));
-		AddProperty(properties, index+=2, _T("Most Abundant Mass"), temp);
+			if(flags & propMolWeight)
+			{
+				_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMolecularWeight(mol));
+				AddProperty(properties, index+=2, _T("Molecular Weight"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMonoisotopicMass(mol));
-		AddProperty(properties, index+=2, _T("Mono Isotopic Mass"), temp);
+			if(flags & propMostAbundantMass)
+			{
+				_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMostAbundantMass(mol));
+				AddProperty(properties, index+=2, _T("Most Abundant Mass"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%d", indigoCountHeavyAtoms(mol));
-		AddProperty(properties, index+=2, _T("Heavy Atom Count"), temp);
+			if(flags & propMonoIsotopicMass)
+			{
+				_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMonoisotopicMass(mol));
+				AddProperty(properties, index+=2, _T("Mono Isotopic Mass"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%s", (indigoIsChiral(mol) == 0) ? _T("No") : _T("Yes"));
-		AddProperty(properties, index+=2, _T("Is Chiral"), temp);
+			if(flags & propIsChiral)
+			{
+				_snwprintf_s(temp, 500, 500, L"%s", (indigoIsChiral(mol) == 0) ? _T("No") : _T("Yes"));
+				AddProperty(properties, index+=2, _T("Is Chiral"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%s", (indigoHasCoord(mol) == 0) ? _T("No") : _T("Yes"));
-		AddProperty(properties, index+=2, _T("Has Coordinates"), temp);
+			if(flags & propHasCoord)
+			{
+				_snwprintf_s(temp, 500, 500, L"%s", (indigoHasCoord(mol) == 0) ? _T("No") : _T("Yes"));
+				AddProperty(properties, index+=2, _T("Has Coordinates"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%s", (indigoHasZCoord(mol) == 0) ? _T("No") : _T("Yes"));
-		AddProperty(properties, index+=2, _T("Has Z Coordinates"), temp);
+			if(flags & propHasZCoord)
+			{
+				_snwprintf_s(temp, 500, 500, L"%s", (indigoHasZCoord(mol) == 0) ? _T("No") : _T("Yes"));
+				AddProperty(properties, index+=2, _T("Has Z Coordinates"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%hs", indigoSmiles(mol));
-		AddProperty(properties, index+=2, _T("SMILES"), temp);
+			if(flags & propSmiles)
+			{
+				_snwprintf_s(temp, 500, 500, L"%hs", indigoSmiles(mol));
+				AddProperty(properties, index+=2, _T("SMILES"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%hs", indigoCanonicalSmiles(mol));
-		AddProperty(properties, index+=2, _T("Canonical SMILES"), temp);
+			if(flags & propCanonicalSmiles)
+			{
+				_snwprintf_s(temp, 500, 500, L"%hs", indigoCanonicalSmiles(mol));
+				AddProperty(properties, index+=2, _T("Canonical SMILES"), temp);
+			}
 
-		_snwprintf_s(temp, 500, 500, L"%hs", indigoLayeredCode(mol));
-		AddProperty(properties, index+=2, _T("Layered Code"), temp);
+			if(flags & propLayeredCode)
+			{
+				_snwprintf_s(temp, 500, 500, L"%hs", indigoLayeredCode(mol));
+				AddProperty(properties, index+=2, _T("Layered Code"), temp);
+			}
 
-		//TODO: INCHI CALCULATION FAILS - malloc_dbg fails
-		//const char* inchi = indigoInchiGetInchi(mol);
-		//_snwprintf_s(temp, 500, 500, L"%hs", inchi);
-		//AddProperty(properties, 22, _T("InChi"), temp);
+			//TODO: INCHI CALCULATION FAILS - malloc_dbg fails
+			//const char* inchi = indigoInchiGetInchi(mol);
+			//_snwprintf_s(temp, 500, 500, L"%hs", inchi);
+			//AddProperty(properties, 22, _T("InChi"), temp);
 
-		//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));
-		//AddProperty(properties, 24, _T("InChi Key"), temp);
+			//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));
+			//AddProperty(properties, 24, _T("InChi Key"), temp);
+		}
 
 		indigoFree(mol);
 	}
@@ -186,3 +240,33 @@ void SetIndigoOptions(LPOPTIONS options)
 		: ((options->RenderStereoStyle == 1) ? "ext" : "none"));
 }
 
+INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps)
+{
+	LPTSTR ext = ::PathFindExtension(fileName);
+
+	*numProps = 0;
+	if(_tcsicmp(ext, _T(".mol")) == 0)
+	{
+		*numProps = 15;
+		return ULONG_MAX; // set all bits, show all properties
+	}
+	else if(_tcsicmp(ext, _T(".rxn")) == 0)
+	{
+		*numProps = 3;
+		return (propName | propSmiles | propIsChiral);
+	}
+	else if((_tcsicmp(ext, _T(".smi")) == 0) || (_tcsicmp(ext, _T(".smiles")) == 0))
+	{
+		*numProps = 7;
+		return (propName | propNumAtoms | propNumBonds | propHeavyAtoms | propSmiles | propCanonicalSmiles | propLayeredCode);
+	}
+	else if(_tcsicmp(ext, _T(".smarts")) == 0)
+	{
+		*numProps = 6;
+		return (propName | propNumAtoms | propNumBonds | propHeavyAtoms | propGrossFormula | propSmiles);
+	}
+	else if((_tcsicmp(ext, _T(".sdf")) == 0) || (_tcsicmp(ext, _T(".rdf")) == 0) || (_tcsicmp(ext, _T(".cml")) == 0))
+		return 0;
+	else
+		return 0;	// do not display any property
+}

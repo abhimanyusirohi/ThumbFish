@@ -36,3 +36,4 @@ void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value)
 std::string GetData(LPBUFFER buffer);
 int LoadMolecule(LPBUFFER buffer);
 void SetIndigoOptions(LPOPTIONS options);
+INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps);
