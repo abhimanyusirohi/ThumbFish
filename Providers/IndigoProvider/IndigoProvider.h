@@ -29,9 +29,10 @@
 //	// TODO: add your methods here.
 //};
 
-INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, int* options);
-INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, int* options);
+INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options);
+INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options);
 
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value);
 std::string GetData(LPBUFFER buffer);
 int LoadMolecule(LPBUFFER buffer);
+void SetIndigoOptions(LPOPTIONS options);

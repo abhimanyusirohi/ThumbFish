@@ -1,5 +1,39 @@
 #pragma once
 
+struct OPTIONS
+{
+		bool			Changed;					// specifies whether options have changed
+	
+		unsigned short  RenderMarginX;				// render-margins XY
+		unsigned short	RenderMarginY;				// render-margins XY
+
+		float			RenderRelativeThickness;	// render-relative-thickness D=1.0
+
+		bool			RenderColoring;				// render-coloring BOOL D=False
+		bool			RenderImplicitH;			// render-implicit-hydrogens-visible BOOL D=True
+		bool			RenderShowAtomID;			// render-atom-ids-visible BOOL D=False
+		bool			RenderShowBondID;			// render-bond-ids-visible BOOL D=False
+		bool			RenderAtomBondIDFromOne;	// render-atom-bond-ids-from-one BOOL D=False
+
+		COLORREF		RenderBaseColor;			// render-base-color STRING "r,g,b" D=BLACK
+		COLORREF		RenderBackgroundColor;		// render-background-color STRING "r,g,b" D=TRANSPARENT
+
+		unsigned short	RenderLabelMode;			// render-label-mode STRING "terminal-hetero"(D), "hetero", "none"
+		unsigned short	RenderStereoStyle;			// render-stereo-style STRING "old"(D), "ext", "none"
+
+public:
+	OPTIONS() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(false), RenderImplicitH(true),
+				RenderShowAtomID(true), RenderShowBondID(false), RenderAtomBondIDFromOne(true), 
+				RenderBaseColor(RGB(255, 0, 0)), RenderBackgroundColor(RGB(255, 255, 255)), RenderLabelMode(0),
+				RenderStereoStyle(1), RenderRelativeThickness(1.0)
+	{
+		//TODO: Init
+	}
+
+	//TODO: ReadOptions and SaveOptions
+};
+typedef OPTIONS* LPOPTIONS;
+
 struct Buffer
 {
 	void*			pData;
@@ -13,8 +47,8 @@ public:
 
 typedef Buffer BUFFER, *LPBUFFER;
 
-typedef bool (__cdecl *DrawFuncType)(HDC hDC, LPRECT lpRect, LPBUFFER buffer, int* options);
-typedef int	 (__cdecl *GetPropertiesFuncType)(LPBUFFER buffer, TCHAR*** properties, int* options);
+typedef bool (__cdecl *DrawFuncType)(HDC hDC, LPRECT lpRect, LPBUFFER buffer, LPOPTIONS options);
+typedef int	 (__cdecl *GetPropertiesFuncType)(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options);
 
 //typedef std::basic_string<TCHAR> tstring;
 //typedef std::basic_ofstream<TCHAR> tofstream;

@@ -83,8 +83,8 @@ void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 {
 	if(pDrawFunc != NULL)
 	{
-		int options[32];
-		pDrawFunc(hDrawDC, lprcBounds, &m_Buffer, options);
+		OPTIONS options;
+		pDrawFunc(hDrawDC, lprcBounds, &m_Buffer, &options);
 	}
 }
 

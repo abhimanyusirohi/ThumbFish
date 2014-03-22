@@ -10,7 +10,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 
 	//if(m_pDocument == NULL) return;
 
-	int options[32];
+	OPTIONS options;
 	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
 
 	if((pDrawFunc != NULL) && (pDoc != NULL) && (pDoc->m_Buffer.DataLength > 0))
@@ -27,7 +27,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 			::GetClientRect(hPict, &rect);
 
 			// draw thumbnail in client area and get molecule properties
-			if(!pDrawFunc(::GetDC(hPict), &rect, &pDoc->m_Buffer, options))
+			if(!pDrawFunc(::GetDC(hPict), &rect, &pDoc->m_Buffer, &options))
 				pantheios::log_WARNING(_T("CPreviewCtrl::DoPaint> Draw returned FALSE. TODO: Draw something here."));
 
 			// get handle of property ListView
@@ -37,7 +37,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 			if(ListView_GetItemCount(hWndList) == 0)
 			{
 				TCHAR** props = NULL;
-				int propCount = pGetPropsFunc(&pDoc->m_Buffer, &props, options);
+				int propCount = pGetPropsFunc(&pDoc->m_Buffer, &props, &options);
 
 				if((props != NULL) && (propCount > 0))
 				{

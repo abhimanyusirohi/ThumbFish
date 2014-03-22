@@ -8,14 +8,12 @@
 #include "api\plugins\inchi\indigo-inchi.h"
 #include "plugins\renderer\indigo-renderer.h"
 
-INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, int* options)
+INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options)
 {
 	int mol = LoadMolecule(buffer);
 	if(mol != -1)
 	{
-		indigoSetOptionBool("render-coloring", 1);
-		indigoSetOptionBool("render-highlight-thickness-enabled", 1);
-		indigoSetOptionXY("render-margins", 20, 20);
+		SetIndigoOptions(options);
 		indigoSetOptionXY("render-image-size", rect.right - rect.left, rect.bottom - rect.top);
 
 		::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
@@ -30,7 +28,7 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, int* options)
 	return false;
 }
 
-INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, int* options)
+INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options)
 {
 	int propCount = 0;
 
@@ -162,9 +160,29 @@ int LoadMolecule(LPBUFFER buffer)
 	return -1;
 }
 
-// This is the constructor of a class that has been exported.
-// see IndigoProvider.h for the class definition
-//CIndigoProvider::CIndigoProvider()
-//{
-//	return;
-//}
+void SetIndigoOptions(LPOPTIONS options)
+{
+	if(options == NULL || !options->Changed) return;
+
+	indigoSetOptionBool("render-coloring", options->RenderColoring ? 1 : 0);
+	indigoSetOptionXY("render-margins", options->RenderMarginX, options->RenderMarginY);
+	indigoSetOptionFloat("render-relative-thickness", options->RenderRelativeThickness);
+
+	indigoSetOptionBool("render-implicit-hydrogens-visible", options->RenderImplicitH ? 1 : 0);
+	indigoSetOptionBool("render-atom-ids-visible", options->RenderShowAtomID ? 1 : 0);
+	indigoSetOptionBool("render-bond-ids-visible", options->RenderShowBondID ? 1 : 0);
+	indigoSetOptionBool("render-atom-bond-ids-from-one", options->RenderAtomBondIDFromOne ? 1 : 0);
+		
+	indigoSetOptionColor("render-base-color", GetRValue(options->RenderBaseColor), 
+		GetGValue(options->RenderBaseColor), GetBValue(options->RenderBaseColor));
+
+	// Enabling this causes a IsWindow assertion failure and redraw problems
+	//indigoSetOptionColor("render-background-color", GetRValue(options->RenderBackgroundColor), 
+	//	GetGValue(options->RenderBackgroundColor), GetBValue(options->RenderBackgroundColor));
+		
+	indigoSetOption("render-label-mode", (options->RenderLabelMode == 0) ? "terminal-hetero" 
+		: ((options->RenderLabelMode == 1) ? "hetero" : "none"));
+	indigoSetOption("render-stereo-style", (options->RenderStereoStyle == 0) ? "old" 
+		: ((options->RenderStereoStyle == 1) ? "ext" : "none"));
+}
+
