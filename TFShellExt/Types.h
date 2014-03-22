@@ -23,8 +23,8 @@ struct OPTIONS
 
 public:
 	OPTIONS() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(false), RenderImplicitH(true),
-				RenderShowAtomID(true), RenderShowBondID(false), RenderAtomBondIDFromOne(true), 
-				RenderBaseColor(RGB(255, 0, 0)), RenderBackgroundColor(RGB(255, 255, 255)), RenderLabelMode(0),
+				RenderShowAtomID(false), RenderShowBondID(false), RenderAtomBondIDFromOne(true), 
+				RenderBaseColor(RGB(0, 0, 0)), RenderBackgroundColor(RGB(255, 255, 255)), RenderLabelMode(0),
 				RenderStereoStyle(1), RenderRelativeThickness(1.0)
 	{
 		//TODO: Init
