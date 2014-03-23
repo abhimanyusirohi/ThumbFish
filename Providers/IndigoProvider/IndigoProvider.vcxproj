@@ -97,7 +97,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\ThirdParty\Indigo\vssolution\build\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;msimg32.lib;png.lib;pixman.lib;cairo.lib;render2d.lib;indigo-renderer-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -119,7 +119,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>..\..\..\ThirdParty\Indigo\vssolution\build\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;msimg32.lib;png.lib;pixman.lib;cairo.lib;render2d.lib;indigo-renderer-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -145,7 +145,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\ThirdParty\Indigo\vssolution\build\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;msimg32.lib;png.lib;pixman.lib;cairo.lib;render2d.lib;indigo-renderer-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -171,7 +171,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>..\..\..\ThirdParty\Indigo\vssolution\build\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;msimg32.lib;png.lib;pixman.lib;cairo.lib;render2d.lib;indigo-renderer-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
