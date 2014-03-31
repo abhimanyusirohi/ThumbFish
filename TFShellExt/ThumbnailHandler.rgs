@@ -12,7 +12,6 @@ HKCR
 			Version = s '1.0'
 		}
 	}
-
 	NoRemove .rxn
 	{
 		NoRemove ShellEx
@@ -45,28 +44,28 @@ HKCR
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {E357FCCD-A995-4576-B01F-234630154E96} = s '{37F80C61-7D4E-4BF0-877D-535C9C9CCE83}'
 		}
 	}
 	NoRemove .smi
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {E357FCCD-A995-4576-B01F-234630154E96} = s '{37F80C61-7D4E-4BF0-877D-535C9C9CCE83}'
 		}
 	}
 	NoRemove .smiles
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {E357FCCD-A995-4576-B01F-234630154E96} = s '{37F80C61-7D4E-4BF0-877D-535C9C9CCE83}'
 		}
 	}
 	NoRemove .smarts
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {E357FCCD-A995-4576-B01F-234630154E96} = s '{37F80C61-7D4E-4BF0-877D-535C9C9CCE83}'
 		}
 	}
 }

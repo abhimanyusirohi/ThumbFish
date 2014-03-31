@@ -4,6 +4,10 @@
 #include <propkey.h>
 #include "ThumbFishDocument.h"
 
+const int MAX_CACHE_RECORDS = 4;
+// assuming a normal record would be a maximum of 10KB
+#define MAX_READ	(10 * 1024) * MAX_CACHE_RECORDS
+
 HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 {
 	STATSTG stat;
@@ -23,9 +27,23 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 	m_Buffer.DataLength = MAKELONG(stat.cbSize.LowPart, stat.cbSize.HighPart);
 	_tcscpy_s(m_Buffer.FileName, MAX_PATH, OLE2W(stat.pwcsName));
 
+	// set extension enum
+	TCHAR* ext = ::PathFindExtension(m_Buffer.FileName);
+	
+	if(TEQUAL(ext, ".mol")) m_Buffer.FileExtension = extMOL;
+	else if(TEQUAL(ext, ".mol")) m_Buffer.FileExtension = extMOL;
+	else if(TEQUAL(ext, ".rxn")) m_Buffer.FileExtension = extRXN;
+	else if(TEQUAL(ext, ".smi")) m_Buffer.FileExtension = extSMI;
+	else if(TEQUAL(ext, ".smiles")) m_Buffer.FileExtension = extSMILES;
+	else if(TEQUAL(ext, ".smarts")) m_Buffer.FileExtension = extSMARTS;
+	else if(TEQUAL(ext, ".sdf")) m_Buffer.FileExtension = extSDF;
+	else if(TEQUAL(ext, ".rdf")) m_Buffer.FileExtension = extRDF;
+	else if(TEQUAL(ext, ".cml")) m_Buffer.FileExtension = extCML;
+	else m_Buffer.FileExtension = extUnknown;
+
 	// load stream into BUFFER if preload is set
 	if(m_preLoad)
-		if(!Load(pStream, m_Buffer.DataLength))
+		if(!LoadStream())
 			pantheios::log_ERROR(_T("ThumbFishDocument::LoadFromStream> Could not preload data."),
 					m_Buffer.FileName, _T(", DataLength"), pantheios::integer(m_Buffer.DataLength));
 	return S_OK;
@@ -88,19 +106,66 @@ void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 	}
 }
 
-BOOL ThumbFishDocument::Load(IStream* stream, ULONG size)
+BOOL ThumbFishDocument::LoadStream()
 {
-	// to avoid loading very large files
-	if(size > MAX_READ) size = MAX_READ;
+	char recordDelimiter[20];
+	memset(recordDelimiter, 0, 20);
+	
+	IStream* stream = (IStream*)m_Buffer.pData;
 
-	// read IStream data into a char buffer
-	m_Buffer.pData = NULL;	// we have buffered data
-	m_Buffer.pData = new char[size];
+	m_Buffer.pData = NULL;	// set we have buffered data
 	m_Buffer.isStream = false;
-	if(stream->Read(m_Buffer.pData, size, &m_Buffer.DataLength) == S_OK)
-		return TRUE;
+
+	if(m_Buffer.FileExtension == extSDF)
+	{
+		strcpy_s(recordDelimiter, 20, "$$$$");
+	}
+	else if(m_Buffer.FileExtension == extRDF)
+	{
+		strcpy_s(recordDelimiter, 20, "$RFMT");
+	}
+	else if(m_Buffer.FileExtension == extCML)
+	{
+		strcpy_s(recordDelimiter, 20, "</molecule>");
+	}
 	else
-		return FALSE;
+	{
+		// for single molecule files such as MOL, read the whole data
+		m_Buffer.pData = new char[m_Buffer.DataLength];
+		return (stream->Read(m_Buffer.pData, m_Buffer.DataLength, &m_Buffer.DataLength) == S_OK);
+	}
+
+	/* the following code runs for multimol files */
+
+	char readBuffer;
+	ULONG readCount = 0;
+	char largeTempBuffer[MAX_READ];
+	int delimiterLen = strlen(recordDelimiter);
+	int matchIndex = 0, totalRead = 0, recordCount = 0;
+
+	// read stream char by char, identify the record delimiters and cache 
+	// MAX_CACHE_RECORDS number of records
+	while(stream->Read(&readBuffer, 1, &readCount) == S_OK)
+	{
+		largeTempBuffer[totalRead++] = readBuffer;
+		if(totalRead >= MAX_READ) break;	// very big records, normally not possible but just in case
+
+		// identify record delimiter in text
+		if(readBuffer == recordDelimiter[matchIndex++])
+		{
+			if(matchIndex == delimiterLen) recordCount++;	// whole string matches
+			if(recordCount == MAX_CACHE_RECORDS) break;		// desired number of records read
+		}
+		else
+		{
+			matchIndex = 0;
+		}
+	}
+
+	m_Buffer.pData = new char[totalRead];
+	m_Buffer.DataLength = totalRead;
+	memcpy(m_Buffer.pData, largeTempBuffer, totalRead);
+	return TRUE;
 }
 
 /// <summary>

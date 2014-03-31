@@ -29,11 +29,13 @@
 //	// TODO: add your methods here.
 //};
 
+const enum ReturnObjectType { SingleMol, MultiMol };
+
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options);
 INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options);
 
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value);
 std::string GetData(LPBUFFER buffer);
-int LoadMolecule(LPBUFFER buffer);
+int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type);
 void SetIndigoOptions(LPOPTIONS options);
 INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps);

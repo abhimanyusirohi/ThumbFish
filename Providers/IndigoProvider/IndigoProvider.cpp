@@ -17,19 +17,58 @@ const enum PropFlags {
 
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options)
 {
-	int mol = LoadMolecule(buffer);
-	if(mol != -1)
+	ReturnObjectType retType = SingleMol;
+	int ptr = ReadBuffer(buffer, &retType);
+	if(ptr != -1)
 	{
 		SetIndigoOptions(options);
 		indigoSetOptionXY("render-image-size", rect.right - rect.left, rect.bottom - rect.top);
 
+		// required because the render-backgroundcolor options fails
 		::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
 
 		int dc = indigoRenderWriteHDC((void*)hDC, 0);
-		indigoRender(mol, dc);
 
-		indigoFree(mol);
+		if(retType == SingleMol)
+		{
+			indigoRender(ptr, dc);
+		}
+		else
+		{
+			int mol = 0, index = 0;
+			int collection = indigoCreateArray();
+
+			while(mol = indigoNext(ptr))
+			{
+				index++;
+
+				indigoArrayAdd(collection, mol);
+				indigoFree(mol);
+
+				// limit number of mol/reactions displayed depending on the file type
+				if((buffer->FileExtension == extRDF) && (index >= options->GridMaxReactions)) break;
+				if(((buffer->FileExtension == extSDF) || (buffer->FileExtension == extCML)) 
+					&& (index >= options->GridMaxMols)) break;
+			}
+
+			indigoSetOptionInt("render-grid-title-font-size", 14);
+			indigoSetOption("render-grid-title-property", "NAME");	// will display the 'name' property for mol, if it exists
+
+			indigoSetOptionXY("render-grid-margins", 5, 5);
+			//indigoSetOptionXY("render-image-size", rect.right - rect.left + 10, rect.bottom - rect.top + 10);
+
+			int nCols = (buffer->FileExtension == extRDF) ? 1 : 2;
+			indigoRenderGrid(collection, NULL, nCols, dc);
+
+			indigoFree(collection);
+		}
+
+		indigoFree(ptr);
 		return true;
+	}
+	else
+	{
+		//TODO: Cannot read file. Draw error bitmap
 	}
 
 	return false;
@@ -39,7 +78,8 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 {
 	int propCount = 0;
 
-	int mol = LoadMolecule(buffer);
+	ReturnObjectType retType = SingleMol;
+	int mol = ReadBuffer(buffer, &retType);
 	if(mol != -1)
 	{
 		// get properties to display for this file type
@@ -190,23 +230,29 @@ std::string GetData(LPBUFFER buffer)
 	return cdxBytes;
 }
 
-int LoadMolecule(LPBUFFER buffer)
+int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type)
 {
 	if((buffer == NULL) || (buffer->DataLength <= 0)) return -1;
 
 	std::string cdxBytes = GetData(buffer);
 	if(cdxBytes.size() > 0)
 	{
-		LPTSTR ext = ::PathFindExtension(buffer->FileName);
-
-		//TODO: Add CML
-		if(StrCmpI(ext, _T(".smarts")) == 0)
-			return indigoLoadSmartsFromString(cdxBytes.c_str());
-		else if((StrCmpI(ext, _T(".mol")) == 0) || (StrCmpI(ext, _T(".sdf")) == 0)
-			|| (StrCmpI(ext, _T(".smi")) == 0) || (StrCmpI(ext, _T(".smiles")) == 0))
+		if((buffer->FileExtension == extMOL) || (buffer->FileExtension == extSMI)
+			|| (buffer->FileExtension == extSMILES))
 			return indigoLoadMoleculeFromString(cdxBytes.c_str());
-		else if((StrCmpI(ext, _T(".rxn")) == 0) || (StrCmpI(ext, _T(".rdf")) == 0))
+		else if(buffer->FileExtension == extRXN)
 			return indigoLoadReactionFromString(cdxBytes.c_str());
+		else if(buffer->FileExtension == extSMARTS)
+			return indigoLoadSmartsFromString(cdxBytes.c_str());
+		else if((buffer->FileExtension == extSDF) || (buffer->FileExtension == extRDF) || (buffer->FileExtension == extCML))
+		{
+			*type = MultiMol;
+			int reader = indigoLoadString(cdxBytes.c_str());
+
+			if(buffer->FileExtension == extSDF) return indigoIterateSDF(reader);
+			if(buffer->FileExtension == extRDF) return indigoIterateRDF(reader);
+			if(buffer->FileExtension == extCML) return indigoIterateCML(reader);
+		}
 		else
 			return -1;
 	}

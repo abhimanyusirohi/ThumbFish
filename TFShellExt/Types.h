@@ -1,9 +1,15 @@
 #pragma once
 
+#define TEQUAL(a,b) (_tcsicmp(a, _T(b)) == 0)
+
+// supported file extension. Converted to enum to speed up extension checks
+const enum Extension { extUnknown, extMOL, extRXN, extSMI, extSMILES, extSMARTS, extSDF, extRDF, extCML };
+
 struct OPTIONS
 {
 		bool			Changed;					// specifies whether options have changed
-	
+		bool			IsThumbnail;				// TRUE if the call is made by a thumbnail handler
+
 		unsigned short  RenderMarginX;				// render-margins XY
 		unsigned short	RenderMarginY;				// render-margins XY
 
@@ -21,11 +27,14 @@ struct OPTIONS
 		unsigned short	RenderLabelMode;			// render-label-mode STRING "terminal-hetero"(D), "hetero", "none"
 		unsigned short	RenderStereoStyle;			// render-stereo-style STRING "old"(D), "ext", "none"
 
+		unsigned short	GridMaxMols;				// Maximum number of molecules to display in a Grid (both Preview and Thumbnail)
+		unsigned short	GridMaxReactions;			// Maximum number of reactions to display in a Grid (both Preview and Thumbnail)
+
 public:
 	OPTIONS() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(false), RenderImplicitH(true),
 				RenderShowAtomID(false), RenderShowBondID(false), RenderAtomBondIDFromOne(true), 
 				RenderBaseColor(RGB(0, 0, 0)), RenderBackgroundColor(RGB(255, 255, 255)), RenderLabelMode(0),
-				RenderStereoStyle(1), RenderRelativeThickness(1.0)
+				RenderStereoStyle(1), RenderRelativeThickness(1.0), IsThumbnail(false), GridMaxMols(4), GridMaxReactions(2)
 	{
 		//TODO: Init
 	}
@@ -40,6 +49,7 @@ struct Buffer
 	bool			isStream;
 	ULONG			DataLength;
 	TCHAR			FileName[MAX_PATH];
+	Extension		FileExtension;
 
 public:
 	Buffer() : pData(NULL), isStream(false), DataLength(0) {}

@@ -7,8 +7,6 @@
 
 using namespace ATL;
 
-#define MAX_READ	20*1024	// max 20KB read
-
 class ThumbFishDocument : public CAtlDocumentImpl
 {
 public:
@@ -48,7 +46,7 @@ public:
 	virtual HRESULT LoadFromStream(IStream* pStream, DWORD grfMode);
 	virtual void InitializeSearchContent();
 
-	BOOL Load(IStream* stream, ULONG size);
+	BOOL LoadStream();
 
 protected:
 	void SetSearchContent(CString& value);
