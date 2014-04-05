@@ -20,3 +20,6 @@
 #include "..\..\TFShellExt\Types.h"
 #include <ObjIdl.h>
 #include <Shlwapi.h>
+#include "resource.h"
+
+extern HINSTANCE hInstance;

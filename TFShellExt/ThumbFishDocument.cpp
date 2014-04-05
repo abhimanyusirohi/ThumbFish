@@ -4,9 +4,13 @@
 #include <propkey.h>
 #include "ThumbFishDocument.h"
 
-const int MAX_CACHE_RECORDS = 4;
+#define MAX_CACHE_RECORD_COUNT	4
+
 // assuming a normal record would be a maximum of 10KB
-#define MAX_READ	(10 * 1024) * MAX_CACHE_RECORDS
+#define MAX_CACHE_SIZE	(10 * 1024) * MAX_CACHE_RECORD_COUNT
+
+// maximum size of mol supported is 100KB
+#define MAX_MOL_SIZE	100 * 1024
 
 HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 {
@@ -22,8 +26,6 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 #endif
 
 	// initialize BUFFER
-	m_Buffer.pData = pStream;
-	m_Buffer.isStream = true;
 	m_Buffer.DataLength = MAKELONG(stat.cbSize.LowPart, stat.cbSize.HighPart);
 	_tcscpy_s(m_Buffer.FileName, MAX_PATH, OLE2W(stat.pwcsName));
 
@@ -41,11 +43,10 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 	else if(TEQUAL(ext, ".cml")) m_Buffer.FileExtension = extCML;
 	else m_Buffer.FileExtension = extUnknown;
 
-	// load stream into BUFFER if preload is set
-	if(m_preLoad)
-		if(!LoadStream())
-			pantheios::log_ERROR(_T("ThumbFishDocument::LoadFromStream> Could not preload data."),
-					m_Buffer.FileName, _T(", DataLength"), pantheios::integer(m_Buffer.DataLength));
+	// load stream into BUFFER always
+	if(!LoadStream(pStream))
+		pantheios::log_ERROR(_T("ThumbFishDocument::LoadFromStream> Could not load data."),
+			m_Buffer.FileName, _T(", DataLength"), pantheios::integer(m_Buffer.DataLength));
 	return S_OK;
 }
 
@@ -102,19 +103,17 @@ void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 	if(pDrawFunc != NULL)
 	{
 		OPTIONS options;
+		options.IsThumbnail = true;
 		pDrawFunc(hDrawDC, lprcBounds, &m_Buffer, &options);
 	}
 }
 
-BOOL ThumbFishDocument::LoadStream()
+BOOL ThumbFishDocument::LoadStream(IStream* stream)
 {
 	char recordDelimiter[20];
 	memset(recordDelimiter, 0, 20);
 	
-	IStream* stream = (IStream*)m_Buffer.pData;
-
-	m_Buffer.pData = NULL;	// set we have buffered data
-	m_Buffer.isStream = false;
+	m_Buffer.pData = NULL;
 
 	if(m_Buffer.FileExtension == extSDF)
 	{
@@ -131,16 +130,27 @@ BOOL ThumbFishDocument::LoadStream()
 	else
 	{
 		// for single molecule files such as MOL, read the whole data
-		m_Buffer.pData = new char[m_Buffer.DataLength];
-		return (stream->Read(m_Buffer.pData, m_Buffer.DataLength, &m_Buffer.DataLength) == S_OK);
+		if(m_Buffer.DataLength < MAX_MOL_SIZE)
+		{
+			m_Buffer.pData = new char[m_Buffer.DataLength];
+			return (stream->Read(m_Buffer.pData, m_Buffer.DataLength, (ULONG*)&m_Buffer.DataLength) == S_OK);
+		}
+		else
+		{
+			m_Buffer.DataLength = -1;	// file too large
+			return false;
+		}
 	}
 
-	/* the following code runs for multimol files */
+	/*	
+		the following code runs for multimol files only and caches a number of records 
+		because we cannot cache all the records.
+	*/
 
 	char readBuffer;
 	ULONG readCount = 0;
-	char largeTempBuffer[MAX_READ];
-	int delimiterLen = strlen(recordDelimiter);
+	char largeTempBuffer[MAX_CACHE_SIZE];
+	size_t delimiterLen = strlen(recordDelimiter);
 	int matchIndex = 0, totalRead = 0, recordCount = 0;
 
 	// read stream char by char, identify the record delimiters and cache 
@@ -148,13 +158,13 @@ BOOL ThumbFishDocument::LoadStream()
 	while(stream->Read(&readBuffer, 1, &readCount) == S_OK)
 	{
 		largeTempBuffer[totalRead++] = readBuffer;
-		if(totalRead >= MAX_READ) break;	// very big records, normally not possible but just in case
+		if(totalRead >= MAX_CACHE_SIZE) break;	// very big records, normally not possible but just in case
 
 		// identify record delimiter in text
 		if(readBuffer == recordDelimiter[matchIndex++])
 		{
-			if(matchIndex == delimiterLen) recordCount++;	// whole string matches
-			if(recordCount == MAX_CACHE_RECORDS) break;		// desired number of records read
+			if(matchIndex == delimiterLen) recordCount++;		// whole string matches
+			if(recordCount == MAX_CACHE_RECORD_COUNT) break;	// desired number of records read
 		}
 		else
 		{

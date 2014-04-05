@@ -18,58 +18,62 @@ const enum PropFlags {
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options)
 {
 	ReturnObjectType retType = SingleMol;
-	int ptr = ReadBuffer(buffer, &retType);
-	if(ptr != -1)
+
+	if(buffer->DataLength > 0)
 	{
-		SetIndigoOptions(options);
-		indigoSetOptionXY("render-image-size", rect.right - rect.left, rect.bottom - rect.top);
-
-		// required because the render-backgroundcolor options fails
-		::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
-
-		int dc = indigoRenderWriteHDC((void*)hDC, 0);
-
-		if(retType == SingleMol)
+		int ptr = ReadBuffer(buffer, &retType);
+		if(ptr != -1)
 		{
-			indigoRender(ptr, dc);
-		}
-		else
-		{
-			int mol = 0, index = 0;
-			int collection = indigoCreateArray();
+			SetIndigoOptions(options);
+			indigoSetOptionXY("render-image-size", rect.right - rect.left, rect.bottom - rect.top);
 
-			while(mol = indigoNext(ptr))
+			// required because the render-backgroundcolor options fails
+			::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
+
+			int dc = indigoRenderWriteHDC((void*)hDC, 0);
+
+			if(retType == SingleMol)
 			{
-				index++;
+				indigoRender(ptr, dc);
+			}
+			else
+			{
+				int mol = 0, index = 0;
+				int collection = indigoCreateArray();
 
-				indigoArrayAdd(collection, mol);
-				indigoFree(mol);
+				while(mol = indigoNext(ptr))
+				{
+					index++;
 
-				// limit number of mol/reactions displayed depending on the file type
-				if((buffer->FileExtension == extRDF) && (index >= options->GridMaxReactions)) break;
-				if(((buffer->FileExtension == extSDF) || (buffer->FileExtension == extCML)) 
-					&& (index >= options->GridMaxMols)) break;
+					indigoArrayAdd(collection, mol);
+					indigoFree(mol);
+
+					// limit number of mol/reactions displayed depending on the file type
+					if((buffer->FileExtension == extRDF) && (index >= options->GridMaxReactions)) break;
+					if(((buffer->FileExtension == extSDF) || (buffer->FileExtension == extCML)) 
+						&& (index >= options->GridMaxMols)) break;
+				}
+
+				indigoSetOptionInt("render-grid-title-font-size", 14);
+				indigoSetOption("render-grid-title-property", "NAME");	// will display the 'name' property for mol, if it exists
+
+				indigoSetOptionXY("render-grid-margins", 5, 5);
+				//indigoSetOptionXY("render-image-size", rect.right - rect.left + 10, rect.bottom - rect.top + 10);
+
+				int nCols = (buffer->FileExtension == extRDF) ? 1 : 2;
+				indigoRenderGrid(collection, NULL, nCols, dc);
+
+				indigoFree(collection);
 			}
 
-			indigoSetOptionInt("render-grid-title-font-size", 14);
-			indigoSetOption("render-grid-title-property", "NAME");	// will display the 'name' property for mol, if it exists
-
-			indigoSetOptionXY("render-grid-margins", 5, 5);
-			//indigoSetOptionXY("render-image-size", rect.right - rect.left + 10, rect.bottom - rect.top + 10);
-
-			int nCols = (buffer->FileExtension == extRDF) ? 1 : 2;
-			indigoRenderGrid(collection, NULL, nCols, dc);
-
-			indigoFree(collection);
+			indigoFree(ptr);
+			return true;
 		}
+	}
 
-		indigoFree(ptr);
-		return true;
-	}
-	else
-	{
-		//TODO: Cannot read file. Draw error bitmap
-	}
+	// zero length, too large or invalid file format
+	//TODO: Draw error bitmap
+	DrawErrorBitmap(hDC, &rect);
 
 	return false;
 }
@@ -208,54 +212,30 @@ void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value)
 	_tcscpy_s((*properties)[startIndex + 1], len, value);
 }
 
-std::string GetData(LPBUFFER buffer)
-{
-	std::string cdxBytes;
-	if(buffer->isStream)
-	{
-		IStream* stream = (IStream*)buffer->pData;
-
-		// read IStream data into a char buffer
-		ULONG read = 0;
-		std::auto_ptr<char> temp(new char[buffer->DataLength]);
-		if(stream->Read(temp.get(), buffer->DataLength, &read) == S_OK)
-		{
-			cdxBytes.assign(temp.get(), read);
-		}
-	}
-	else
-	{
-		cdxBytes.assign((char*)buffer->pData, buffer->DataLength);
-	}
-	return cdxBytes;
-}
-
 int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type)
 {
 	if((buffer == NULL) || (buffer->DataLength <= 0)) return -1;
 
-	std::string cdxBytes = GetData(buffer);
-	if(cdxBytes.size() > 0)
+	try
 	{
 		if((buffer->FileExtension == extMOL) || (buffer->FileExtension == extSMI)
 			|| (buffer->FileExtension == extSMILES))
-			return indigoLoadMoleculeFromString(cdxBytes.c_str());
+			return indigoLoadMoleculeFromBuffer(buffer->pData, buffer->DataLength);
 		else if(buffer->FileExtension == extRXN)
-			return indigoLoadReactionFromString(cdxBytes.c_str());
+			return indigoLoadReactionFromBuffer(buffer->pData, buffer->DataLength);
 		else if(buffer->FileExtension == extSMARTS)
-			return indigoLoadSmartsFromString(cdxBytes.c_str());
+			return indigoLoadSmartsFromBuffer(buffer->pData, buffer->DataLength);
 		else if((buffer->FileExtension == extSDF) || (buffer->FileExtension == extRDF) || (buffer->FileExtension == extCML))
 		{
 			*type = MultiMol;
-			int reader = indigoLoadString(cdxBytes.c_str());
+			int reader = indigoLoadBuffer(buffer->pData, buffer->DataLength);
 
 			if(buffer->FileExtension == extSDF) return indigoIterateSDF(reader);
 			if(buffer->FileExtension == extRDF) return indigoIterateRDF(reader);
 			if(buffer->FileExtension == extCML) return indigoIterateCML(reader);
 		}
-		else
-			return -1;
 	}
+	catch(...) { return -1; }
 
 	return -1;
 }
@@ -315,4 +295,33 @@ INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps)
 		return 0;
 	else
 		return 0;	// do not display any property
+}
+
+void DrawErrorBitmap(HDC hDC, LPRECT lpRect)
+{
+	if(hInstance == NULL) return;
+
+	// load bitmap from resource
+	HBITMAP hBitmap = LoadBitmap(hInstance, MAKEINTRESOURCE(IDB_FISH));
+	if(hBitmap != NULL)
+	{
+		BITMAP bm = {0};
+		GetObject(hBitmap, sizeof(bm), &bm);
+		LONG bmcx = bm.bmWidth;
+		LONG bmcy = bm.bmHeight;
+
+		HDC hdcMem = CreateCompatibleDC(hDC);
+		HGDIOBJ oldBitmap = SelectObject(hdcMem, hBitmap);
+
+		::FillRect(hDC, lpRect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
+
+		// center the error bitmap in area
+		BitBlt(hDC, lpRect->left + ((lpRect->right - lpRect->left) - bmcx)/2, 
+			lpRect->top + ((lpRect->bottom - lpRect->top) - bmcy)/2, lpRect->right,
+			lpRect->bottom, hdcMem, 0, 0, SRCCOPY);
+
+		SelectObject(hdcMem, oldBitmap);
+		DeleteDC(hdcMem);
+		DeleteObject(hBitmap);
+	}
 }

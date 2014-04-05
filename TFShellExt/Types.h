@@ -45,14 +45,13 @@ typedef OPTIONS* LPOPTIONS;
 
 struct Buffer
 {
-	void*			pData;
-	bool			isStream;
-	ULONG			DataLength;
+	char*			pData;
+	long			DataLength;
 	TCHAR			FileName[MAX_PATH];
 	Extension		FileExtension;
 
 public:
-	Buffer() : pData(NULL), isStream(false), DataLength(0) {}
+	Buffer() : pData(NULL), DataLength(0) {}
 };
 
 typedef Buffer BUFFER, *LPBUFFER;

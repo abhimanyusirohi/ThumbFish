@@ -19,7 +19,6 @@ public:
 	{
 		m_Buffer.pData = NULL;
 		m_Buffer.DataLength = 0;
-		m_Buffer.isStream = false;
 
 		m_hEventLog = NULL;
 	}
@@ -28,7 +27,6 @@ public:
 	{
 		m_Buffer.pData = NULL;
 		m_Buffer.DataLength = 0;
-		m_Buffer.isStream = false;
 
 		m_hEventLog = eventlog;
 	}
@@ -38,15 +36,15 @@ public:
 		if(m_Buffer.DataLength > 0) 
 		{
 			// do not delete IStream pointer
-			if(m_Buffer.pData != NULL && !m_Buffer.isStream) 
-				delete[] ((char*)m_Buffer.pData);
+			if(m_Buffer.pData != NULL) 
+				delete[] m_Buffer.pData;
 		}
 	}
 
 	virtual HRESULT LoadFromStream(IStream* pStream, DWORD grfMode);
 	virtual void InitializeSearchContent();
 
-	BOOL LoadStream();
+	BOOL LoadStream(IStream* stream);
 
 protected:
 	void SetSearchContent(CString& value);
