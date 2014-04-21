@@ -9,6 +9,7 @@ HINSTANCE ThisInstance;
 
 DrawFuncType pDrawFunc;
 GetPropertiesFuncType pGetPropsFunc;
+ConvertToFuncType pConvertFunc;
 
 PANTHEIOS_EXTERN_C const PAN_CHAR_T PANTHEIOS_FE_PROCESS_IDENTITY[] = PANTHEIOS_LITERAL_STRING("ThumbFish");
 

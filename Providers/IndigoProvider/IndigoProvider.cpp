@@ -201,6 +201,52 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 	return propCount;
 }
 
+/* ConvertTo
+** Converts the molecule specified through BUFFER to other formats specified in OPTIONS
+*/
+INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options)
+{
+	ReturnObjectType retType = SingleMol;
+
+	if(buffer->DataLength > 0)
+	{
+		int ptr = ReadBuffer(buffer, &retType);
+		if(ptr != -1)
+		{
+			if(retType == SingleMol)
+			{
+				indigoSetOption("render-output-format", options->RenderOutputExtension);
+				indigoSetOptionXY("render-image-size", options->RenderImageWidth, options->RenderImageHeight);
+				indigoSetOptionColor("render-background-color",  GetRValue(options->RenderBackgroundColor), 
+									GetGValue(options->RenderBackgroundColor), GetBValue(options->RenderBackgroundColor));
+
+				// create a write buffer and render file to that buffer
+				int bufHandle = indigoWriteBuffer();
+				indigoRender(ptr, bufHandle);
+
+				// get raw data from buffer and return it to the caller
+				int outSize = 0;
+				char* tempBuffer;
+				if((indigoToBuffer(bufHandle, &tempBuffer, &outSize) > 0) && (outSize > 0))
+				{
+					char* retBuffer = new char[outSize];
+					memcpy_s(retBuffer, outSize, tempBuffer, outSize);
+					options->OutBufferSize = outSize;
+					return retBuffer;
+				}
+
+				indigoFree(ptr);
+			}
+			else
+			{
+				//TODO: Conversion of multimol files such as SDF etc
+			}
+		}
+	}
+
+	return NULL;
+}
+
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value)
 {
 	size_t len = _tcslen(name) + 1;

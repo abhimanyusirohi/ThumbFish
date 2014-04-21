@@ -10,29 +10,11 @@
 #define INDIGOPROVIDER_API extern "C" __declspec(dllimport)
 #endif
 
-//typedef std::basic_string<TCHAR> tstring;
-//typedef struct
-//{
-//	void*			pData;
-//	bool			isStream;
-//	ULONG			DataLength;
-//	TCHAR			FileName[MAX_PATH];
-//} BUFFER, *LPBUFFER;
-//
-//typedef std::map<std::string, std::string> OPTIONS;
-//typedef OPTIONS* LPOPTIONS;
-
-//// This class is exported from the IndigoProvider.dll
-//class INDIGOPROVIDER_API CIndigoProvider {
-//public:
-//	CIndigoProvider(void);
-//	// TODO: add your methods here.
-//};
-
 const enum ReturnObjectType { SingleMol, MultiMol };
 
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options);
 INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options);
+INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options);
 
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value);
 std::string GetData(LPBUFFER buffer);

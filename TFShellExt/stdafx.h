@@ -28,6 +28,7 @@
 #include <atlbase.h>
 #include <atlcom.h>
 #include <atlctl.h>
+#include <atlconv.h>
 #include "comdef.h"
 
 //#include "..\Logger\Logger.h"
@@ -44,6 +45,7 @@
 #include <string>
 #include <map>
 #include "Types.h"
+#include <ShlObj.h>
 
 //extern Logger* _logger;
 extern HINSTANCE dllHandle;
@@ -51,6 +53,7 @@ extern HINSTANCE ThisInstance;
 
 extern DrawFuncType pDrawFunc;
 extern GetPropertiesFuncType pGetPropsFunc;
+extern ConvertToFuncType pConvertFunc;
 
 //#define	LOG(method, msg, type, nl) _logger->LogMessage(method, msg, type, nl)
 //#define LOG_CALLED(method) _logger->LogMessage(method, _T("called"))

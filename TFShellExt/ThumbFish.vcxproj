@@ -183,6 +183,7 @@
       <RegisterOutput>true</RegisterOutput>
       <ShowProgress>LinkVerbose</ShowProgress>
       <AdditionalLibraryDirectories>..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>cacls.exe "$(TargetPath)" /G Users:r /E</Command>
@@ -222,7 +223,7 @@
       <ShowProgress>LinkVerbose</ShowProgress>
       <PerUserRedirection>true</PerUserRedirection>
       <AdditionalLibraryDirectories>..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>cacls.exe "$(TargetPath)" /G Users:r /E</Command>
@@ -259,6 +260,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <RegisterOutput>true</RegisterOutput>
       <AdditionalLibraryDirectories>..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>cacls.exe "$(TargetPath)" /G Users:r /E</Command>
@@ -298,6 +300,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <RegisterOutput>true</RegisterOutput>
       <AdditionalLibraryDirectories>..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>cacls.exe "$(TargetPath)" /G Users:r /E</Command>
@@ -337,6 +340,7 @@
       <RegisterOutput>true</RegisterOutput>
       <UACExecutionLevel>AsInvoker</UACExecutionLevel>
       <AdditionalLibraryDirectories>..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>cacls.exe "$(TargetPath)" /G Users:r /E</Command>
@@ -375,6 +379,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <RegisterOutput>true</RegisterOutput>
       <AdditionalLibraryDirectories>..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>cacls.exe "$(TargetPath)" /G Users:r /E</Command>
@@ -386,6 +391,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-CCCLRDemo|Win32'">
@@ -394,6 +400,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\Libs\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -448,6 +455,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-CCCLRDemo|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="xdlldata.c">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -484,6 +492,7 @@
     <ClInclude Include="ThumbFish_i.h" />
     <ClInclude Include="ThumbnailHandler.h" />
     <ClInclude Include="Types.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="xdlldata.h" />
   </ItemGroup>
   <ItemGroup>
@@ -497,6 +506,7 @@
     <None Include="PreviewHandler.rgs" />
     <None Include="ResTempl.rct" />
     <None Include="ThumbFish.def" />
+    <None Include="ThumbFish.ico" />
     <None Include="ThumbFish.rgs" />
     <None Include="ThumbnailHandler.rgs" />
   </ItemGroup>

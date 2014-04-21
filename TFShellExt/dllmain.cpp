@@ -29,6 +29,7 @@ void InitInstance()
 		// Get pointer to our functions using GetProcAddress:
 		pDrawFunc = (DrawFuncType)GetProcAddress(dllHandle, "Draw");
 		pGetPropsFunc = (GetPropertiesFuncType)GetProcAddress(dllHandle, "GetProperties");
+		pConvertFunc = (ConvertToFuncType)GetProcAddress(dllHandle, "ConvertTo");
 
 		if(pDrawFunc == NULL)
 			pantheios::log_WARNING(_T("InitInstance: GetProcAddress FAILED for Draw. GetLastError=")
@@ -36,6 +37,10 @@ void InitInstance()
 
 		if(pGetPropsFunc == NULL)
 			pantheios::log_WARNING(_T("InitInstance: GetProcAddress FAILED for GetProperties. GetLastError=")
+									, pantheios::integer(GetLastError()));
+
+		if(pConvertFunc == NULL)
+			pantheios::log_WARNING(_T("InitInstance: GetProcAddress FAILED for Convert. GetLastError=")
 									, pantheios::integer(GetLastError()));
 	}
 	else

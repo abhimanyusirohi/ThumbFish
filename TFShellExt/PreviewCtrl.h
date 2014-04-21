@@ -7,6 +7,7 @@
 #include <atlhandlerimpl.h>
 #include "ThumbFishDocument.h"
 #include "atldlgpreviewctrlimpl.h"
+#include "Utils.h"
 
 class CPreviewCtrl : public CAtlDlgPreviewCtrlImpl
 {
@@ -36,9 +37,15 @@ public:
 
 		// chains the above msg map with base class
 		CHAIN_MSG_MAP(CAtlDlgPreviewCtrlImpl)
+		COMMAND_ID_HANDLER(ID_OPTIONS_SAVESTRUCTURE, OnOptionsSaveStructure)
+		COMMAND_ID_HANDLER(ID_COPYSTRUCTUREAS_PNG, OnOptionsCopyStructureAs)
+
+		//TODO: Add ON_UPDATE_COMMAND_UI for each menu here
 	END_MSG_MAP()
 
 	LRESULT OnOptionsCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnOptionsCopyAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnOptionsAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnOptionsSaveStructure(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+	LRESULT OnOptionsCopyStructureAs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 };

@@ -295,3 +295,55 @@ LRESULT CPreviewCtrl::OnOptionsAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 	return 0;
 }
+
+LRESULT CPreviewCtrl::OnOptionsSaveStructure(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	WCHAR filePath[MAX_PATH];
+
+	//TODO: for some reason, setting owner to our preview control handle suppresses the dialog
+	// passing NULL as owner handle has the side effect of showing the Save dialog in taskbar
+	if(Utils::DoFileSaveDialog(NULL, filePath) == S_OK)
+	{
+		OPTIONS options;
+		ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
+
+		LPWSTR ext = ::PathFindExtensionW(filePath);
+		sprintf_s(options.RenderOutputExtension, 6, "%ws", (ext[0] == '.') ? ext + 1 : ext);
+		options.RenderImageWidth = options.RenderImageHeight = 300;
+
+		// convert existing structure into bytes in specified format
+		char* data = pConvertFunc(&pDoc->m_Buffer, &options);
+
+		if(data != NULL)
+		{
+			HANDLE hFile; 
+			DWORD dwBytesToWrite = (DWORD)options.OutBufferSize;
+			DWORD dwBytesWritten = 0;
+			BOOL bErrorFlag = FALSE;
+
+			// create the file and then write data to it
+			hFile = CreateFile(filePath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL,	NULL);
+			if (hFile != INVALID_HANDLE_VALUE)
+			{
+				bErrorFlag = WriteFile(hFile, data, dwBytesToWrite, &dwBytesWritten, NULL);
+				if ((FALSE == bErrorFlag) || (dwBytesWritten != dwBytesToWrite))
+				{
+					::MessageBox(m_hWnd, _T("Unable to write data to the file"), _T("File Write Error"), MB_OK | MB_ICONERROR);
+				}
+			}
+			else
+			{
+				::MessageBox(m_hWnd, _T("Unable to create file"), _T("File Write Error"), MB_OK | MB_ICONERROR);
+			}
+
+			CloseHandle(hFile);
+		}
+	}
+
+	return 0;
+}
+
+LRESULT CPreviewCtrl::OnOptionsCopyStructureAs(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	return S_OK;
+}

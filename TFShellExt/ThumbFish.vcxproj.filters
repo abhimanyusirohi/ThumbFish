@@ -58,6 +58,9 @@
     <ClCompile Include="PreviewCtrl.cpp">
       <Filter>Source Files\Preview</Filter>
     </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -99,6 +102,9 @@
     <ClInclude Include="Types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ThumbFish.rc">
@@ -125,6 +131,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="ResTempl.rct">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ThumbFish.ico">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
