@@ -206,6 +206,7 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 */
 INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options)
 {
+	char* retBuffer = NULL;
 	ReturnObjectType retType = SingleMol;
 
 	if(buffer->DataLength > 0)
@@ -215,24 +216,75 @@ INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options)
 		{
 			if(retType == SingleMol)
 			{
-				indigoSetOption("render-output-format", options->RenderOutputExtension);
-				indigoSetOptionXY("render-image-size", options->RenderImageWidth, options->RenderImageHeight);
-				indigoSetOptionColor("render-background-color",  GetRValue(options->RenderBackgroundColor), 
-									GetGValue(options->RenderBackgroundColor), GetBValue(options->RenderBackgroundColor));
+				// in-memory buffer
+				int bufHandle = NULL;
 
-				// create a write buffer and render file to that buffer
-				int bufHandle = indigoWriteBuffer();
-				indigoRender(ptr, bufHandle);
-
-				// get raw data from buffer and return it to the caller
-				int outSize = 0;
-				char* tempBuffer;
-				if((indigoToBuffer(bufHandle, &tempBuffer, &outSize) > 0) && (outSize > 0))
+				if(strcmpi(options->RenderOutputExtension, "mol") == 0)
 				{
-					char* retBuffer = new char[outSize];
-					memcpy_s(retBuffer, outSize, tempBuffer, outSize);
-					options->OutBufferSize = outSize;
-					return retBuffer;
+					// connection table version
+					indigoSetOption("molfile-saving-mode", (options->MOLSavingMode == 0) ? "auto" 
+						: ((options->MOLSavingMode == 1) ? "2000" : "3000"));
+
+					bufHandle = indigoWriteBuffer();
+					indigoSaveMolfile(ptr, bufHandle);
+				}
+				else if(strcmpi(options->RenderOutputExtension, "smi") == 0)
+				{
+					const char* smiles = indigoSmiles(ptr);
+					if(smiles != NULL)
+					{
+						size_t len = strlen(smiles) + 1;
+						retBuffer = new char[len];
+						strcpy_s(retBuffer, len, smiles);
+						options->OutBufferSize = len;
+					}
+				}
+				else if(strcmpi(options->RenderOutputExtension, "inchi") == 0)
+				{
+					const char* inchi = indigoInchiGetInchi(ptr);
+					if(inchi != NULL)
+					{
+						size_t len = strlen(inchi) + 1;
+						retBuffer = new char[len];
+						strcpy_s(retBuffer, len, inchi);
+						options->OutBufferSize = len;
+					}
+				}
+				else if(strcmpi(options->RenderOutputExtension, "inchik") == 0)
+				{
+					//TODO: Crashing code
+					//const char* inchi = indigoInchiGetInchi(ptr);
+					//const char* inchiKey = indigoInchiGetInchiKey(inchi);
+					//size_t len = strlen(inchiKey) + 1;
+					//retBuffer = new char[len];
+					//strcpy_s(retBuffer, len, inchiKey);
+					//options->OutBufferSize = len;
+				}
+				else
+				{
+					indigoSetOption("render-output-format", options->RenderOutputExtension);
+					indigoSetOptionXY("render-image-size", options->RenderImageWidth, options->RenderImageHeight);
+					//TODO: Paint bg color if required because setting the bg color option freaks out renderer
+					//indigoSetOptionColor("render-background-color",  GetRValue(options->RenderBackgroundColor), 
+					//					GetGValue(options->RenderBackgroundColor), GetBValue(options->RenderBackgroundColor));
+
+					// render file to buffer
+					bufHandle = indigoWriteBuffer();
+					indigoRender(ptr, bufHandle);
+				}
+
+				// smiles, inchi, inchikey is directly copied to the return buffer
+				if(bufHandle != NULL)
+				{
+					// get raw data from buffer and return it to the caller
+					int outSize = 0;
+					char* tempBuffer;
+					if((indigoToBuffer(bufHandle, &tempBuffer, &outSize) > 0) && (outSize > 0))
+					{
+						retBuffer = new char[outSize];
+						memcpy_s(retBuffer, outSize, tempBuffer, outSize);
+						options->OutBufferSize = outSize;
+					}
 				}
 
 				indigoFree(ptr);
@@ -244,7 +296,7 @@ INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options)
 		}
 	}
 
-	return NULL;
+	return retBuffer;
 }
 
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value)
