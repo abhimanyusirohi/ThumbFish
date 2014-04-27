@@ -27,8 +27,10 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 			::GetClientRect(hPict, &rect);
 
 			// draw thumbnail in client area and get molecule properties
-			if(!pDrawFunc(::GetDC(hPict), &rect, &pDoc->m_Buffer, &options))
-				pantheios::log_WARNING(_T("CPreviewCtrl::DoPaint> Draw returned FALSE. TODO: Draw something here."));
+			m_previewDrawn = pDrawFunc(::GetDC(hPict), &rect, &pDoc->m_Buffer, &options);
+
+			if(!m_previewDrawn)
+				pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint> Draw returned FALSE."));
 
 			// get handle of property ListView
 			HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
@@ -38,8 +40,9 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 			{
 				TCHAR** props = NULL;
 				int propCount = pGetPropsFunc(&pDoc->m_Buffer, &props, &options);
+				m_propsGenerated = ((props != NULL) && (propCount > 0));
 
-				if((props != NULL) && (propCount > 0))
+				if(m_propsGenerated)
 				{
 					// insert property values into list view control
 					for(int i = 0; i < propCount; i++)
@@ -56,22 +59,27 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 					// no properties to display, hide listview and show static message
 					::ShowWindow(hWndList, SW_HIDE);
 					::ShowWindow(::GetDlgItem(m_hWnd, IDC_NOPREVIEWTEXT), SW_SHOW);
+
+					pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint> No properties generated."));
 				}
 			}
 		}
 	}
 	else
 	{
-		//pantheios::log_ERROR(_T("CPreviewCtrl::DoPaint> Unable to draw Preview"));/*, 
-		//	_T("pDrawThumbnailFunc="), (pDrawFunc == NULL),
-		//	_T("pDoc="), (pDoc == NULL), 
-		//	_T("BufferLength="), (pDoc == NULL) ? 0 : pDoc->m_Buffer.DataLength);*/
+		//TODO: throws "0 == stlsoft::is_fundamental_type<T2>::value". Check
+		//pantheios::log_ERROR(_T("CPreviewCtrl::DoPaint> Unable to draw Preview"), 
+		//		_T("pDrawThumbnailFunc IsNULL="), (pDrawFunc == NULL),
+		//		_T("pDoc IsNULL="), (pDoc == NULL), 
+		//		_T("BufferLength="), (pDoc == NULL) ? 0 : pDoc->m_Buffer.DataLength);
 	}
 }
 
 LRESULT CPreviewCtrl::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	RECT parentRect;
+
+	m_previewDrawn = m_propsGenerated = false;
 
 	// autosize the control window to match parent
 	::GetClientRect(GetParent().m_hWnd, &parentRect);
@@ -120,22 +128,35 @@ void CPreviewCtrl::SetRect(const RECT* prc, BOOL bRedraw)
 
 LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
+	HWND targetWnd = (HWND) wParam;
+	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
 
-	// get selected item index in list
-	int selected = ListView_GetNextItem(hWndList, -1, LVNI_SELECTED);
-	if(selected != -1)
+	HMENU hPopupMenu = LoadMenu(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDR_PROPLISTMENU));
+	hPopupMenu = GetSubMenu(hPopupMenu, 0);
+
+	//TODO: Check bitmap leaks
+	// set bitmaps for menu items
+	//HBITMAP hbmCopy = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_BITMAPCOPY));
+	//SetMenuItemBitmaps(hPopupMenu, 0, MF_BYPOSITION, hbmCopy, hbmCopy);
+
+	if(pDoc != NULL)
 	{
-		HMENU hPopupMenu = LoadMenu(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDR_PROPLISTMENU));
-		hPopupMenu = GetSubMenu(hPopupMenu, 0);
-			
-		//TODO: Check bitmap leaks
-		// set bitmaps for menu items
-		//HBITMAP hbmCopy = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_BITMAPCOPY));
-		//SetMenuItemBitmaps(hPopupMenu, 0, MF_BYPOSITION, hbmCopy, hbmCopy);
+		::EnableMenuItem(hPopupMenu, ID_OPTIONS_SAVESTRUCTURE, MF_BYCOMMAND | (m_previewDrawn ? MF_ENABLED : MF_DISABLED));
+		::EnableMenuItem(hPopupMenu, ID_OPTIONS_COPYPROPERTIES, MF_BYCOMMAND | (m_propsGenerated ? MF_ENABLED : MF_DISABLED));
 
-		TrackPopupMenu(hPopupMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, m_hWnd, NULL);
+		for(int id = ID_COPYSTRUCTUREAS_CDXML; id <= ID_COPYSTRUCTUREAS_MOLV2000; id++)
+			::EnableMenuItem(hPopupMenu, id, MF_BYCOMMAND | (m_previewDrawn ? MF_ENABLED : MF_DISABLED));
 	}
+
+	TrackPopupMenu(hPopupMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, targetWnd, NULL);
+
+	return 0;
+}
+
+LRESULT CPreviewCtrl::OnInitMenuPopup(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	//HMENU hPopup = (HMENU)wParam;
+	//::EnableMenuItem(hPopup, ID_OPTIONS_SAVESTRUCTURE, MF_BYCOMMAND | MF_DISABLED);
 
 	return 0;
 }
@@ -201,7 +222,7 @@ void CPreviewCtrl::AutoSizeControls(RECT& parentRect)
 		pictRect.bottom + 50, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 }
 
-bool CPreviewCtrl::CopyToClipboard(const TCHAR* text)
+bool CPreviewCtrl::CopyTextToClipboard(const TCHAR* text)
 {
 	size_t size = _tcslen(text);
 	if(size == 0) return false;
@@ -238,25 +259,6 @@ bool CPreviewCtrl::CopyToClipboard(const TCHAR* text)
 	return true;
 }
 
-LRESULT CPreviewCtrl::OnOptionsCopy(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
-{
-	HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
-
-	// get selected item index in list
-	int selected = ListView_GetNextItem(hWndList, -1, LVNI_SELECTED);
-	if(selected != -1)
-	{
-		TCHAR itemText[ONE_KB];
-
-		// get selected item text and copy it
-		ListView_GetItemText(hWndList, selected, 1, itemText, ONE_KB);
-		CopyToClipboard(itemText);
-	}
-
-	bHandled = TRUE;
-	return 0;
-}
-
 LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
@@ -281,7 +283,7 @@ LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 	}
 
 	// copy large text to clipboard
-	CopyToClipboard(largeText);
+	CopyTextToClipboard(largeText);
 
 	bHandled = TRUE;
 	return 0;
@@ -308,7 +310,7 @@ LRESULT CPreviewCtrl::OnOptionsSaveStructure(WORD /*wNotifyCode*/, WORD /*wID*/,
 		ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
 
 		LPWSTR ext = ::PathFindExtensionW(filePath);
-		sprintf_s(options.RenderOutputExtension, 6, "%ws", (ext[0] == '.') ? ext + 1 : ext);
+		sprintf_s(options.RenderOutputExtension, EXTLEN, "%ws", (ext[0] == '.') ? ext + 1 : ext);
 		options.RenderImageWidth = options.RenderImageHeight = 300;
 
 		// convert existing structure into bytes in specified format
@@ -345,5 +347,99 @@ LRESULT CPreviewCtrl::OnOptionsSaveStructure(WORD /*wNotifyCode*/, WORD /*wID*/,
 
 LRESULT CPreviewCtrl::OnOptionsCopyStructureAs(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	return S_OK;
+	OPTIONS options;
+	int cbFormat = CF_TEXT;
+
+	switch (wID)
+	{
+	case ID_COPYSTRUCTUREAS_MOLV2000:
+	case ID_COPYSTRUCTUREAS_MOLV3000:
+		cbFormat = CF_TEXT;
+		options.MOLSavingMode = (wID == ID_COPYSTRUCTUREAS_MOLV2000) ? 1 : 2;
+		strcpy_s(options.RenderOutputExtension, EXTLEN, "mol");
+		break;
+
+	case ID_COPYSTRUCTUREAS_EMF:
+		cbFormat = CF_ENHMETAFILE;
+		strcpy_s(options.RenderOutputExtension, EXTLEN, "emf");
+		break;
+
+	case ID_COPYSTRUCTUREAS_CDXML:
+		cbFormat = CF_TEXT;
+		strcpy_s(options.RenderOutputExtension, EXTLEN, "cdxml");
+		break;
+
+	case ID_COPYSTRUCTUREAS_SMILES:
+		cbFormat = CF_TEXT;
+		strcpy_s(options.RenderOutputExtension, EXTLEN, "smi");
+		break;
+
+	case ID_COPYSTRUCTUREAS_INCHI:
+		cbFormat = CF_TEXT;
+		strcpy_s(options.RenderOutputExtension, EXTLEN, "inchi");
+		break;
+
+	case ID_COPYSTRUCTUREAS_INCHIKEY:
+		cbFormat = CF_TEXT;
+		strcpy_s(options.RenderOutputExtension, EXTLEN, "inchik");
+		break;
+	}
+	
+	
+	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
+
+	// convert existing structure into bytes in specified format
+	// default width and height values are used for now
+	char* data = pConvertFunc(&pDoc->m_Buffer, &options);
+
+	if(data != NULL)
+	{
+		CopyDataToClipboard(data, options.OutBufferSize, cbFormat);
+	}
+
+	return 0;
+}
+
+bool CPreviewCtrl::CopyDataToClipboard(const char* data, int dataLength, int format)
+{
+	HANDLE handle = NULL;
+	if(format == CF_ENHMETAFILE)
+	{
+		handle = SetEnhMetaFileBits(dataLength, (BYTE*)data);
+	}
+	else
+	{
+		// Allocate string
+		handle = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, dataLength);
+		LPVOID dst = GlobalLock(handle);
+		memcpy(dst, data, dataLength);
+		GlobalUnlock(handle);
+	}
+
+	// Set clipboard data
+	if (OpenClipboard())
+	{
+		EmptyClipboard();
+		if (SetClipboardData(format, handle))
+		{
+			CloseClipboard();
+		}
+		else
+		{
+			pantheios::log_ERROR(_T("CPreviewCtrl::CopyToClipboard> SetClipboardData FAILED. GetLastError="),
+						pantheios::integer(GetLastError()));
+			return false;
+		}
+	}
+	else
+	{
+		pantheios::log_ERROR(_T("CPreviewCtrl::CopyToClipboard> OpenClipboard FAILED. GetLastError="),
+					pantheios::integer(GetLastError()));
+		return false;
+	}
+
+	if((format == CF_ENHMETAFILE) && (handle != NULL))
+		DeleteEnhMetaFile((HENHMETAFILE)handle);
+
+	return true;
 }

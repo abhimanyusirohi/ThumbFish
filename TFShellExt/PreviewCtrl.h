@@ -11,11 +11,16 @@
 
 class CPreviewCtrl : public CAtlDlgPreviewCtrlImpl
 {
+private:
+	BOOL	m_previewDrawn;
+	BOOL	m_propsGenerated;
+
 protected:	
 	virtual void DoPaint(HDC hdc);
 	virtual void SetRect(const RECT* prc, BOOL bRedraw);
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnInitMenuPopup(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
 	void InsertLVItem(HWND hWndList, int index, TCHAR* item, int subitem);
@@ -23,27 +28,27 @@ private:
 	void InsertLVItem(HWND hWndList, int index, TCHAR* item, TCHAR* subitem);
 
 	void AutoSizeControls(RECT& parentRect);
-	bool CopyToClipboard(const TCHAR* text);
+	bool CopyTextToClipboard(const TCHAR* text);
+	bool CopyDataToClipboard(const char* data, int dataLength, int format);
 
 public:
 	BEGIN_MSG_MAP(CPreviewCtrl)
 		// commands on ListView context menu
-		COMMAND_ID_HANDLER(ID_OPTIONS_COPY, OnOptionsCopy)
-		COMMAND_ID_HANDLER(ID_OPTIONS_COPYALL, OnOptionsCopyAll)
+		COMMAND_ID_HANDLER(ID_OPTIONS_COPYPROPERTIES, OnOptionsCopyAll)
 		COMMAND_ID_HANDLER(ID_OPTIONS_ABOUT, OnOptionsAbout)
 
 		MESSAGE_HANDLER(WM_CONTEXTMENU, OnContextMenu)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_INITMENUPOPUP, OnInitMenuPopup);
 
 		// chains the above msg map with base class
 		CHAIN_MSG_MAP(CAtlDlgPreviewCtrlImpl)
 		COMMAND_ID_HANDLER(ID_OPTIONS_SAVESTRUCTURE, OnOptionsSaveStructure)
-		COMMAND_ID_HANDLER(ID_COPYSTRUCTUREAS_PNG, OnOptionsCopyStructureAs)
 
-		//TODO: Add ON_UPDATE_COMMAND_UI for each menu here
+		COMMAND_RANGE_HANDLER(ID_COPYSTRUCTUREAS_CDXML, ID_COPYSTRUCTUREAS_MOLV2000, OnOptionsCopyStructureAs);
+
 	END_MSG_MAP()
 
-	LRESULT OnOptionsCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnOptionsCopyAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnOptionsAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 	LRESULT OnOptionsSaveStructure(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

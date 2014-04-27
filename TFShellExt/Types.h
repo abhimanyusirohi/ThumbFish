@@ -2,6 +2,7 @@
 
 #define YOURS
 #define TEQUAL(a,b) (_tcsicmp(a, _T(b)) == 0)
+#define EXTLEN 10
 
 // supported file extension. Converted to enum to speed up extension checks
 const enum Extension { extUnknown, extMOL, extRXN, extSMI, extSMILES, extSMARTS, extSDF, extRDF, extCML };
@@ -32,19 +33,20 @@ struct OPTIONS
 		unsigned short	GridMaxMols;				// Maximum number of molecules to display in a Grid (both Preview and Thumbnail)
 		unsigned short	GridMaxReactions;			// Maximum number of reactions to display in a Grid (both Preview and Thumbnail)
 
-		char			RenderOutputExtension[6];	// The extension to use when rendering to buffer or file (No DOT)
-		unsigned short	RenderImageWidth;			// width of image when rendering to buffer or file
-		unsigned short	RenderImageHeight;			// height of image when rendering to buffer or file
+		char			RenderOutputExtension[EXTLEN];	// The extension to use when rendering to buffer or file (No DOT)
+		unsigned short	RenderImageWidth;				// width of image when rendering to buffer or file
+		unsigned short	RenderImageHeight;				// height of image when rendering to buffer or file
+		unsigned short	MOLSavingMode;					// MDLMOL CT Version (0=auto, 1=2000, 2=3000)
 
 public:
 	OPTIONS() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(false), RenderImplicitH(true),
 				RenderShowAtomID(false), RenderShowBondID(false), RenderAtomBondIDFromOne(true), 
 				RenderBaseColor(RGB(0, 0, 0)), RenderBackgroundColor(RGB(255, 255, 255)), RenderLabelMode(0),
 				RenderStereoStyle(1), RenderRelativeThickness(1.0), IsThumbnail(false), GridMaxMols(4), 
-				GridMaxReactions(2), RenderImageWidth(200), RenderImageHeight(200)
+				GridMaxReactions(2), RenderImageWidth(300), RenderImageHeight(300), MOLSavingMode(0)
 	{
 		// default render output to buffer or file is in PNG format
-		strcpy_s(RenderOutputExtension, 6, "png");
+		strcpy_s(RenderOutputExtension, EXTLEN, "png");
 	}
 
 	//TODO: ReadOptions and SaveOptions
