@@ -151,19 +151,24 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	ULONG readCount = 0;
 	char largeTempBuffer[MAX_CACHE_SIZE];
 	size_t delimiterLen = strlen(recordDelimiter);
-	int matchIndex = 0, totalRead = 0, recordCount = 0;
+	int matchIndex = 0, totalReadBytes = 0, recordCount = 0, recordsReadBytes = 0;
 
 	// read stream char by char, identify the record delimiters and cache 
 	// MAX_CACHE_RECORDS number of records
 	while(stream->Read(&readBuffer, 1, &readCount) == S_OK)
 	{
-		largeTempBuffer[totalRead++] = readBuffer;
-		if(totalRead >= MAX_CACHE_SIZE) break;	// very big records, normally not possible but just in case
+		largeTempBuffer[totalReadBytes++] = readBuffer;
+		if(totalReadBytes >= MAX_CACHE_SIZE) break;	// very big records, normally not possible but just in case
 
 		// identify record delimiter in text
 		if(readBuffer == recordDelimiter[matchIndex++])
 		{
-			if(matchIndex == delimiterLen) recordCount++;		// whole string matches
+			if(matchIndex == delimiterLen) // whole delimiter string matches
+			{
+				recordsReadBytes = totalReadBytes;	// count of bytes upto which we got records
+				recordCount++;
+			}
+
 			if(recordCount == MAX_CACHE_RECORD_COUNT) break;	// desired number of records read
 		}
 		else
@@ -172,10 +177,19 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		}
 	}
 
-	m_Buffer.pData = new char[totalRead];
-	m_Buffer.DataLength = totalRead;
-	memcpy(m_Buffer.pData, largeTempBuffer, totalRead);
-	return TRUE;
+	if(recordCount > 0)
+	{
+		m_Buffer.pData = new char[recordsReadBytes];
+		m_Buffer.DataLength = recordsReadBytes;
+		memcpy(m_Buffer.pData, largeTempBuffer, recordsReadBytes);
+		return TRUE;
+	}
+	else
+	{
+		m_Buffer.DataLength = 0;	// no records read
+	}
+
+	return FALSE;
 }
 
 /// <summary>
