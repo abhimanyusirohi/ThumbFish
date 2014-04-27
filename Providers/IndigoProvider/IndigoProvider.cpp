@@ -187,9 +187,12 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 			}
 
 			//TODO: INCHI CALCULATION FAILS - malloc_dbg fails
-			//const char* inchi = indigoInchiGetInchi(mol);
-			//_snwprintf_s(temp, 500, 500, L"%hs", inchi);
-			//AddProperty(properties, 22, _T("InChi"), temp);
+			const char* inchi = indigoInchiGetInchi(mol);
+			if(flags & propInChI)
+			{
+				_snwprintf_s(temp, 500, 500, L"%hs", inchi);
+				AddProperty(properties, index+=2, _T("InChi"), temp);
+			}
 
 			//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));
 			//AddProperty(properties, 24, _T("InChi Key"), temp);
@@ -371,7 +374,7 @@ INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps)
 	*numProps = 0;
 	if(_tcsicmp(ext, _T(".mol")) == 0)
 	{
-		*numProps = 15;
+		*numProps = 16;
 		return ULONG_MAX; // set all bits, show all properties
 	}
 	else if(_tcsicmp(ext, _T(".rxn")) == 0)
