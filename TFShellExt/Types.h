@@ -39,7 +39,7 @@ struct OPTIONS
 		unsigned short	MOLSavingMode;					// MDLMOL CT Version (0=auto, 1=2000, 2=3000)
 
 public:
-	OPTIONS() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(false), RenderImplicitH(true),
+	OPTIONS() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(true), RenderImplicitH(true),
 				RenderShowAtomID(false), RenderShowBondID(false), RenderAtomBondIDFromOne(true), 
 				RenderBaseColor(RGB(0, 0, 0)), RenderBackgroundColor(RGB(255, 255, 255)), RenderLabelMode(0),
 				RenderStereoStyle(1), RenderRelativeThickness(1.0), IsThumbnail(false), GridMaxMols(4), 
