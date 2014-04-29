@@ -15,7 +15,7 @@ private:
 	BOOL	m_previewDrawn;
 	BOOL	m_propsGenerated;
 
-protected:	
+protected:
 	virtual void DoPaint(HDC hdc);
 	virtual void SetRect(const RECT* prc, BOOL bRedraw);
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -32,6 +32,8 @@ private:
 	bool CopyDataToClipboard(const char* data, int dataLength, int format);
 
 public:
+	CPreviewCtrl();
+
 	BEGIN_MSG_MAP(CPreviewCtrl)
 		// commands on ListView context menu
 		COMMAND_ID_HANDLER(ID_OPTIONS_COPYPROPERTIES, OnOptionsCopyAll)

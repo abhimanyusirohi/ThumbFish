@@ -4,6 +4,11 @@
 #define ONE_KB	1024
 #define FOUR_KB	4*ONE_KB
 
+CPreviewCtrl::CPreviewCtrl() : m_previewDrawn(false), m_propsGenerated(false)
+{
+	m_pDocument = NULL;
+}
+
 void CPreviewCtrl::DoPaint(HDC hdc)
 {
 	//pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint called"));

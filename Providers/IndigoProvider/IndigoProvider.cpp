@@ -43,25 +43,43 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 
 				while(mol = indigoNext(ptr))
 				{
-					index++;
+					// check if mol/reaction is valid
+					bool isValid = false;
+					if(buffer->FileExtension == extRDF) isValid = (indigoCountReactants(mol) > 0);
+					else if((buffer->FileExtension == extSDF) || (buffer->FileExtension == extCML))
+						isValid = (indigoCountAtoms(mol) > 0);
 
-					indigoArrayAdd(collection, mol);
-					indigoFree(mol);
+					if(isValid)
+					{
+						index++;	// number of valid molecules in collection
 
-					// limit number of mol/reactions displayed depending on the file type
-					if((buffer->FileExtension == extRDF) && (index >= options->GridMaxReactions)) break;
-					if(((buffer->FileExtension == extSDF) || (buffer->FileExtension == extCML)) 
-						&& (index >= options->GridMaxMols)) break;
+						indigoArrayAdd(collection, mol);
+						indigoFree(mol);
+
+						// limit number of mol/reactions displayed depending on the file type
+						if((buffer->FileExtension == extRDF) && (index >= options->GridMaxReactions)) break;
+						if(((buffer->FileExtension == extSDF) || (buffer->FileExtension == extCML)) 
+							&& (index >= options->GridMaxMols)) break;
+					}
 				}
 
-				indigoSetOptionInt("render-grid-title-font-size", 14);
-				indigoSetOption("render-grid-title-property", "NAME");	// will display the 'name' property for mol, if it exists
+				if(index > 0)
+				{
+					indigoSetOptionInt("render-grid-title-font-size", 14);
+					indigoSetOption("render-grid-title-property", "NAME");	// will display the 'name' property for mol, if it exists
 
-				indigoSetOptionXY("render-grid-margins", 5, 5);
-				//indigoSetOptionXY("render-image-size", rect.right - rect.left + 10, rect.bottom - rect.top + 10);
+					indigoSetOptionXY("render-grid-margins", 5, 5);
+					//indigoSetOptionXY("render-image-size", rect.right - rect.left + 10, rect.bottom - rect.top + 10);
 
-				int nCols = (buffer->FileExtension == extRDF) ? 1 : 2;
-				indigoRenderGrid(collection, NULL, nCols, dc);
+					int nCols = (buffer->FileExtension == extRDF) ? 1 : 2;
+					indigoRenderGrid(collection, NULL, nCols, dc);
+				}
+				else
+				{
+					// draw error bitmap (could be a different one for collection files)
+					DrawErrorBitmap(hDC, &rect);
+					return false;
+				}
 
 				indigoFree(collection);
 			}
