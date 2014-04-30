@@ -22,4 +22,8 @@
 #include <Shlwapi.h>
 #include "resource.h"
 
+// ShellChangeNotify
+#include <MsiQuery.h>
+#include <ShlObj.h>
+
 extern HINSTANCE hInstance;
