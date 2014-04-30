@@ -16,6 +16,8 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options);
 INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options);
 
+extern "C" __declspec(dllexport) UINT __stdcall RefreshIcons(MSIHANDLE hInstall);
+
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value);
 std::string GetData(LPBUFFER buffer);
 int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type);

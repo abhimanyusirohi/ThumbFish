@@ -320,6 +320,13 @@ INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options)
 	return retBuffer;
 }
 
+/** Refresh the icon cache to rebuilt the thumbnails */
+extern "C" UINT __stdcall RefreshIcons(MSIHANDLE hInstall)
+{
+	SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, NULL, NULL);
+	return ERROR_SUCCESS;
+}
+
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value)
 {
 	size_t len = _tcslen(name) + 1;
