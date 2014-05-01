@@ -5,6 +5,7 @@
 #include "ThumbFish_i.h"
 #include "dllmain.h"
 #include "xdlldata.h"
+#include "Utils.h"
 
 CThumbFishModule _AtlModule;
 
@@ -67,7 +68,15 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 			ThisInstance = hInstance;
 			
 			pantheios::pantheios_init();
-			pantheios_be_file_setFilePath(_T("D:\\ThumbFish-Log.log"));
+
+			TCHAR logFile[MAX_PATH];
+			if(Utils::GetSystemFolder(FOLDERID_LocalAppDataLow, logFile) == S_OK)
+				_tcscat_s(logFile, MAX_PATH, _T("\\"));
+
+			// in case of failure to get a log file path in AppDataLow, log file 
+			// will be created in the current directory
+			_tcscat_s(logFile, MAX_PATH, _T("ThumbFish.log"));
+			pantheios_be_file_setFilePath(logFile);
 
 			pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_PROCESS_ATTACH"));
 			InitInstance();

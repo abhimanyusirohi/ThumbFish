@@ -17,5 +17,6 @@ public:
 	~Utils(void);
 
 	static HRESULT DoFileSaveDialog(HWND owner, PWSTR filePath);
+	static HRESULT GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath);
 };
 
