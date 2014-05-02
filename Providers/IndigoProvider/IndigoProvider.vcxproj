@@ -101,7 +101,7 @@
       <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;msimg32.lib;png.lib;pixman.lib;cairo.lib;render2d.lib;indigo-renderer-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)\$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)\build\$(Platform)\$(Configuration)\Provider.dll"
+      <Command>copy "$(ProjectDir)$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)build\$(Platform)\$(Configuration)\Provider.dll"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -123,7 +123,7 @@
       <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;msimg32.lib;png.lib;pixman.lib;cairo.lib;render2d.lib;indigo-renderer-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)\$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)\build\$(Platform)\$(Configuration)\Provider.dll"
+      <Command>copy "$(ProjectDir)$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)build\$(Platform)\$(Configuration)\Provider.dll"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -149,7 +149,7 @@
       <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;msimg32.lib;png.lib;pixman.lib;cairo.lib;render2d.lib;indigo-renderer-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)\$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)\build\$(Platform)\$(Configuration)\Provider.dll"
+      <Command>copy "$(ProjectDir)$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)build\$(Platform)\$(Configuration)\Provider.dll"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -175,7 +175,7 @@
       <AdditionalDependencies>common.lib;layout.lib;graph.lib;indigo-static.lib;molecule.lib;moleculeObj.lib;reaction.lib;tinyxml.lib;z.lib;inchi.lib;indigo-inchi-static.lib;msimg32.lib;png.lib;pixman.lib;cairo.lib;render2d.lib;indigo-renderer-static.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(ProjectDir)\$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)\build\$(Platform)\$(Configuration)\Provider.dll"
+      <Command>copy "$(ProjectDir)$(Platform)\$(Configuration)\Provider.dll" "$(SolutionDir)build\$(Platform)\$(Configuration)\Provider.dll"
 </Command>
     </PostBuildEvent>
     <PostBuildEvent>
