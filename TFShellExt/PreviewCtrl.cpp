@@ -11,7 +11,7 @@ CPreviewCtrl::CPreviewCtrl() : m_previewDrawn(false), m_propsGenerated(false)
 
 void CPreviewCtrl::DoPaint(HDC hdc)
 {
-	//pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint called"));
+	pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint called"));
 
 	//if(m_pDocument == NULL) return;
 
@@ -44,7 +44,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 			if(ListView_GetItemCount(hWndList) == 0)
 			{
 				TCHAR** props = NULL;
-				int propCount = pGetPropsFunc(&pDoc->m_Buffer, &props, &options);
+				int propCount = pGetPropsFunc(&pDoc->m_Buffer, &props, &options, false);
 				m_propsGenerated = ((props != NULL) && (propCount > 0));
 
 				if(m_propsGenerated)

@@ -13,7 +13,7 @@
 const enum ReturnObjectType { SingleMol, MultiMol };
 
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options);
-INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options);
+INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options, bool searchNames);
 INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options);
 
 extern "C" __declspec(dllexport) UINT __stdcall RefreshIcons(MSIHANDLE hInstall);

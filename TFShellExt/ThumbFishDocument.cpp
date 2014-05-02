@@ -52,35 +52,53 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 
 void ThumbFishDocument::InitializeSearchContent()
 {
-	//CString value;
-	//if(pGetPropsFunc != NULL)
-	//{
-	//	LPPROPS props = pGetPropsFunc(&m_Buffer, &_filterOptions);
-	//	if(props != NULL)
-	//	{
-	//		value.AppendFormat(_T("n_%ls;name_%ls;"), props->MolName, props->MolName);
-	//		value.AppendFormat(_T("fmt_%ls;format_%ls;"), props->Format, props->Format);
-	//		value.AppendFormat(_T("f_%ls;formula_%ls;"), props->Formula, props->Formula);
-	//		value.AppendFormat(_T("m_%f;mass_%f;"), props->MolWeight, props->MolWeight);
-	//		value.AppendFormat(_T("s_%ls;smiles_%ls;"), props->SMILES, props->SMILES);
-	//		value.AppendFormat(_T("i_%ls;inchi_%ls;"), props->InChI, props->InChI);
-	//		value.AppendFormat(_T("ik_%ls;inchikey_%ls;"), props->InChIKey, props->InChIKey);
-	//		value.AppendFormat(_T("na_%d;numatoms_%d;"), props->NumAtoms, props->NumAtoms);
-	//		value.AppendFormat(_T("hbd_%d;hbdonor_%d;"), props->HBDonor, props->HBDonor);
-	//		value.AppendFormat(_T("hba_%d;hbacceptor_%d;"), props->HBAcceptor, props->HBAcceptor);
-	//	}
-	//	else
-	//	{
-	//		LOG_WARNING1(_T("ThumbFishDocument::InitializeSearchContent"), _T("Unable to get properties."),
-	//			m_Buffer.StreamName, m_Buffer.DataLength);
-	//	}
-	//}
+	pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::InitializeSearchContent> Called"));
 
-	//SetSearchContent(value);
+	CString value;
+	if(pGetPropsFunc != NULL)
+	{
+		OPTIONS options;
+		TCHAR** props = NULL;
+		int propCount = pGetPropsFunc(&m_Buffer, &props, &options, true);
+		bool m_propsGenerated = ((props != NULL) && (propCount > 0));
+
+		if(m_propsGenerated)
+		{
+			pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::InitializeSearchContent> Properties generated="), 
+				pantheios::integer(propCount), _T(", for: "), m_Buffer.FileName);
+
+			// insert property values into list view control
+			for(int i = 0; i < propCount; i++)
+			{
+				TCHAR* propName = props[2*i];
+				TCHAR* propValue = props[2*i + 1];
+
+				// "-" property names will not be included in search
+				if(_tcsicmp(propName, _T("-")) != 0)
+				{
+					value.AppendFormat(_T("%ls_%ls;"), propName, propValue);
+				}
+			}
+
+			delete[] props;
+		}
+		else
+		{
+			pantheios::log_WARNING(_T("ThumbFishDocument::InitializeSearchContent> Property generation failed."));
+		}
+	}
+	else
+	{
+		pantheios::log_WARNING(_T("ThumbFishDocument::InitializeSearchContent> Property function is not available."));
+	}
+
+	SetSearchContent(value);
 }
 
 void ThumbFishDocument::SetSearchContent(CString& value)
 {
+	pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::SetSearchContent> Called"));
+
 	// Assigns search content to PKEY_Search_Contents key
 	if (value.IsEmpty())
 	{

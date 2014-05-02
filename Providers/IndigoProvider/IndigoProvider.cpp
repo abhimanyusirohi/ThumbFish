@@ -96,7 +96,7 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 	return false;
 }
 
-INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options)
+INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options, bool searchNames)
 {
 	int propCount = 0;
 
@@ -117,91 +117,91 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 			if(flags & propName)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoName(mol));
-				AddProperty(properties, index+=2, _T("Name"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("name") : _T("Name"), temp);
 			}
 
 			if(flags & propNumAtoms)
 			{
 				_snwprintf_s(temp, 500, 500, L"%d", indigoCountAtoms(mol));
-				AddProperty(properties, index+=2, _T("Num Atoms"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("na") : _T("Num Atoms"), temp);
 			}
 
 			if(flags & propNumBonds)
 			{
 				_snwprintf_s(temp, 500, 500, L"%d", indigoCountBonds(mol));
-				AddProperty(properties, index+=2, _T("Num Bonds"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("nb") : _T("Num Bonds"), temp);
 			}
 
 			if(flags & propImplH)
 			{
 				_snwprintf_s(temp, 500, 500, L"%d", indigoCountImplicitHydrogens(mol));
-				AddProperty(properties, index+=2, _T("Implicit Hydrogens"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("imph") : _T("Implicit Hydrogens"), temp);
 			}
 
 			if(flags & propHeavyAtoms)
 			{
 				_snwprintf_s(temp, 500, 500, L"%d", indigoCountHeavyAtoms(mol));
-				AddProperty(properties, index+=2, _T("Heavy Atoms"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("heavya") : _T("Heavy Atoms"), temp);
 			}
 
 			if(flags & propGrossFormula)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoToString(indigoGrossFormula(mol)));
-				AddProperty(properties, index+=2, _T("Gross Formula"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("formula") : _T("Gross Formula"), temp);
 			}
 
 			if(flags & propMolWeight)
 			{
 				_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMolecularWeight(mol));
-				AddProperty(properties, index+=2, _T("Molecular Weight"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("mweight") : _T("Molecular Weight"), temp);
 			}
 
 			if(flags & propMostAbundantMass)
 			{
 				_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMostAbundantMass(mol));
-				AddProperty(properties, index+=2, _T("Most Abundant Mass"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("mamass") : _T("Most Abundant Mass"), temp);
 			}
 
 			if(flags & propMonoIsotopicMass)
 			{
 				_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMonoisotopicMass(mol));
-				AddProperty(properties, index+=2, _T("Mono Isotopic Mass"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("mimass") : _T("Mono Isotopic Mass"), temp);
 			}
 
 			if(flags & propIsChiral)
 			{
 				_snwprintf_s(temp, 500, 500, L"%s", (indigoIsChiral(mol) == 0) ? _T("No") : _T("Yes"));
-				AddProperty(properties, index+=2, _T("Is Chiral"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("chiral") : _T("Is Chiral"), temp);
 			}
 
 			if(flags & propHasCoord)
 			{
 				_snwprintf_s(temp, 500, 500, L"%s", (indigoHasCoord(mol) == 0) ? _T("No") : _T("Yes"));
-				AddProperty(properties, index+=2, _T("Has Coordinates"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("hascoord") : _T("Has Coordinates"), temp);
 			}
 
 			if(flags & propHasZCoord)
 			{
 				_snwprintf_s(temp, 500, 500, L"%s", (indigoHasZCoord(mol) == 0) ? _T("No") : _T("Yes"));
-				AddProperty(properties, index+=2, _T("Has Z Coordinates"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("haszcoord") : _T("Has Z Coordinates"), temp);
 			}
 
 			if(flags & propSmiles)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoSmiles(mol));
-				AddProperty(properties, index+=2, _T("SMILES"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("-") : _T("SMILES"), temp);
 			}
 
 			if(flags & propCanonicalSmiles)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoCanonicalSmiles(mol));
-				AddProperty(properties, index+=2, _T("Canonical SMILES"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("-") : _T("Canonical SMILES"), temp);
 			}
 
 			if(flags & propLayeredCode)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoLayeredCode(mol));
-				AddProperty(properties, index+=2, _T("Layered Code"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("-") : _T("Layered Code"), temp);
 			}
 
 			//TODO: INCHI CALCULATION FAILS - malloc_dbg fails
@@ -209,7 +209,7 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 			if(flags & propInChI)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", inchi);
-				AddProperty(properties, index+=2, _T("InChi"), temp);
+				AddProperty(properties, index+=2, searchNames ? _T("-") : _T("InChi"), temp);
 			}
 
 			//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));

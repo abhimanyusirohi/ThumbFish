@@ -23,7 +23,7 @@ public:
 	CFilterHandler()
 	{
 		m_bEnableEventLog = FALSE;
-		//LOG_INFO(_T("CFilterHandler"), _T("ctor called."));
+		pantheios::log_INFORMATIONAL(_T("CFilterHandler::CFilterHandler> ctor Called"));
 	}
 
 DECLARE_REGISTRY_RESOURCEID(IDR_FILTER_HANDLER)

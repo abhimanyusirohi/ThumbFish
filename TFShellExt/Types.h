@@ -67,7 +67,7 @@ public:
 typedef Buffer BUFFER, *LPBUFFER;
 
 typedef bool (__cdecl *DrawFuncType)(HDC hDC, LPRECT lpRect, LPBUFFER buffer, LPOPTIONS options);
-typedef int	 (__cdecl *GetPropertiesFuncType)(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options);
+typedef int	 (__cdecl *GetPropertiesFuncType)(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options, bool searchNames);
 typedef YOURS char* (__cdecl *ConvertToFuncType)(LPBUFFER buffer, LPOPTIONS options);
 
 //typedef std::basic_string<TCHAR> tstring;
