@@ -214,3 +214,6 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+TFShellExt/logging-bailout.txt
+TFShellExt/ThumbFish_i.h
