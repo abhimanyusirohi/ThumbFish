@@ -1,0 +1,62 @@
+http://support.microsoft.com/kb/2735477
+Remove .NET dependency from Setup projects
+
+Interesting Molecules
+http://www.reciprocalnet.org/edumodules/commonmolecules/list.html
+
+
+TODO:
+Custom Action - Output dll project paths having an extra \
+.NET Dependency
+
+
+ThumbFish uses [Common Item Dialog]
+http://msdn.microsoft.com/en-us/library/windows/desktop/bb776913(v=vs.85).aspx
+So the Min Dependency = Vista
+
+Log File
+C:\Users\{USER}\AppData\LocalLow\ThumbFish.log
+
+Windows Search 3X SDK can be used to get more information on IFilter
+To make search work: Explorer >> Tools >> Options >> Search >> Don't use search...
+
+
+--------------------------------------------------------------
+Important Code Snippets
+--------------------------------------------------------------
+
+-------------->>>> To Load a custom resource of type TEXT containing rtf data in a RichTextBox
+
+	// Make sure RichText box library is loaded when creating a ATL dialog with RichText control
+	// use the following in dialog's contructor
+	// Explicitly load rich edit control
+	// http://msdn.microsoft.com/en-us/library/dsezt3x7.aspx
+	// LoadLibrary(_T("riched20.dll"));
+
+	char buffer[4096];
+		
+	HRSRC hResource = FindResource(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDR_ABOUTTEXT), L"TEXT");
+	if (hResource)
+	{
+		HGLOBAL hLoadedResource = LoadResource(_AtlBaseModule.m_hInst, hResource);
+
+		if (hLoadedResource)
+		{
+			LPVOID pLockedResource = LockResource(hLoadedResource);
+
+			if (pLockedResource)
+			{
+				DWORD dwResourceSize = SizeofResource(_AtlBaseModule.m_hInst, hResource);
+
+				if (0 != dwResourceSize)
+				{
+					memcpy_s(buffer, 4096, pLockedResource, dwResourceSize);
+					buffer[dwResourceSize] = 0;	// Null terminated
+
+					HWND hRichText = ::GetDlgItem(m_hWnd, IDC_ABOUTTEXT);
+					::SendMessage(hRichText, WM_SETTEXT, 0, (LPARAM)buffer);
+				}
+			}
+		}
+	}
+-------------->>>> 
