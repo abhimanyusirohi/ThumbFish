@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "PreviewCtrl.h"
+#include "AboutDlg.h"
 
 #define ONE_KB	1024
 #define FOUR_KB	4*ONE_KB
@@ -296,9 +297,8 @@ LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 
 LRESULT CPreviewCtrl::OnOptionsAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	TCHAR buffer[1024];
-	if(LoadString(_AtlBaseModule.m_hInst, IDS_OPTIONS_ABOUT, buffer, 1024) > 0)
-		::MessageBox(NULL, buffer,	_T("About ThumbFish"), MB_OK | MB_ICONINFORMATION);
+	AboutDlg dlg;
+	dlg.DoModal(m_hWnd);
 
 	return 0;
 }
