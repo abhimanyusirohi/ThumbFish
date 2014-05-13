@@ -35,6 +35,15 @@ interface ISearch : IUnknown
 };
 
 [
+	object,
+	uuid(83C2225A-DEB5-4809-82A4-2025EE373867),
+	pointer_default(unique)
+]
+interface IContextMenuHandler : IUnknown
+{
+};
+
+[
 	uuid(506A7C6B-81F0-459A-8A31-6479713762D0),
 	version(1.0),
 ]
@@ -61,6 +70,13 @@ library ThumbFishLib
 	coclass Search
 	{
 		[default] interface IFilter;
+	};
+	[
+		uuid(D2DE2A6B-8D18-4B08-BD80-64B207964A53),
+	]
+	coclass ContextMenuHandler
+	{
+		[default] interface IContextMenuHandler;
 	};
 };
 

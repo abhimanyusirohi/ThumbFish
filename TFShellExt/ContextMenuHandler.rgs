@@ -1,0 +1,23 @@
+HKCR
+{
+	NoRemove CLSID
+	{
+		ForceRemove {D2DE2A6B-8D18-4B08-BD80-64B207964A53} = s 'ThumbFish ContextMenu Handler'
+		{
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+		}
+	}
+	NoRemove *
+	{
+		NoRemove shellex
+		{
+			NoRemove ContextMenuHandlers
+			{
+				{D2DE2A6B-8D18-4B08-BD80-64B207964A53}
+			}
+		}
+	}
+}

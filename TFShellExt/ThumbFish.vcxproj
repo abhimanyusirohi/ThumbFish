@@ -257,6 +257,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="ContextMenuHandler.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
@@ -313,6 +314,7 @@
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="atldlgpreviewctrlimpl.h" />
+    <ClInclude Include="ContextMenuHandler.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="FilterHandler.h" />
     <ClInclude Include="PreviewCtrl.h" />
@@ -337,13 +339,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="About.bmp" />
+    <None Include="ContextMenuHandler.rgs" />
     <None Include="FilterHandler.rgs" />
+    <None Include="FishG.bmp" />
     <None Include="PreviewHandler.rgs" />
     <None Include="ResTempl.rct" />
     <None Include="ThumbFish.def" />
     <None Include="ThumbFish.ico" />
     <None Include="ThumbFish.rgs" />
     <None Include="ThumbnailHandler.rgs" />
+    <None Include="Web.bmp" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="ThumbFish.idl" />

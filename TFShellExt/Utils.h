@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 
+const TCHAR c_OnlineLink[] = _T("http://abhimanyusirohi.github.io/ThumbFish/");
 const COMDLG_FILTERSPEC c_SaveTypes[] =
 {
     {L"Portable Network Graphics (*.png)",	L"*.png"},
@@ -18,5 +19,6 @@ public:
 
 	static HRESULT DoFileSaveDialog(HWND owner, PWSTR filePath);
 	static HRESULT GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath);
+	static BOOL ShellExecuteLink(const TCHAR* link);
 };
 

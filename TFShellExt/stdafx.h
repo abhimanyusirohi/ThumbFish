@@ -46,6 +46,7 @@
 #include <map>
 #include "Types.h"
 #include <ShlObj.h>
+#include "Utils.h"
 
 //extern Logger* _logger;
 extern HINSTANCE dllHandle;

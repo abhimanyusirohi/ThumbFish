@@ -96,10 +96,8 @@ HRESULT Utils::DoFileSaveDialog(HWND owner, PWSTR filePath)
     return hr;
 }
 
-/**
-*** Sets the outPath variable with path to the specified system folder
-*** outPath must be an array of MAX_PATH size
-**/
+// Sets the outPath variable with path to the specified system folder
+// outPath must be an array of MAX_PATH size
 HRESULT Utils::GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath)
 {
 	CComPtr<IShellItem> psiFolder;
@@ -117,4 +115,22 @@ HRESULT Utils::GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath)
 	}
 
 	return hr;
+}
+
+// ShellExecuteLink
+// Opens the specified link in default browser using the ShellExecuteEx API
+BOOL Utils::ShellExecuteLink(const TCHAR* link)
+{
+	SHELLEXECUTEINFO shInfo;
+	shInfo.cbSize = sizeof(SHELLEXECUTEINFO);
+    shInfo.fMask = NULL;
+    shInfo.hwnd = NULL;
+    shInfo.lpVerb = NULL;
+    shInfo.lpFile = link;
+    shInfo.lpParameters = NULL;
+    shInfo.lpDirectory = NULL;
+    shInfo.nShow = SW_SHOW;
+    shInfo.hInstApp = NULL;
+
+	return ShellExecuteEx(&shInfo);
 }
