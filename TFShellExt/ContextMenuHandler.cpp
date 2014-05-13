@@ -110,9 +110,9 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 	UINT id = idCmdFirst;
 
     InsertMenu(hSubmenu, 0, MF_BYPOSITION, id++, _T("&Online Help"));
-	HBITMAP hOnlineBMP = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_WEB));
-	SetMenuItemBitmaps(hSubmenu, 0, MF_BYPOSITION, hOnlineBMP, hOnlineBMP);
-
+	HBITMAP hbmHelp = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_HELP));
+	SetMenuItemBitmaps(hSubmenu, 0, MF_BYPOSITION, hbmHelp, hbmHelp);
+	
     InsertMenu(hSubmenu, 1, MF_BYPOSITION, id++, _T("&About ThumbFish"));
 
 	// Insert the submenu into the ctx menu provided by Explorer.
@@ -122,7 +122,7 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 	mii.wID = id++;
     mii.hSubMenu = hSubmenu;
     mii.dwTypeData = _T("&ThumbFish");
-	mii.hbmpItem = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_FISHGREEN));
+	mii.hbmpItem = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_THUMBFISH));
 
     InsertMenuItem (hMenu, indexMenu, TRUE, &mii);
 

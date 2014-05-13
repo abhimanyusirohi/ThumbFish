@@ -140,10 +140,14 @@ LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	HMENU hPopupMenu = LoadMenu(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDR_PROPLISTMENU));
 	hPopupMenu = GetSubMenu(hPopupMenu, 0);
 
-	//TODO: Check bitmap leaks
 	// set bitmaps for menu items
-	//HBITMAP hbmCopy = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_BITMAPCOPY));
-	//SetMenuItemBitmaps(hPopupMenu, 0, MF_BYPOSITION, hbmCopy, hbmCopy);
+	HBITMAP hbmSave = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_SAVE));
+	SetMenuItemBitmaps(hPopupMenu, 0, MF_BYPOSITION, hbmSave, hbmSave);
+	//DeleteObject(hbmSave);
+
+	HBITMAP hbmCopy = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_COPY));
+	SetMenuItemBitmaps(hPopupMenu, 1, MF_BYPOSITION, hbmCopy, hbmCopy);
+	//DeleteObject(hbmCopy);
 
 	if(pDoc != NULL)
 	{

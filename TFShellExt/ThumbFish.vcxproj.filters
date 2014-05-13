@@ -160,10 +160,19 @@
     <None Include="ContextMenuHandler.rgs">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="Web.bmp">
+    <None Include="FishG.bmp">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="FishG.bmp">
+    <None Include="Copy.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Save.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Help.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="thumbfish.bmp">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
