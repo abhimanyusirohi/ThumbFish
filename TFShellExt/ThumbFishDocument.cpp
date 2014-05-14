@@ -118,11 +118,18 @@ void ThumbFishDocument::SetSearchContent(CString& value)
 
 void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 {
+	pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::OnDrawThumbnail> Called"));
+
 	if(pDrawFunc != NULL)
 	{
 		OPTIONS options;
 		options.IsThumbnail = true;
-		pDrawFunc(hDrawDC, lprcBounds, &m_Buffer, &options);
+		if(!pDrawFunc(hDrawDC, lprcBounds, &m_Buffer, &options))
+			pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::OnDrawThumbnail> Draw returned FALSE. Thumbnail NOT drawn."));
+	}
+	else
+	{
+		pantheios::log_WARNING(_T("ThumbFishDocument::OnDrawThumbnail> Draw function not available."));
 	}
 }
 

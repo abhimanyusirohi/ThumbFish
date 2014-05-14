@@ -6,47 +6,47 @@ HKLM
 		{
 			NoRemove .rxn
 			{
-				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+				NoRemove PersistentHandler = s '{6F1865B6-D085-4BED-9E29-662F6CDEB8B8}'
 			}
 			NoRemove .rdf
 			{
-				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+				NoRemove PersistentHandler = s '{6F1865B6-D085-4BED-9E29-662F6CDEB8B8}'
 			}
 			NoRemove .mol
 			{
-				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+				NoRemove PersistentHandler = s '{6F1865B6-D085-4BED-9E29-662F6CDEB8B8}'
 			}
 			NoRemove .sdf
 			{
-				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+				NoRemove PersistentHandler = s '{6F1865B6-D085-4BED-9E29-662F6CDEB8B8}'
 			}
 			NoRemove .cml
 			{
-				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+				NoRemove PersistentHandler = s '{6F1865B6-D085-4BED-9E29-662F6CDEB8B8}'
 			}
 			NoRemove .smi
 			{
-				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+				NoRemove PersistentHandler = s '{6F1865B6-D085-4BED-9E29-662F6CDEB8B8}'
 			}
 			NoRemove .smiles
 			{
-				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+				NoRemove PersistentHandler = s '{6F1865B6-D085-4BED-9E29-662F6CDEB8B8}'
 			}
 			NoRemove .smarts
 			{
-				NoRemove PersistentHandler = s '{2D3AF1F7-1AB0-46CF-9678-A22580032AF2}'
+				NoRemove PersistentHandler = s '{6F1865B6-D085-4BED-9E29-662F6CDEB8B8}'
 			}
 
 			NoRemove CLSID
 			{
-				ForceRemove {2D3AF1F7-1AB0-46CF-9678-A22580032AF2}
+				ForceRemove {6F1865B6-D085-4BED-9E29-662F6CDEB8B8}
 				{
 					PersistentAddinsRegistered
 					{
-						{89BCB740-6119-101A-BCB7-00DD010655AF} = s '{759D803C-F6C6-464A-AD39-5E2353DB05A3}'
+						{89BCB740-6119-101A-BCB7-00DD010655AF} = s '{3D36EF79-CA3B-4AED-AB29-FB13BAB9BB08}'
 					}
 				}
-				ForceRemove {759D803C-F6C6-464A-AD39-5E2353DB05A3} = s 'ThumbFish Filter Handler'
+				ForceRemove {3D36EF79-CA3B-4AED-AB29-FB13BAB9BB08} = s 'ThumbFish Search Handler'
 				{
 					InprocServer32 = s '%MODULE%'
 					{

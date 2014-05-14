@@ -2,18 +2,16 @@ HKCR
 {
 	NoRemove CLSID
 	{
-		ForceRemove {4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E} = s 'ThumbFish Preview Handler'
+		ForceRemove {A9433902-9E0E-4519-A499-CB02E5A3E972} = s 'ThumbFish Preview Handler'
 		{
-			val DisableLowILProcessIsolation = d '1'
 			InprocServer32 = s '%MODULE%'
 			{
 				val ThreadingModel = s 'Apartment'
 			}
-			TypeLib = s '{506A7C6B-81F0-459A-8A31-6479713762D0}'
 			Version = s '1.0'
 			val AppID = s '{6d2b5079-2f0b-48dd-ab7f-97cec514d30b}'
 			val DisplayName = s '@%MODULE%,-101'
-			val Icon = s '%MODULE%,201'
+			val Icon = s '%MODULE%,236'
 		}
 	}
 
@@ -21,56 +19,56 @@ HKCR
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{A9433902-9E0E-4519-A499-CB02E5A3E972}'
 		}
 	}
 	NoRemove .rdf
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{A9433902-9E0E-4519-A499-CB02E5A3E972}'
 		}
 	}
 	NoRemove .mol
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{A9433902-9E0E-4519-A499-CB02E5A3E972}'
 		}
 	}
 	NoRemove .sdf
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{A9433902-9E0E-4519-A499-CB02E5A3E972}'
 		}
 	}
 	NoRemove .cml
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{A9433902-9E0E-4519-A499-CB02E5A3E972}'
 		}
 	}
 	NoRemove .smi
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{A9433902-9E0E-4519-A499-CB02E5A3E972}'
 		}
 	}
 	NoRemove .smiles
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{A9433902-9E0E-4519-A499-CB02E5A3E972}'
 		}
 	}
 	NoRemove .smarts
 	{
 		NoRemove ShellEx
 		{
-			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E}'
+			ForceRemove {8895b1c6-b41f-4c1c-a562-0d564250836f} = s '{A9433902-9E0E-4519-A499-CB02E5A3E972}'
 		}
 	}
 }
@@ -87,7 +85,7 @@ HKLM
 				{
 					NoRemove PreviewHandlers
 					{
-						val {4CB11E0F-AC0D-4D2D-96C9-C568FC4B871E} = s 'Preview Handler Class'
+						val {A9433902-9E0E-4519-A499-CB02E5A3E972} = s 'ThumbFish Preview Handler'
 					}
 				}
 			}

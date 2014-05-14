@@ -133,9 +133,6 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ThumbFish.rgs">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="ThumbFish.def">
       <Filter>Source Files</Filter>
     </None>
@@ -173,6 +170,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="thumbfish.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="ThumbFish.rgs">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
