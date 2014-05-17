@@ -156,6 +156,9 @@ LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 		for(int id = ID_COPYSTRUCTUREAS_CDXML; id <= ID_COPYSTRUCTUREAS_MOLV2000; id++)
 			::EnableMenuItem(hPopupMenu, id, MF_BYCOMMAND | (m_previewDrawn ? MF_ENABLED : MF_DISABLED));
+
+		//TODO: enable this when Copy As InChiKey is fixed
+		::EnableMenuItem(hPopupMenu, ID_COPYSTRUCTUREAS_INCHIKEY, MF_BYCOMMAND | MF_DISABLED);
 	}
 
 	TrackPopupMenu(hPopupMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, m_hWnd, NULL);
@@ -302,7 +305,7 @@ LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 LRESULT CPreviewCtrl::OnOptionsAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	AboutDlg dlg;
-	dlg.DoModal(m_hWnd);
+	dlg.DoModal(NULL);
 
 	return 0;
 }
@@ -412,8 +415,8 @@ LRESULT CPreviewCtrl::OnOptionsCopyStructureAs(WORD wNotifyCode, WORD wID, HWND 
 	}
 	else
 	{
-		pantheios::log_ERROR(_T("CPreviewCtrl::OnOptionsCopyStructureAs> No data returned from Convert method. OutBufferSize= "));/*, 
-			pantheios::integer(options.OutBufferSize));*/
+		pantheios::log_ERROR(_T("CPreviewCtrl::OnOptionsCopyStructureAs> No data returned from Convert method. OutBufferSize= "), 
+			pantheios::integer(options.OutBufferSize));
 	}
 
 	return 0;
