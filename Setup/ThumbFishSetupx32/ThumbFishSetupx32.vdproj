@@ -69,12 +69,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4D034EE2792A48EBA9B4D6C64C15B996"
-        "OwnerKey" = "8:_EDA54E2EF11E40AEAE5ABAD46D784150"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_514D95635AE04C77910ED2C42107F8B3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -83,6 +77,12 @@
         {
         "MsmKey" = "8:_554FB44315064ADC9EF45631EE162121"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_69279EC319724F3BB2DABE6FD17E7718"
+        "OwnerKey" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -124,6 +124,12 @@
         "Entry"
         {
         "MsmKey" = "8:_9115143FBC6C4B9D82D4830F59FE74CF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9488E124B96342F191215F0C5E0C3C13"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -173,18 +179,6 @@
         {
         "MsmKey" = "8:_EDA54E2EF11E40AEAE5ABAD46D784150"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F5D033B1B87F43FFB5FB6D2016AF06B2"
-        "OwnerKey" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F5D033B1B87F43FFB5FB6D2016AF06B2"
-        "OwnerKey" = "8:_EDA54E2EF11E40AEAE5ABAD46D784150"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -270,6 +264,14 @@
         {
             "LaunchCondition"
             {
+                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_38C6B01F32094680BDEC4F078BFC5AE5"
+                {
+                "Name" = "8:.NET Framework"
+                "Message" = "8:[VSDNETMSG]"
+                "FrameworkVersion" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                "AllowLaterVersions" = "11:FALSE"
+                "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=131000"
+                }
             }
         }
         "File"
@@ -614,6 +616,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9488E124B96342F191215F0C5E0C3C13"
+            {
+            "SourcePath" = "8:..\\..\\license.rtf"
+            "TargetName" = "8:license.rtf"
+            "Tag" = "8:"
+            "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_96E80F08323545F08077436C73A696E4"
             {
             "SourcePath" = "8:D:\\ThumbFish Test Files\\SampleFiles\\Sugars.sdf"
@@ -782,7 +804,7 @@
         {
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_10EC9B76DE2D42C8BB705270CCDCC62A"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder]CambridgeSoft\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -851,10 +873,10 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:ThumbFish"
-        "ProductCode" = "8:{3D94B795-45F3-4028-9756-06566F2B736B}"
+        "ProductName" = "8:ThumbFish (Beta)"
+        "ProductCode" = "8:{D25BC174-8910-49F6-9F94-35A9603D4E66}"
         "PackageCode" = "8:{DA94BE1F-9B00-4F9D-AEAF-4511ABFB49B2}"
-        "UpgradeCode" = "8:{8F023B5C-FC2F-4EDD-B6D6-2BB68FA9645E}"
+        "UpgradeCode" = "8:{CFFB64CB-6904-4E7F-BC8B-51284C53725E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
@@ -869,7 +891,7 @@
         "ARPCONTACT" = "8:A9S6"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:ThumbFish Utility Handlers"
-        "ARPURLINFOABOUT" = "8:http://www.github.com/abhimanyusirohi/ThumbFish"
+        "ARPURLINFOABOUT" = "8:http://abhimanyusirohi.github.io/ThumbFish/"
         "ARPPRODUCTICON" = "8:_00AF0CBA3C914B7CBB007AC09AE4E25D"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
@@ -973,18 +995,18 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_C65E911F15A7483981BE4494FB34E052"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_8F06E985B116463E983FD04FFD38FEB2"
             {
-            "Name" = "8:Shortcut to ThumbFish Sample Files"
+            "Name" = "8:ThumbFish Sample Files"
             "Arguments" = "8:"
-            "Description" = "8:"
+            "Description" = "8:Sample structure files supplied with ThumbFish"
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
             "Target" = "8:_457CD0D518A04208B9265D8EAF98836D"
             "Folder" = "8:_6F3FD5AB07374071965C7175E15381F9"
             "WorkingFolder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
-            "Icon" = "8:"
+            "Icon" = "8:_00AF0CBA3C914B7CBB007AC09AE4E25D"
             "Feature" = "8:"
             }
         }
@@ -1182,7 +1204,7 @@
                     }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_7519465FB6864EA9B2864336750122A4"
                     {
-                    "Sequence" = "3:200"
+                    "Sequence" = "3:300"
                     "DisplayName" = "8:Installation Folder"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
@@ -1205,7 +1227,7 @@
                     }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_8E6B7D2D44234E16A9EF29796871AF70"
                     {
-                    "Sequence" = "3:300"
+                    "Sequence" = "3:400"
                     "DisplayName" = "8:Confirm Installation"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
@@ -1222,6 +1244,54 @@
                             "Attributes" = "3:4"
                             "Setting" = "3:2"
                             "Value" = "8:_E9155ABC9D24422CAEED01EFF0838742"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_ADC48044A1F0496CA36F6224FA3EC774"
+                    {
+                    "Sequence" = "3:200"
+                    "DisplayName" = "8:License Agreement"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdAdminLicenseDlg.wid"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:2"
+                            "Value" = "8:_E9155ABC9D24422CAEED01EFF0838742"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "EulaText"
+                            {
+                            "Name" = "8:EulaText"
+                            "DisplayName" = "8:#1008"
+                            "Description" = "8:#1108"
+                            "Type" = "3:6"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:_9488E124B96342F191215F0C5E0C3C13"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Sunken"
+                            {
+                            "Name" = "8:Sunken"
+                            "DisplayName" = "8:#1007"
+                            "Description" = "8:#1107"
+                            "Type" = "3:5"
+                            "ContextData" = "8:4;True=4;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:4"
+                            "DefaultValue" = "3:4"
                             "UsePlugInResources" = "11:TRUE"
                             }
                         }
@@ -1331,7 +1401,7 @@
                     }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_79C1957BAB1045C8834DA09EAB463C81"
                     {
-                    "Sequence" = "3:200"
+                    "Sequence" = "3:300"
                     "DisplayName" = "8:Installation Folder"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
@@ -1365,9 +1435,57 @@
                             }
                         }
                     }
+                    "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_7EB2EAE32DB34141BC81FCBDDA3DBB54"
+                    {
+                    "Sequence" = "3:200"
+                    "DisplayName" = "8:License Agreement"
+                    "UseDynamicProperties" = "11:TRUE"
+                    "IsDependency" = "11:FALSE"
+                    "SourcePath" = "8:<VsdDialogDir>\\VsdLicenseDlg.wid"
+                        "Properties"
+                        {
+                            "BannerBitmap"
+                            {
+                            "Name" = "8:BannerBitmap"
+                            "DisplayName" = "8:#1001"
+                            "Description" = "8:#1101"
+                            "Type" = "3:8"
+                            "ContextData" = "8:Bitmap"
+                            "Attributes" = "3:4"
+                            "Setting" = "3:2"
+                            "Value" = "8:_E9155ABC9D24422CAEED01EFF0838742"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "EulaText"
+                            {
+                            "Name" = "8:EulaText"
+                            "DisplayName" = "8:#1008"
+                            "Description" = "8:#1108"
+                            "Type" = "3:6"
+                            "ContextData" = "8:"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:2"
+                            "Value" = "8:_9488E124B96342F191215F0C5E0C3C13"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                            "Sunken"
+                            {
+                            "Name" = "8:Sunken"
+                            "DisplayName" = "8:#1007"
+                            "Description" = "8:#1107"
+                            "Type" = "3:5"
+                            "ContextData" = "8:4;True=4;False=0"
+                            "Attributes" = "3:0"
+                            "Setting" = "3:0"
+                            "Value" = "3:4"
+                            "DefaultValue" = "3:4"
+                            "UsePlugInResources" = "11:TRUE"
+                            }
+                        }
+                    }
                     "{688940B3-5CA9-4162-8DEE-2993FA9D8CBC}:_E7DFB869D4F34697B5788E1A04A88330"
                     {
-                    "Sequence" = "3:300"
+                    "Sequence" = "3:400"
                     "DisplayName" = "8:Confirm Installation"
                     "UseDynamicProperties" = "11:TRUE"
                     "IsDependency" = "11:FALSE"
@@ -1393,21 +1511,7 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_4D034EE2792A48EBA9B4D6C64C15B996"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_ATL_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_F5D033B1B87F43FFB5FB6D2016AF06B2"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_69279EC319724F3BB2DABE6FD17E7718"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
