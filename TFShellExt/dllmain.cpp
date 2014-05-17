@@ -19,7 +19,7 @@ void InitInstance()
 	PathRemoveFileSpec(corePath);
 	PathAppend(corePath, L"provider.dll");
 
-	pantheios::log_INFORMATIONAL(_T("InitInstance: Loading Provider dll: "), corePath);
+	pantheios::log_DEBUG(_T("InitInstance: Loading Provider dll: "), corePath);
 
 	// load the dll and keep the handle to it
 	dllHandle = LoadLibrary(corePath);
@@ -33,15 +33,15 @@ void InitInstance()
 		pConvertFunc = (ConvertToFuncType)GetProcAddress(dllHandle, "ConvertTo");
 
 		if(pDrawFunc == NULL)
-			pantheios::log_WARNING(_T("InitInstance: GetProcAddress FAILED for Draw. GetLastError=")
+			pantheios::log_ERROR(_T("InitInstance: GetProcAddress FAILED for Draw. GetLastError=")
 									, pantheios::integer(GetLastError()));
 
 		if(pGetPropsFunc == NULL)
-			pantheios::log_WARNING(_T("InitInstance: GetProcAddress FAILED for GetProperties. GetLastError=")
+			pantheios::log_ERROR(_T("InitInstance: GetProcAddress FAILED for GetProperties. GetLastError=")
 									, pantheios::integer(GetLastError()));
 
 		if(pConvertFunc == NULL)
-			pantheios::log_WARNING(_T("InitInstance: GetProcAddress FAILED for Convert. GetLastError=")
+			pantheios::log_ERROR(_T("InitInstance: GetProcAddress FAILED for Convert. GetLastError=")
 									, pantheios::integer(GetLastError()));
 	}
 	else
@@ -76,22 +76,23 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 			// in case of failure to get a log file path in AppDataLow, log file 
 			// will be created in the current directory
 			_tcscat_s(logFile, MAX_PATH, _T("ThumbFish.log"));
-			pantheios_be_file_setFilePath(logFile);
+			pantheios_be_file_setFilePath(logFile, PANTHEIOS_BE_FILE_F_SHARE_ON_WINDOWS, 
+				PANTHEIOS_BE_FILE_F_SHARE_ON_WINDOWS, PANTHEIOS_BEID_ALL);
 
-			pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_PROCESS_ATTACH"));
+			//pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_PROCESS_ATTACH"));
 			InitInstance();
 			break;
 
 		case DLL_THREAD_ATTACH:
-			pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_THREAD_ATTACH"));
+			//pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_THREAD_ATTACH"));
 			break;
 
 		case DLL_THREAD_DETACH:
-			pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_THREAD_DETACH"));
+			//pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_THREAD_DETACH"));
 			break;
 
 		case DLL_PROCESS_DETACH:
-			pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_PROCESS_DETACH"));
+			//pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_PROCESS_DETACH"));
 			ExitInstance();
 			pantheios::pantheios_uninit();
 			break;

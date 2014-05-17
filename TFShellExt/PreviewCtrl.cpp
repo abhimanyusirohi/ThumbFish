@@ -7,22 +7,24 @@
 
 CPreviewCtrl::CPreviewCtrl() : m_previewDrawn(false), m_propsGenerated(false)
 {
+	pantheios::log_DEBUG(_T("CPreviewCtrl::CPreviewCtrl> Called."));
 	m_pDocument = NULL;
 }
 
 void CPreviewCtrl::DoPaint(HDC hdc)
 {
-	pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint called"));
-
-	//if(m_pDocument == NULL) return;
-
+	pantheios::log_DEBUG(_T("CPreviewCtrl::DoPaint> Called"));
+	
 	OPTIONS options;
 	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
 
-	if((pDrawFunc != NULL) && (pDoc != NULL) && (pDoc->m_Buffer.DataLength > 0))
+	if((pDrawFunc != NULL) && (pDoc != NULL))
 	{
-		//TODO: Remove this DEBUG ONLY
-		//if(pDoc->m_Buffer.DataLength < 100) return;
+		if(pDoc->m_Buffer.DataLength <= 0)
+		{
+			pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint> Data is ZERO length. No preview will be generated."));
+			return;
+		}
 
 		HWND hPict = GetDlgItem(IDC_PICT);
 		if(hPict != NULL)
@@ -50,6 +52,8 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 
 				if(m_propsGenerated)
 				{
+					pantheios::log_DEBUG(_T("CPreviewCtrl::DoPaint> Properties generated="), pantheios::integer(propCount));
+
 					// insert property values into list view control
 					for(int i = 0; i < propCount; i++)
 					{
@@ -66,18 +70,16 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 					::ShowWindow(hWndList, SW_HIDE);
 					::ShowWindow(::GetDlgItem(m_hWnd, IDC_NOPREVIEWTEXT), SW_SHOW);
 
-					pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint> No properties generated."));
+					pantheios::log_DEBUG(_T("CPreviewCtrl::DoPaint> No properties generated."));
 				}
 			}
 		}
 	}
 	else
 	{
-		//TODO: throws "0 == stlsoft::is_fundamental_type<T2>::value". Check
-		//pantheios::log_ERROR(_T("CPreviewCtrl::DoPaint> Unable to draw Preview"), 
-		//		_T("pDrawThumbnailFunc IsNULL="), (pDrawFunc == NULL),
-		//		_T("pDoc IsNULL="), (pDoc == NULL), 
-		//		_T("BufferLength="), (pDoc == NULL) ? 0 : pDoc->m_Buffer.DataLength);
+		pantheios::log_ERROR(_T("CPreviewCtrl::DoPaint> Unable to draw Preview"), 
+			_T("pDrawThumbnailFunc IsNULL="), pantheios::integer(pDrawFunc == NULL),
+				_T("pDoc IsNULL="), pantheios::integer(pDoc == NULL));
 	}
 }
 
@@ -143,11 +145,9 @@ LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	// set bitmaps for menu items
 	HBITMAP hbmSave = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_SAVE));
 	SetMenuItemBitmaps(hPopupMenu, 0, MF_BYPOSITION, hbmSave, hbmSave);
-	//DeleteObject(hbmSave);
 
 	HBITMAP hbmCopy = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_COPY));
 	SetMenuItemBitmaps(hPopupMenu, 1, MF_BYPOSITION, hbmCopy, hbmCopy);
-	//DeleteObject(hbmCopy);
 
 	if(pDoc != NULL)
 	{
@@ -254,8 +254,8 @@ bool CPreviewCtrl::CopyTextToClipboard(const TCHAR* text)
 		}
 		else
 		{
-			pantheios::log_ERROR(_T("CPreviewCtrl::CopyToClipboard> SetClipboardData FAILED. GetLastError="));
-						//pantheios::integer(GetLastError()));
+			pantheios::log_ERROR(_T("CPreviewCtrl::CopyToClipboard> SetClipboardData FAILED. GetLastError="), 
+						pantheios::integer(GetLastError()));
 			return false;
 		}
 	}
@@ -349,6 +349,11 @@ LRESULT CPreviewCtrl::OnOptionsSaveStructure(WORD /*wNotifyCode*/, WORD /*wID*/,
 
 			CloseHandle(hFile);
 		}
+		else
+		{
+			pantheios::log_ERROR(_T("CPreviewCtrl::OnOptionsSaveStructure> No data returned from Convert method. OutBufferSize= "), 
+				pantheios::integer(options.OutBufferSize));
+		}
 	}
 
 	return 0;
@@ -404,6 +409,11 @@ LRESULT CPreviewCtrl::OnOptionsCopyStructureAs(WORD wNotifyCode, WORD wID, HWND 
 	if(data != NULL)
 	{
 		CopyDataToClipboard(data, options.OutBufferSize, cbFormat);
+	}
+	else
+	{
+		pantheios::log_ERROR(_T("CPreviewCtrl::OnOptionsCopyStructureAs> No data returned from Convert method. OutBufferSize= "));/*, 
+			pantheios::integer(options.OutBufferSize));*/
 	}
 
 	return 0;

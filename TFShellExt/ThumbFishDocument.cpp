@@ -19,11 +19,8 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 	// get stream properties
 	pStream->Stat(&stat, STATFLAG_DEFAULT);
 
-#if _DEBUG
-	//_msgLogger->LogMessage(_T("ThumbFishDocument::LoadFromStream"), _T("called"))
-	//	<< _T("IStream> Name: ") << stat.pwcsName << _T(", Size: ") 
-	//	<< MAKELONG(stat.cbSize.LowPart, stat.cbSize.HighPart) << std::endl;
-#endif
+	pantheios::log_DEBUG(_T("ThumbFishDocument::LoadFromStream> Name="), stat.pwcsName, 
+		_T(", Size="), pantheios::integer(MAKELONG(stat.cbSize.LowPart, stat.cbSize.HighPart)));
 
 	// initialize BUFFER
 	m_Buffer.DataLength = MAKELONG(stat.cbSize.LowPart, stat.cbSize.HighPart);
@@ -47,12 +44,13 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 	if(!LoadStream(pStream))
 		pantheios::log_ERROR(_T("ThumbFishDocument::LoadFromStream> Could not load data."),
 			m_Buffer.FileName, _T(", DataLength"), pantheios::integer(m_Buffer.DataLength));
+
 	return S_OK;
 }
 
 void ThumbFishDocument::InitializeSearchContent()
 {
-	pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::InitializeSearchContent> Called"));
+	pantheios::log_DEBUG(_T("ThumbFishDocument::InitializeSearchContent> Called"));
 
 	CString value;
 	if(pGetPropsFunc != NULL)
@@ -64,7 +62,7 @@ void ThumbFishDocument::InitializeSearchContent()
 
 		if(m_propsGenerated)
 		{
-			pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::InitializeSearchContent> Properties generated="), 
+			pantheios::log_DEBUG(_T("ThumbFishDocument::InitializeSearchContent> Properties generated="), 
 				pantheios::integer(propCount), _T(", for: "), m_Buffer.FileName);
 
 			// insert property values into list view control
@@ -89,7 +87,7 @@ void ThumbFishDocument::InitializeSearchContent()
 	}
 	else
 	{
-		pantheios::log_WARNING(_T("ThumbFishDocument::InitializeSearchContent> Property function is not available."));
+		pantheios::log_ERROR(_T("ThumbFishDocument::InitializeSearchContent> Property function is not available."));
 	}
 
 	SetSearchContent(value);
@@ -97,7 +95,7 @@ void ThumbFishDocument::InitializeSearchContent()
 
 void ThumbFishDocument::SetSearchContent(CString& value)
 {
-	pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::SetSearchContent> Called"));
+	pantheios::log_DEBUG(_T("ThumbFishDocument::SetSearchContent> Called"));
 
 	// Assigns search content to PKEY_Search_Contents key
 	if (value.IsEmpty())
@@ -118,23 +116,28 @@ void ThumbFishDocument::SetSearchContent(CString& value)
 
 void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 {
-	pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::OnDrawThumbnail> Called"));
+	pantheios::log_DEBUG(_T("ThumbFishDocument::OnDrawThumbnail> Called"));
 
 	if(pDrawFunc != NULL)
 	{
 		OPTIONS options;
 		options.IsThumbnail = true;
 		if(!pDrawFunc(hDrawDC, lprcBounds, &m_Buffer, &options))
-			pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::OnDrawThumbnail> Draw returned FALSE. Thumbnail NOT drawn."));
+		{
+			pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::OnDrawThumbnail> Draw returned FALSE. Thumbnail NOT drawn."),
+				_T("File="), m_Buffer.FileName);
+		}
 	}
 	else
 	{
-		pantheios::log_WARNING(_T("ThumbFishDocument::OnDrawThumbnail> Draw function not available."));
+		pantheios::log_ERROR(_T("ThumbFishDocument::OnDrawThumbnail> Draw function not available."));
 	}
 }
 
 BOOL ThumbFishDocument::LoadStream(IStream* stream)
 {
+	pantheios::log_DEBUG(_T("ThumbFishDocument::LoadStream> Called"));
+
 	char recordDelimiter[20];
 	memset(recordDelimiter, 0, 20);
 	
@@ -162,6 +165,9 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		}
 		else
 		{
+			pantheios::log_DEBUG(_T("ThumbFishDocument::LoadStream> File too large and cannot be read. Size= "),
+				pantheios::integer(m_Buffer.DataLength));
+
 			m_Buffer.DataLength = -1;	// file too large
 			return false;
 		}
@@ -171,6 +177,8 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		the following code runs for multimol files only and caches a number of records 
 		because we cannot cache all the records.
 	*/
+
+	pantheios::log_DEBUG(_T("ThumbFishDocument::LoadStream> Reading multimol file..."));
 
 	char readBuffer;
 	ULONG readCount = 0;
@@ -202,6 +210,9 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		}
 	}
 
+	pantheios::log_DEBUG(_T("ThumbFishDocument::LoadStream> Records Read="), 
+		pantheios::integer(recordCount), _T(", Bytes Read="), pantheios::integer(recordsReadBytes));
+
 	if(recordCount > 0)
 	{
 		m_Buffer.pData = new char[recordsReadBytes];
@@ -223,6 +234,8 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 /// </summary>
 BOOL ThumbFishDocument::GetThumbnail(_In_ UINT cx, _Out_ HBITMAP* phbmp, _In_opt_ WTS_ALPHATYPE* /* pdwAlpha */)
 {
+	pantheios::log_DEBUG(_T("ThumbFishDocument::GetThumbnail> Called"));
+
     BOOL br = FALSE;
     HDC hdc = ::GetDC(NULL);
     HDC hDrawDC = CreateCompatibleDC(hdc);
@@ -253,6 +266,7 @@ BOOL ThumbFishDocument::GetThumbnail(_In_ UINT cx, _Out_ HBITMAP* phbmp, _In_opt
         }
         DeleteDC(hDrawDC);
     }
+
     ReleaseDC(NULL, hdc);
     return br;
 }

@@ -48,16 +48,9 @@
 #include <ShlObj.h>
 #include "Utils.h"
 
-//extern Logger* _logger;
 extern HINSTANCE dllHandle;
 extern HINSTANCE ThisInstance;
 
 extern DrawFuncType pDrawFunc;
 extern GetPropertiesFuncType pGetPropsFunc;
 extern ConvertToFuncType pConvertFunc;
-
-//#define	LOG(method, msg, type, nl) _logger->LogMessage(method, msg, type, nl)
-//#define LOG_CALLED(method) _logger->LogMessage(method, _T("called"))
-//#define LOG_INFO(method, msg) _logger->LogMessage(method, msg)
-//#define LOG_WARNING(method, msg) _logger->LogMessage(method, msg, MSGWARNING)
-//#define LOG_ERROR(method, msg) _logger->LogMessage(method, msg, MSGERROR)

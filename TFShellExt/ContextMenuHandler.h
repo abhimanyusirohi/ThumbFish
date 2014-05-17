@@ -12,6 +12,7 @@ class ATL_NO_VTABLE CContextMenuHandler :
 public:
     CContextMenuHandler()
     {
+		pantheios::log_DEBUG(_T("CContextMenuHandler::CContextMenuHandler> ctor Called"));
     }
 
     DECLARE_REGISTRY_RESOURCEID(IDR_CONTEXTMENU_HANDLER)
@@ -22,8 +23,6 @@ public:
         COM_INTERFACE_ENTRY(IShellExtInit)
         COM_INTERFACE_ENTRY(IContextMenu)
     END_COM_MAP()
-
-
 
     DECLARE_PROTECT_FINAL_CONSTRUCT()
 
@@ -37,15 +36,6 @@ public:
     }
 
 public:
-
-    /*!
-    * Good Practice:
-    * 
-    * IFACEMETHODIMP is used instead of STDMETHODIMP for the COM interface 
-    * method impelmetnations. IFACEMETHODIMP includes "__override" that lets 
-    * SAL check that you are overriding a method, so this should be used for 
-    * all COM interface method impelmetnations.
-    */
 
     // IShellExtInit
     IFACEMETHODIMP Initialize(LPCITEMIDLIST, LPDATAOBJECT, HKEY);

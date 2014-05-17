@@ -12,23 +12,12 @@ class ThumbFishDocument : public CAtlDocumentImpl
 public:
 	BOOL		m_preLoad;
 	BUFFER		m_Buffer;
-	HANDLE		m_hEventLog;
 
 public:
 	ThumbFishDocument(void):m_preLoad(FALSE)
 	{
 		m_Buffer.pData = NULL;
 		m_Buffer.DataLength = 0;
-
-		m_hEventLog = NULL;
-	}
-
-	ThumbFishDocument(HANDLE eventlog) : m_preLoad(FALSE)
-	{
-		m_Buffer.pData = NULL;
-		m_Buffer.DataLength = 0;
-
-		m_hEventLog = eventlog;
 	}
 
 	virtual ~ThumbFishDocument(void)

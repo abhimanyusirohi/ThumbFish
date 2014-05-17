@@ -21,4 +21,3 @@ public:
 	static HRESULT GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath);
 	static BOOL ShellExecuteLink(const TCHAR* link);
 };
-

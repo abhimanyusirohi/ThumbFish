@@ -27,10 +27,6 @@ STDAPI DllCanUnloadNow(void)
 // Returns a class factory to create an object of the requested type.
 STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, LPVOID* ppv)
 {
-	//_msgLogger->LogMessage(_T("DllGetClassObject"), _T("DllGetClassObject called")) 
-	//	<< _T("rclsid: ") << rclsid.Data1 << rclsid.Data2 << rclsid.Data3 << rclsid.Data4 << std::endl
-	//	<< _T("riid: ") << riid.Data1 << riid.Data2 << riid.Data3 << riid.Data4 << std::endl;
-
 	#ifdef _MERGE_PROXYSTUB
 	HRESULT hr = PrxDllGetClassObject(rclsid, riid, ppv);
 	if (hr != CLASS_E_CLASSNOTAVAILABLE)

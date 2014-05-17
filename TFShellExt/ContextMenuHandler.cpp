@@ -3,16 +3,9 @@
 #include <strsafe.h>
 #include "AboutDlg.h"
 
-/////////////////////////////////////////////////////////////////////////////
-// ContextMenuHandler IShellExtInit methods.
-// 
+#pragma region IShellExtInit methods
 
-//
-//   FUNCTION: ContextMenuHandler::Initialize(LPCITEMIDLIST, LPDATAOBJECT, 
-//             HKEY)
-//
-//   PURPOSE: Initializes the context menu extension.
-//
+// Initializes the context menu extension.
 IFACEMETHODIMP CContextMenuHandler::Initialize(
     LPCITEMIDLIST pidlFolder, LPDATAOBJECT pDataObj, HKEY hProgID)
 {
@@ -70,10 +63,9 @@ IFACEMETHODIMP CContextMenuHandler::Initialize(
     return hr;
 }
 
+#pragma endregion
 
-/////////////////////////////////////////////////////////////////////////////
-// ContextMenuHandler IContextMenu methods.
-// 
+#pragma region Command Handlers
 
 void CContextMenuHandler::OnThumbFishOnline()
 {
@@ -86,16 +78,13 @@ void CContextMenuHandler::OnAboutThumbFish()
 	dlg.DoModal(NULL);
 }
 
-//
-//   FUNCTION: ContextMenuHandler::QueryContextMenu(HMENU, UINT, UINT, UINT, 
-//             UINT)
-//
-//   PURPOSE: The Shell calls IContextMenu::QueryContextMenu to allow the 
-//            context menu handler to add its menu items to the menu. It 
-//            passes in the HMENU handle in the hmenu parameter. The 
-//            indexMenu parameter is set to the index to be used for the 
-//            first menu item that is to be added.
-//
+#pragma endregion
+
+#pragma region IContextMenu methods
+
+// The Shell calls IContextMenu::QueryContextMenu to allow the context menu handler to add 
+// its menu items to the menu. It passes in the HMENU handle in the hmenu parameter. 
+// The indexMenu parameter is set to the index to be used for the first menu item that is to be added.
 IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
     HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags)
 {
@@ -133,17 +122,11 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 }
 
 
-//
-//   FUNCTION: ContextMenuHandler::GetCommandString(UINT, UINT, LPUINT, 
-//             LPSTR, UINT)
-//
-//   PURPOSE: If a user highlights one of the items added by a context menu 
-//            handler, the handler's IContextMenu::GetCommandString method is 
-//            called to request a Help text string that will be displayed on 
-//            the Windows Explorer status bar. This method can also be called 
-//            to request the verb string that is assigned to a command. 
-//            Either ANSI or Unicode verb strings can be requested.
-//
+// If a user highlights one of the items added by a context menu handler, the handler's 
+// IContextMenu::GetCommandString method is called to request a Help text string that will 
+// be displayed on the Windows Explorer status bar. This method can also be called to 
+// request the verb string that is assigned to a command. Either ANSI or Unicode verb 
+// strings can be requested.
 IFACEMETHODIMP CContextMenuHandler::GetCommandString(
     UINT_PTR idCommand, UINT uFlags, LPUINT lpReserved, LPSTR pszName, 
     UINT uMaxNameLen)
@@ -158,17 +141,11 @@ IFACEMETHODIMP CContextMenuHandler::GetCommandString(
         switch (uFlags)
         {
         case GCS_HELPTEXTA:
-            hr = StringCchCopyNA(pszName, 
-                uMaxNameLen, 
-				helpTextA,
-				lstrlenA(helpTextA));
+            hr = StringCchCopyNA(pszName, uMaxNameLen, helpTextA, lstrlenA(helpTextA));
             break;
 
         case GCS_HELPTEXTW:
-            hr = StringCchCopyNW((LPWSTR)pszName, 
-                uMaxNameLen,
-                helpTextW,
-				lstrlenW((LPWSTR)helpTextW));
+            hr = StringCchCopyNW((LPWSTR)pszName, uMaxNameLen, helpTextW, lstrlenW((LPWSTR)helpTextW));
             break;
 
         default:
@@ -183,17 +160,11 @@ IFACEMETHODIMP CContextMenuHandler::GetCommandString(
         switch (uFlags)
         {
         case GCS_HELPTEXTA:
-            hr = StringCchCopyNA(pszName, 
-                uMaxNameLen,
-				helpTextA,
-				lstrlenA(helpTextA));
+            hr = StringCchCopyNA(pszName, uMaxNameLen, helpTextA, lstrlenA(helpTextA));
             break;
 
         case GCS_HELPTEXTW:
-            hr = StringCchCopyNW((LPWSTR)pszName, 
-                uMaxNameLen,
-                helpTextW,
-                lstrlenW((LPWSTR)helpTextW));
+            hr = StringCchCopyNW((LPWSTR)pszName, uMaxNameLen, helpTextW, lstrlenW((LPWSTR)helpTextW));
             break;
 
         default:
@@ -207,13 +178,8 @@ IFACEMETHODIMP CContextMenuHandler::GetCommandString(
     return hr;
 }
 
-//
-//   FUNCTION: ContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO)
-//
-//   PURPOSE: This method is called when a user clicks a menu item to tell 
-//            the handler to run the associated command. The lpcmi parameter 
-//            points to a structure that contains the needed information.
-//
+// This method is called when a user clicks a menu item to tell the handler to run the 
+// associated command. The lpcmi parameter points to a structure that contains the needed information.
 IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 {
     BOOL fEx = FALSE;
@@ -254,3 +220,5 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 
     return S_OK;
 }
+
+#pragma endregion

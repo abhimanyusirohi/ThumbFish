@@ -22,7 +22,7 @@ class ATL_NO_VTABLE CThumbnailHandler :
 public:
 	CThumbnailHandler()
 	{
-		//LOG_INFO(_T("CThumbnailHandler"), _T("ctor called."));
+		pantheios::log_DEBUG(_T("CThumbnailHandler::CThumbnailHandler> ctor Called"));
 	}
 
 DECLARE_REGISTRY_RESOURCEID(IDR_THUMBNAIL_HANDLER)
@@ -48,6 +48,8 @@ END_COM_MAP()
 protected:
 	virtual HRESULT GetBitmap(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha)
 	{
+		pantheios::log_DEBUG(_T("CThumbnailHandler::GetBitmap> Called. cx=", pantheios::integer(cx)));
+
 		if (m_pDocument == NULL)
 		{
 			return E_NOTIMPL;
@@ -65,6 +67,8 @@ protected:
 
 	virtual IDocument* CreateDocument()
 	{
+		pantheios::log_DEBUG(_T("CThumbnailHandler::CreateDocument> Called"));
+
 		ThumbFishDocument *pDocument = NULL;
 		ATLTRY(pDocument = new ThumbFishDocument());
 		return pDocument;
