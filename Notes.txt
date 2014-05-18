@@ -17,6 +17,10 @@ So the Min Dependency = Vista
 Log File
 C:\Users\{USER}\AppData\LocalLow\ThumbFish.log
 
+By default, the prevhost.exe process hosting a preview handler runs as a low-integrity process, which means 
+it doesn't have write access to the current users profile
+http://blogs.msdn.com/b/toub/archive/2006/12/18/unauthorizedaccessviolation-in-pdf-preview-handler.aspx
+
 Windows Search 3X SDK can be used to get more information on IFilter
 To make search work: Explorer >> Tools >> Options >> Search >> Don't use search...
 
@@ -59,4 +63,24 @@ Important Code Snippets
 			}
 		}
 	}
--------------->>>> 
+---------------------------------------------------------------------------->>>> 
+
+
+--------------------------------------------------------------------------------------------
+GUID Changes
+--------------------------------------------------------------------------------------------
+
+Fixed Guids:
+
+Filter Handler:
+	{89BCB740-6119-101A-BCB7-00DD010655AF}
+
+Preview Handler:  http://msdn.microsoft.com/en-us/library/windows/desktop/cc144144(v=vs.85).aspx
+	{8895b1c6-b41f-4c1c-a562-0d564250836f}
+	{6d2b5079-2f0b-48dd-ab7f-97cec514d30b} = ID of the Prevhost.exe surrogate host. 
+	32-bit preview handlers should use AppID {534A1E02-D58F-44f0-B58B-36CBED287C7C} when 
+	installed on 64-bit operating systems.
+
+Thumbnail Handler:
+	{E357FCCD-A995-4576-B01F-234630154E96}
+
