@@ -93,7 +93,7 @@ HRESULT Utils::DoFileSaveDialog(HWND owner, PWSTR filePath)
         pfd->Release();
     }
 
-	pantheios::log_DEBUG(_T("Utils::DoFileSaveDialog> HRESULT="), pantheios::integer(hr));
+	pantheios::log_NOTICE(_T("Utils::DoFileSaveDialog> HRESULT="), pantheios::integer(hr));
 
     return hr;
 }
@@ -116,7 +116,7 @@ HRESULT Utils::GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath)
 		CoTaskMemFree (wszPath);
 	}
 
-	pantheios::log_DEBUG(_T("Utils::GetSystemFolder> HRESULT="), pantheios::integer(hr));
+	pantheios::log_NOTICE(_T("Utils::GetSystemFolder> HRESULT="), pantheios::integer(hr));
 
 	return hr;
 }
@@ -125,7 +125,7 @@ HRESULT Utils::GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath)
 // Opens the specified link in default browser using the ShellExecuteEx API
 BOOL Utils::ShellExecuteLink(const TCHAR* link)
 {
-	pantheios::log_DEBUG(_T("Utils::ShellExecuteLink> Called. LINK="), link);
+	pantheios::log_NOTICE(_T("Utils::ShellExecuteLink> Called. LINK="), link);
 
 	SHELLEXECUTEINFO shInfo;
 	shInfo.cbSize = sizeof(SHELLEXECUTEINFO);

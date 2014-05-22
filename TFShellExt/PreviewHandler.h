@@ -23,7 +23,7 @@ public:
 	CPreviewHandler()
 	{
 		m_pDocument = NULL;
-		pantheios::log_DEBUG(_T("CPreviewHandler::CPreviewHandler> ctor Called"));
+		pantheios::log_NOTICE(_T("CPreviewHandler::CPreviewHandler> ctor Called"));
 	}
 
 DECLARE_REGISTRY_RESOURCEID(IDR_PREVIEW_HANDLER)
@@ -52,7 +52,7 @@ END_COM_MAP()
 protected:
 	virtual IPreviewCtrl* CreatePreviewControl()
 	{
-		pantheios::log_DEBUG(_T("CPreviewHandler::CreatePreviewControl> Called"));
+		pantheios::log_NOTICE(_T("CPreviewHandler::CreatePreviewControl> Called"));
 
 		// create the preview control
 		CPreviewCtrl *pPreviewCtrl = NULL;
@@ -62,7 +62,7 @@ protected:
 
 	virtual IDocument* CreateDocument()
 	{
-		pantheios::log_DEBUG(_T("CPreviewHandler::CreateDocument> Called"));
+		pantheios::log_NOTICE(_T("CPreviewHandler::CreateDocument> Called"));
 
 		// create document
 		ThumbFishDocument *pDocument = NULL;

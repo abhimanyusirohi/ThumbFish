@@ -7,13 +7,13 @@
 
 CPreviewCtrl::CPreviewCtrl() : m_previewDrawn(false), m_propsGenerated(false)
 {
-	pantheios::log_DEBUG(_T("CPreviewCtrl::CPreviewCtrl> Called."));
+	pantheios::log_NOTICE(_T("CPreviewCtrl::CPreviewCtrl> Called."));
 	m_pDocument = NULL;
 }
 
 void CPreviewCtrl::DoPaint(HDC hdc)
 {
-	pantheios::log_DEBUG(_T("CPreviewCtrl::DoPaint> Called"));
+	pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Called"));
 	
 	OPTIONS options;
 	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
@@ -22,7 +22,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 	{
 		if(pDoc->m_Buffer.DataLength <= 0)
 		{
-			pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint> Data is ZERO length. No preview will be generated."));
+			pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Data is ZERO length. No preview will be generated."));
 			return;
 		}
 
@@ -38,7 +38,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 			m_previewDrawn = pDrawFunc(::GetDC(hPict), &rect, &pDoc->m_Buffer, &options);
 
 			if(!m_previewDrawn)
-				pantheios::log_INFORMATIONAL(_T("CPreviewCtrl::DoPaint> Draw returned FALSE."));
+				pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Draw returned FALSE."));
 
 			// get handle of property ListView
 			HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
@@ -52,7 +52,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 
 				if(m_propsGenerated)
 				{
-					pantheios::log_DEBUG(_T("CPreviewCtrl::DoPaint> Properties generated="), pantheios::integer(propCount));
+					pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Properties generated="), pantheios::integer(propCount));
 
 					// insert property values into list view control
 					for(int i = 0; i < propCount; i++)
@@ -70,7 +70,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 					::ShowWindow(hWndList, SW_HIDE);
 					::ShowWindow(::GetDlgItem(m_hWnd, IDC_NOPREVIEWTEXT), SW_SHOW);
 
-					pantheios::log_DEBUG(_T("CPreviewCtrl::DoPaint> No properties generated."));
+					pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> No properties generated."));
 				}
 			}
 		}

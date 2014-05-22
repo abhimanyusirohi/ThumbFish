@@ -23,7 +23,7 @@ public:
 	CFilterHandler()
 	{
 		m_bEnableEventLog = FALSE;
-		pantheios::log_DEBUG(_T("CFilterHandler::CFilterHandler> ctor Called"));
+		pantheios::log_NOTICE(_T("CFilterHandler::CFilterHandler> ctor Called"));
 	}
 
 DECLARE_REGISTRY_RESOURCEID(IDR_FILTER_HANDLER)
@@ -58,7 +58,7 @@ public:
 protected:
 	virtual IDocument* CreateDocument()
 	{
-		pantheios::log_DEBUG(_T("CFilterHandler::CreateDocument> Called"));
+		pantheios::log_NOTICE(_T("CFilterHandler::CreateDocument> Called"));
 
 		ThumbFishDocument *pDocument = NULL;
 		ATLTRY(pDocument = new ThumbFishDocument());

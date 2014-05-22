@@ -12,7 +12,7 @@ class ATL_NO_VTABLE CContextMenuHandler :
 public:
     CContextMenuHandler()
     {
-		pantheios::log_DEBUG(_T("CContextMenuHandler::CContextMenuHandler> ctor Called"));
+		pantheios::log_NOTICE(_T("CContextMenuHandler::CContextMenuHandler> ctor Called"));
     }
 
     DECLARE_REGISTRY_RESOURCEID(IDR_CONTEXTMENU_HANDLER)

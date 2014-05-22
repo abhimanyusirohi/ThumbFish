@@ -16,41 +16,49 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 {
 	STATSTG stat;
 
+	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Called"));
+
 	// get stream properties
-	pStream->Stat(&stat, STATFLAG_DEFAULT);
+	HRESULT hr = pStream->Stat(&stat, STATFLAG_DEFAULT);
+	if(hr == S_OK)
+	{
+		// initialize BUFFER
+		m_Buffer.DataLength = MAKELONG(stat.cbSize.LowPart, stat.cbSize.HighPart);
+		_tcscpy_s(m_Buffer.FileName, MAX_PATH, OLE2W(stat.pwcsName));
 
-	pantheios::log_DEBUG(_T("ThumbFishDocument::LoadFromStream> Name="), stat.pwcsName, 
-		_T(", Size="), pantheios::integer(MAKELONG(stat.cbSize.LowPart, stat.cbSize.HighPart)));
+		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Name="), m_Buffer.FileName, 
+		_T(", Size="), pantheios::integer(m_Buffer.DataLength));
 
-	// initialize BUFFER
-	m_Buffer.DataLength = MAKELONG(stat.cbSize.LowPart, stat.cbSize.HighPart);
-	_tcscpy_s(m_Buffer.FileName, MAX_PATH, OLE2W(stat.pwcsName));
-
-	// set extension enum
-	TCHAR* ext = ::PathFindExtension(m_Buffer.FileName);
+		// set extension enum
+		TCHAR* ext = ::PathFindExtension(m_Buffer.FileName);
 	
-	if(TEQUAL(ext, ".mol")) m_Buffer.FileExtension = extMOL;
-	else if(TEQUAL(ext, ".mol")) m_Buffer.FileExtension = extMOL;
-	else if(TEQUAL(ext, ".rxn")) m_Buffer.FileExtension = extRXN;
-	else if(TEQUAL(ext, ".smi")) m_Buffer.FileExtension = extSMI;
-	else if(TEQUAL(ext, ".smiles")) m_Buffer.FileExtension = extSMILES;
-	else if(TEQUAL(ext, ".smarts")) m_Buffer.FileExtension = extSMARTS;
-	else if(TEQUAL(ext, ".sdf")) m_Buffer.FileExtension = extSDF;
-	else if(TEQUAL(ext, ".rdf")) m_Buffer.FileExtension = extRDF;
-	else if(TEQUAL(ext, ".cml")) m_Buffer.FileExtension = extCML;
-	else m_Buffer.FileExtension = extUnknown;
+		if(TEQUAL(ext, ".mol")) m_Buffer.FileExtension = extMOL;
+		else if(TEQUAL(ext, ".mol")) m_Buffer.FileExtension = extMOL;
+		else if(TEQUAL(ext, ".rxn")) m_Buffer.FileExtension = extRXN;
+		else if(TEQUAL(ext, ".smi")) m_Buffer.FileExtension = extSMI;
+		else if(TEQUAL(ext, ".smiles")) m_Buffer.FileExtension = extSMILES;
+		else if(TEQUAL(ext, ".smarts")) m_Buffer.FileExtension = extSMARTS;
+		else if(TEQUAL(ext, ".sdf")) m_Buffer.FileExtension = extSDF;
+		else if(TEQUAL(ext, ".rdf")) m_Buffer.FileExtension = extRDF;
+		else if(TEQUAL(ext, ".cml")) m_Buffer.FileExtension = extCML;
+		else m_Buffer.FileExtension = extUnknown;
 
-	// load stream into BUFFER always
-	if(!LoadStream(pStream))
-		pantheios::log_ERROR(_T("ThumbFishDocument::LoadFromStream> Could not load data."),
-			m_Buffer.FileName, _T(", DataLength"), pantheios::integer(m_Buffer.DataLength));
+		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Loading Stream..."));
+
+		// load stream into BUFFER always
+		if(!LoadStream(pStream))
+			pantheios::log_ERROR(_T("ThumbFishDocument::LoadFromStream> Could not load data."),
+				m_Buffer.FileName, _T(", DataLength"), pantheios::integer(m_Buffer.DataLength));
+	}
+
+	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> HRESULT="), pantheios::integer(hr));
 
 	return S_OK;
 }
 
 void ThumbFishDocument::InitializeSearchContent()
 {
-	pantheios::log_DEBUG(_T("ThumbFishDocument::InitializeSearchContent> Called"));
+	pantheios::log_NOTICE(_T("ThumbFishDocument::InitializeSearchContent> Called"));
 
 	CString value;
 	if(pGetPropsFunc != NULL)
@@ -62,7 +70,7 @@ void ThumbFishDocument::InitializeSearchContent()
 
 		if(m_propsGenerated)
 		{
-			pantheios::log_DEBUG(_T("ThumbFishDocument::InitializeSearchContent> Properties generated="), 
+			pantheios::log_NOTICE(_T("ThumbFishDocument::InitializeSearchContent> Properties generated="), 
 				pantheios::integer(propCount), _T(", for: "), m_Buffer.FileName);
 
 			// insert property values into list view control
@@ -95,7 +103,7 @@ void ThumbFishDocument::InitializeSearchContent()
 
 void ThumbFishDocument::SetSearchContent(CString& value)
 {
-	pantheios::log_DEBUG(_T("ThumbFishDocument::SetSearchContent> Called"));
+	pantheios::log_NOTICE(_T("ThumbFishDocument::SetSearchContent> Called"));
 
 	// Assigns search content to PKEY_Search_Contents key
 	if (value.IsEmpty())
@@ -116,7 +124,7 @@ void ThumbFishDocument::SetSearchContent(CString& value)
 
 void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 {
-	pantheios::log_DEBUG(_T("ThumbFishDocument::OnDrawThumbnail> Called"));
+	pantheios::log_NOTICE(_T("ThumbFishDocument::OnDrawThumbnail> Called"));
 
 	if(pDrawFunc != NULL)
 	{
@@ -124,7 +132,7 @@ void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 		options.IsThumbnail = true;
 		if(!pDrawFunc(hDrawDC, lprcBounds, &m_Buffer, &options))
 		{
-			pantheios::log_INFORMATIONAL(_T("ThumbFishDocument::OnDrawThumbnail> Draw returned FALSE. Thumbnail NOT drawn."),
+			pantheios::log_NOTICE(_T("ThumbFishDocument::OnDrawThumbnail> Draw returned FALSE. Thumbnail NOT drawn."),
 				_T("File="), m_Buffer.FileName);
 		}
 	}
@@ -136,7 +144,7 @@ void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 
 BOOL ThumbFishDocument::LoadStream(IStream* stream)
 {
-	pantheios::log_DEBUG(_T("ThumbFishDocument::LoadStream> Called"));
+	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> Called"));
 
 	char recordDelimiter[20];
 	memset(recordDelimiter, 0, 20);
@@ -165,7 +173,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		}
 		else
 		{
-			pantheios::log_DEBUG(_T("ThumbFishDocument::LoadStream> File too large and cannot be read. Size= "),
+			pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> File too large and cannot be read. Size= "),
 				pantheios::integer(m_Buffer.DataLength));
 
 			m_Buffer.DataLength = -1;	// file too large
@@ -178,7 +186,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		because we cannot cache all the records.
 	*/
 
-	pantheios::log_DEBUG(_T("ThumbFishDocument::LoadStream> Reading multimol file..."));
+	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> Reading multimol file..."));
 
 	char readBuffer;
 	ULONG readCount = 0;
@@ -210,7 +218,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		}
 	}
 
-	pantheios::log_DEBUG(_T("ThumbFishDocument::LoadStream> Records Read="), 
+	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> Records Read="), 
 		pantheios::integer(recordCount), _T(", Bytes Read="), pantheios::integer(recordsReadBytes));
 
 	if(recordCount > 0)
@@ -234,7 +242,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 /// </summary>
 BOOL ThumbFishDocument::GetThumbnail(_In_ UINT cx, _Out_ HBITMAP* phbmp, _In_opt_ WTS_ALPHATYPE* /* pdwAlpha */)
 {
-	pantheios::log_DEBUG(_T("ThumbFishDocument::GetThumbnail> Called"));
+	pantheios::log_NOTICE(_T("ThumbFishDocument::GetThumbnail> Called"));
 
     BOOL br = FALSE;
     HDC hdc = ::GetDC(NULL);

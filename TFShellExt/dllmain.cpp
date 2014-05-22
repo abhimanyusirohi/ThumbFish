@@ -19,7 +19,7 @@ void InitInstance()
 	PathRemoveFileSpec(corePath);
 	PathAppend(corePath, L"provider.dll");
 
-	pantheios::log_DEBUG(_T("InitInstance: Loading Provider dll: "), corePath);
+	pantheios::log_NOTICE(_T("InitInstance: Loading Provider dll: "), corePath);
 
 	// load the dll and keep the handle to it
 	dllHandle = LoadLibrary(corePath);
@@ -79,20 +79,20 @@ extern "C" BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpRes
 			pantheios_be_file_setFilePath(logFile, PANTHEIOS_BE_FILE_F_SHARE_ON_WINDOWS, 
 				PANTHEIOS_BE_FILE_F_SHARE_ON_WINDOWS, PANTHEIOS_BEID_ALL);
 
-			//pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_PROCESS_ATTACH"));
+			//pantheios::log_NOTICE(_T("DllMain -> DLL_PROCESS_ATTACH"));
 			InitInstance();
 			break;
 
 		case DLL_THREAD_ATTACH:
-			//pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_THREAD_ATTACH"));
+			//pantheios::log_NOTICE(_T("DllMain -> DLL_THREAD_ATTACH"));
 			break;
 
 		case DLL_THREAD_DETACH:
-			//pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_THREAD_DETACH"));
+			//pantheios::log_NOTICE(_T("DllMain -> DLL_THREAD_DETACH"));
 			break;
 
 		case DLL_PROCESS_DETACH:
-			//pantheios::log_INFORMATIONAL(_T("DllMain -> DLL_PROCESS_DETACH"));
+			//pantheios::log_NOTICE(_T("DllMain -> DLL_PROCESS_DETACH"));
 			ExitInstance();
 			pantheios::pantheios_uninit();
 			break;

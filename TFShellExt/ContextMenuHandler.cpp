@@ -69,11 +69,15 @@ IFACEMETHODIMP CContextMenuHandler::Initialize(
 
 void CContextMenuHandler::OnThumbFishOnline()
 {
+	pantheios::log_NOTICE(_T("CContextMenuHandler::OnThumbFishOnline> Called"));
+
 	Utils::ShellExecuteLink(c_OnlineLink);
 }
 
 void CContextMenuHandler::OnAboutThumbFish()
 {
+	pantheios::log_NOTICE(_T("CContextMenuHandler::OnAboutThumbFish> Called"));
+
 	AboutDlg dlg;
 	dlg.DoModal(NULL);
 }
