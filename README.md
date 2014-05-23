@@ -1,7 +1,5 @@
 ![ScreenShot](https://raw.githubusercontent.com/abhimanyusirohi/ThumbFish/master/TFShellExt/About.bmp)
 
-### ThumbFish
-
 ThumbFish is a simple utility for chemists and people working with chemical files. It integrates with Windows and provides molecule Thumbnail, Preview, Search and other useful features.   
 
 ThumbFish uses the following open source components:
