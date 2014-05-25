@@ -1,14 +1,5 @@
-http://support.microsoft.com/kb/2735477
-Remove .NET dependency from Setup projects
-
 Interesting Molecules
 http://www.reciprocalnet.org/edumodules/commonmolecules/list.html
-
-
-TODO:
-Custom Action - Output dll project paths having an extra \
-.NET Dependency
-
 
 ThumbFish uses [Common Item Dialog]
 http://msdn.microsoft.com/en-us/library/windows/desktop/bb776913(v=vs.85).aspx
@@ -23,64 +14,3 @@ http://blogs.msdn.com/b/toub/archive/2006/12/18/unauthorizedaccessviolation-in-p
 
 Windows Search 3X SDK can be used to get more information on IFilter
 To make search work: Explorer >> Tools >> Options >> Search >> Don't use search...
-
-
---------------------------------------------------------------
-Important Code Snippets
---------------------------------------------------------------
-
--------------->>>> To Load a custom resource of type TEXT containing rtf data in a RichTextBox
-
-	// Make sure RichText box library is loaded when creating a ATL dialog with RichText control
-	// use the following in dialog's contructor
-	// Explicitly load rich edit control
-	// http://msdn.microsoft.com/en-us/library/dsezt3x7.aspx
-	// LoadLibrary(_T("riched20.dll"));
-
-	char buffer[4096];
-		
-	HRSRC hResource = FindResource(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDR_ABOUTTEXT), L"TEXT");
-	if (hResource)
-	{
-		HGLOBAL hLoadedResource = LoadResource(_AtlBaseModule.m_hInst, hResource);
-
-		if (hLoadedResource)
-		{
-			LPVOID pLockedResource = LockResource(hLoadedResource);
-
-			if (pLockedResource)
-			{
-				DWORD dwResourceSize = SizeofResource(_AtlBaseModule.m_hInst, hResource);
-
-				if (0 != dwResourceSize)
-				{
-					memcpy_s(buffer, 4096, pLockedResource, dwResourceSize);
-					buffer[dwResourceSize] = 0;	// Null terminated
-
-					HWND hRichText = ::GetDlgItem(m_hWnd, IDC_ABOUTTEXT);
-					::SendMessage(hRichText, WM_SETTEXT, 0, (LPARAM)buffer);
-				}
-			}
-		}
-	}
----------------------------------------------------------------------------->>>> 
-
-
---------------------------------------------------------------------------------------------
-GUID Changes
---------------------------------------------------------------------------------------------
-
-Fixed Guids:
-
-Filter Handler:
-	{89BCB740-6119-101A-BCB7-00DD010655AF}
-
-Preview Handler:  http://msdn.microsoft.com/en-us/library/windows/desktop/cc144144(v=vs.85).aspx
-	{8895b1c6-b41f-4c1c-a562-0d564250836f}
-	{6d2b5079-2f0b-48dd-ab7f-97cec514d30b} = ID of the Prevhost.exe surrogate host. 
-	32-bit preview handlers should use AppID {534A1E02-D58F-44f0-B58B-36CBED287C7C} when 
-	installed on 64-bit operating systems.
-
-Thumbnail Handler:
-	{E357FCCD-A995-4576-B01F-234630154E96}
-
