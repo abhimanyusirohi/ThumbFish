@@ -92,7 +92,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;INDIGOPROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api;..\..\..\ThirdParty\Pantheios\include;..\..\..\ThirdParty\StlSoft\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -114,7 +114,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;INDIGOPROVIDER_EXPORTS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api;..\..\..\ThirdParty\Pantheios\include;..\..\..\ThirdParty\StlSoft\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -138,7 +138,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;INDIGOPROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api;..\..\..\ThirdParty\Pantheios\include;..\..\..\ThirdParty\StlSoft\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -164,7 +164,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;INDIGOPROVIDER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\ThirdParty\Indigo;..\..\..\ThirdParty\Indigo\common;..\..\..\ThirdParty\Indigo\api;..\..\..\ThirdParty\Pantheios\include;..\..\..\ThirdParty\StlSoft\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -191,6 +191,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -214,6 +215,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="IndigoProvider.rc" />

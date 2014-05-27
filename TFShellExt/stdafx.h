@@ -31,7 +31,6 @@
 #include <atlconv.h>
 #include "comdef.h"
 
-//#include "..\Logger\Logger.h"
 #include <pantheios\pantheios.hpp>
 #include <pantheios\inserters\integer.hpp>
 #include <pantheios\backends\bec.file.h>

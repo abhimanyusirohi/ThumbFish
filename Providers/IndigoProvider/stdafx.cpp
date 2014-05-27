@@ -4,5 +4,4 @@
 
 #include "stdafx.h"
 
-// TODO: reference any additional headers you need in STDAFX.H
-// and not in this file
+PANTHEIOS_EXTERN_C const PAN_CHAR_T PANTHEIOS_FE_PROCESS_IDENTITY[] = PANTHEIOS_LITERAL_STRING("Provider");

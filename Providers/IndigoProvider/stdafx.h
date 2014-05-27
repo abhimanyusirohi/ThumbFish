@@ -14,6 +14,18 @@
 #include <string>
 #include <map>
 #include <tchar.h>
+#include <atlbase.h>
+
+#include <pantheios\pantheios.hpp>
+#include <pantheios\inserters\integer.hpp>
+#include <pantheios\inserters\pointer.hpp>
+#include <pantheios\backends\bec.file.h>
+
+// implicit linking
+#include <pantheios\implicit_link\util.h>
+#include <pantheios\implicit_link\core.h>
+#include <pantheios\implicit_link\be.file.h>
+#include <pantheios\implicit_link\fe.Simple.h>
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -25,5 +37,6 @@
 // ShellChangeNotify
 #include <MsiQuery.h>
 #include <ShlObj.h>
+#include "Utils.h"
 
 extern HINSTANCE hInstance;

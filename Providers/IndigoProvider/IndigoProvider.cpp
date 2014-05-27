@@ -17,6 +17,9 @@ const enum PropFlags {
 
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options)
 {
+	pantheios::log_NOTICE(_T("API-Draw> Called. File="), buffer->FileName, 
+			_T(", Length="), pantheios::integer(buffer->DataLength));
+
 	ReturnObjectType retType = SingleMol;
 
 	if(buffer->DataLength > 0)
@@ -32,9 +35,11 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 
 			int dc = indigoRenderWriteHDC((void*)hDC, 0);
 
+			int renderErr = 0;
 			if(retType == SingleMol)
 			{
-				indigoRender(ptr, dc);
+				renderErr = indigoRender(ptr, dc);
+				pantheios::log_NOTICE(_T("API-Draw> Render returned="), pantheios::integer(renderErr));
 			}
 			else
 			{
@@ -87,10 +92,17 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 			indigoFree(ptr);
 			return true;
 		}
+		else
+		{
+			pantheios::log_NOTICE(_T("API-Draw> ReadBuffer FAILED"));
+		}
+	}
+	else
+	{
+		pantheios::log_NOTICE(_T("API-Draw> Buffer is EMPTY."));
 	}
 
 	// zero length, too large or invalid file format
-	//TODO: Draw error bitmap
 	DrawErrorBitmap(hDC, &rect);
 
 	return false;
@@ -98,6 +110,9 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 
 INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options, bool searchNames)
 {
+	pantheios::log_NOTICE(_T("API-GetProperties> Called. File="), buffer->FileName, 
+			_T(", Length="), pantheios::integer(buffer->DataLength));
+
 	int propCount = 0;
 
 	ReturnObjectType retType = SingleMol;
@@ -109,6 +124,8 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 
 		if(propCount > 0)
 		{
+			pantheios::log_NOTICE(_T("API-GetProperties> Properties to be read="), pantheios::integer(propCount));
+
 			*properties = new TCHAR*[propCount * 2];
 
 			int index = -2;
@@ -215,8 +232,16 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 			//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));
 			//AddProperty(properties, 24, _T("InChi Key"), temp);
 		}
+		else
+		{
+			pantheios::log_NOTICE(_T("API-GetProperties> No properties selected for this file type."));
+		}
 
 		indigoFree(mol);
+	}
+	else
+	{
+		pantheios::log_NOTICE(_T("API-GetProperties> ReadBuffer FAILED"));
 	}
 
 	return propCount;
@@ -227,6 +252,10 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 */
 INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options)
 {
+	pantheios::log_NOTICE(_T("API-ConvertTo> Called. File="), buffer->FileName, 
+			_T(", Length="), pantheios::integer(buffer->DataLength),
+			_T(", OutExt="), options->RenderOutputExtension);
+
 	char* retBuffer = NULL;
 	ReturnObjectType retType = SingleMol;
 
@@ -313,7 +342,12 @@ INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options)
 			else
 			{
 				//TODO: Conversion of multimol files such as SDF etc
+				pantheios::log_WARNING(_T("API-ConvertTo> Function called for MultiMol file. Not Implemented."));
 			}
+		}
+		else
+		{
+			pantheios::log_NOTICE(_T("API-ConvertTo> ReadBuffer FAILED."));
 		}
 	}
 
@@ -342,26 +376,27 @@ int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type)
 {
 	if((buffer == NULL) || (buffer->DataLength <= 0)) return -1;
 
-	try
+	if((buffer->FileExtension == extMOL) || (buffer->FileExtension == extSMI)
+		|| (buffer->FileExtension == extSMILES))
+		return indigoLoadMoleculeFromBuffer(buffer->pData, buffer->DataLength);
+	else if(buffer->FileExtension == extRXN)
+		return indigoLoadReactionFromBuffer(buffer->pData, buffer->DataLength);
+	else if(buffer->FileExtension == extSMARTS)
+		return indigoLoadSmartsFromBuffer(buffer->pData, buffer->DataLength);
+	else if((buffer->FileExtension == extSDF) || (buffer->FileExtension == extRDF) || (buffer->FileExtension == extCML))
 	{
-		if((buffer->FileExtension == extMOL) || (buffer->FileExtension == extSMI)
-			|| (buffer->FileExtension == extSMILES))
-			return indigoLoadMoleculeFromBuffer(buffer->pData, buffer->DataLength);
-		else if(buffer->FileExtension == extRXN)
-			return indigoLoadReactionFromBuffer(buffer->pData, buffer->DataLength);
-		else if(buffer->FileExtension == extSMARTS)
-			return indigoLoadSmartsFromBuffer(buffer->pData, buffer->DataLength);
-		else if((buffer->FileExtension == extSDF) || (buffer->FileExtension == extRDF) || (buffer->FileExtension == extCML))
-		{
-			*type = MultiMol;
-			int reader = indigoLoadBuffer(buffer->pData, buffer->DataLength);
+		*type = MultiMol;
+		int reader = indigoLoadBuffer(buffer->pData, buffer->DataLength);
 
-			if(buffer->FileExtension == extSDF) return indigoIterateSDF(reader);
-			if(buffer->FileExtension == extRDF) return indigoIterateRDF(reader);
-			if(buffer->FileExtension == extCML) return indigoIterateCML(reader);
-		}
+		if(buffer->FileExtension == extSDF) return indigoIterateSDF(reader);
+		if(buffer->FileExtension == extRDF) return indigoIterateRDF(reader);
+		if(buffer->FileExtension == extCML) return indigoIterateCML(reader);
 	}
-	catch(...) { return -1; }
+	else
+	{
+		pantheios::log_WARNING(_T("ReadBuffer> Invalid file type="), 
+			pantheios::integer(buffer->FileExtension));
+	}
 
 	return -1;
 }
@@ -442,12 +477,20 @@ void DrawErrorBitmap(HDC hDC, LPRECT lpRect)
 		::FillRect(hDC, lpRect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
 
 		// center the error bitmap in area
-		BitBlt(hDC, lpRect->left + ((lpRect->right - lpRect->left) - bmcx)/2, 
+		if(!BitBlt(hDC, lpRect->left + ((lpRect->right - lpRect->left) - bmcx)/2, 
 			lpRect->top + ((lpRect->bottom - lpRect->top) - bmcy)/2, lpRect->right,
-			lpRect->bottom, hdcMem, 0, 0, SRCCOPY);
+			lpRect->bottom, hdcMem, 0, 0, SRCCOPY))
+		{
+			pantheios::log_WARNING(_T("DrawErrorBitmap> BitBlt API FAILED. GetLastError="), 
+				pantheios::integer(::GetLastError()));
+		}
 
 		SelectObject(hdcMem, oldBitmap);
 		DeleteDC(hdcMem);
 		DeleteObject(hBitmap);
+	}
+	else
+	{
+		pantheios::log_WARNING(_T("DrawErrorBitmap> LoadBitmap FAILED."));
 	}
 }
