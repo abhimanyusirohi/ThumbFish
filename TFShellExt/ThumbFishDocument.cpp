@@ -130,7 +130,7 @@ void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 	{
 		OPTIONS options;
 		options.IsThumbnail = true;
-		if(!pDrawFunc(hDrawDC, lprcBounds, &m_Buffer, &options))
+		if(!pDrawFunc(hDrawDC, *lprcBounds, &m_Buffer, &options))
 		{
 			pantheios::log_NOTICE(_T("ThumbFishDocument::OnDrawThumbnail> Draw returned FALSE. Thumbnail NOT drawn."),
 				_T("File="), m_Buffer.FileName);

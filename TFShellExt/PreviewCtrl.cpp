@@ -35,7 +35,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 			::GetClientRect(hPict, &rect);
 
 			// draw thumbnail in client area and get molecule properties
-			m_previewDrawn = pDrawFunc(::GetDC(hPict), &rect, &pDoc->m_Buffer, &options);
+			m_previewDrawn = pDrawFunc(::GetDC(hPict), rect, &pDoc->m_Buffer, &options);
 
 			if(!m_previewDrawn)
 				pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Draw returned FALSE."));
