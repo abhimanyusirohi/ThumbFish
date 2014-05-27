@@ -39,7 +39,7 @@
             
             <h1><a name="about-thumbfish" class="anchor" href="#about-thumbfish"><span class="octicon octicon-link"></span></a>What is ThumbFish</h1>
 &nbsp;<p>ThumbFish is a simple utility for chemists and people working with chemical files. It integrates with Windows and provides molecule Thumbnail, Preview, Search 
-    and other useful features. It is a set of Windows Shell Extension handlers developed to quickly identify and analyze structure files. ThumbFish urrently supports 
+    and other useful features. It is a set of Windows Shell Extension handlers developed to quickly identify and analyze structure files. ThumbFish currently supports 
     the following chemical structure files:</p>
 
 <ul>
@@ -52,7 +52,7 @@
 <li><a href="http://en.wikipedia.org/wiki/Chemical_table_file#SDF">SDF (Structure Data File - V2000 and V3000)</a></li>
 <li>RDF (Reaction Data File - V2000 and V3000)</li>
 <li><a href="http://en.wikipedia.org/wiki/Chemical_Markup_Language">CML (Chemical Markup Language)</a></li>
-</ul><p>The handlers makes it easy to identify and search these chemical files without opening the associated application. These handlers are NOT dependent 
+</ul><p>The handlers make it easy to identify and search these chemical files without opening the associated application. These handlers are NOT dependent 
     on any specific commercially available Chemistry application. It uses the open source organic chemistry toolkit 
     named <a href="http://www.ggasoftware.com/opensource/indigo">Indigo</a> by GGA Software. The other open source component used in ThumbFish is <a href="http://www.pantheios.org/">Pantheios
     logging library</a>.
@@ -88,7 +88,7 @@
                 <li>To Show/Hide preview pane: [Windows Explorer &gt;&gt; Organize (Extreme Left on toolbar) &gt;&gt; Layout &gt;&gt;Preview Pane]</li>
             </ol>
             <img src="images/preview1.png" alt="Preview" title="Preview" style="border:dotted;border-width:thin"/><br />
-            Preview window provides a context-menu that has different useful options to Save and Copy structure and properties. 
+            Preview window provides a context-menu that has different useful options to Save and Copy structures and properties. 
     <ul>
         <li>Save Structure: Saves a structure to disk in different formats: PNG, PDF, SVG, EMF and CDXML.</li>
         <li>Copy Properties: Copies the currently displayed structure properties to clipboard in Key:Value format</li>
@@ -98,7 +98,7 @@
             <img src="images/preview2.png" alt="Preview Menu" title="Preview Menu" style="border:dotted;border-width:thin"/>
             <br />
             <br />
-            <h2>Search Handler</h2>IFilter search handlers are used by Windows Search Engine to index information inside proprietry files. This IFilter search handler indexes 
+            <h2>Search Handler</h2>IFilter search handlers are used by Windows Search Engine to index information inside proprietary files. This IFilter search handler indexes 
     properties such as formula, atom count, mass etc inside supported files and returns them to the Windows Search Engine so that the user can search for structures with given 
     properties. Normally, the search engine only searches for file names and not inside a file&#39;s contents but the search handler makes it possible to search by a molecule properties. 
     For example if there are 100 structure files inside a folder then typing benzene will search for file names containing the word &#39;benzene&#39; and matching files will be 
@@ -115,9 +115,9 @@
     You can try the following steps if search is not working as expected.
     <ul>
         <li>Rebuild the search index in case it is corrupt or not built because of user activity: [Control Panel &gt;&gt; Indexing Options &gt;&gt; Advanced &gt;&gt; Rebuild]
-            Note that this can take some time besed on the number of files to index</li>
+            Note that this can take some time based on the number of files to index</li>
         <li>Enable to always search a file&#39;s content [Explorer &gt;&gt; Folder Options &gt;&gt; Search &gt;&gt; What to Search &gt;&gt; Always search file name and contents]</li>
-        <li>Finally to always reindex and search: [Explorer >> Tools >> Options >> Search >> Don't use the index when searching in file folders...]</li>
+        <li>Finally to always re-index and search: [Explorer >> Tools >> Options >> Search >> Don't use the index when searching in file folders...]</li>
         <li>Still not working, check the ThumbFish Log for any error messages.</li>
     </ul>
     <h3>Search Examples</h3>
