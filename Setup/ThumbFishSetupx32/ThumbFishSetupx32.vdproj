@@ -27,18 +27,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_08DAAF6125C94A41B7E77C9FED2F2C0C"
-        "OwnerKey" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_08DAAF6125C94A41B7E77C9FED2F2C0C"
-        "OwnerKey" = "8:_EDA54E2EF11E40AEAE5ABAD46D784150"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_118EE10836294F07B3130BECE5EA8861"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -107,12 +95,6 @@
         {
         "MsmKey" = "8:_83B7811AA192441F8B553C04741AB885"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_8510475FBDE849969E119B12019400F8"
-        "OwnerKey" = "8:_EDA54E2EF11E40AEAE5ABAD46D784150"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -290,14 +272,6 @@
         {
             "LaunchCondition"
             {
-                "{A06ECF26-33A3-4562-8140-9B0E340D4F24}:_38C6B01F32094680BDEC4F078BFC5AE5"
-                {
-                "Name" = "8:.NET Framework"
-                "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:.NETFramework,Version=v2.0"
-                "AllowLaterVersions" = "11:FALSE"
-                "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=131000"
-                }
             }
         }
         "File"
@@ -1537,34 +1511,6 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_08DAAF6125C94A41B7E77C9FED2F2C0C"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_CRT_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_8510475FBDE849969E119B12019400F8"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_ATL_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
         }
         "ProjectOutput"
         {
