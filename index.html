@@ -23,13 +23,15 @@
           }
       </style>
 <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+        m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-  ga('create', 'UA-51329802-1', 'ahimanyusirohi.github.io');
-  ga('send', 'pageview');
+    ga('create', 'UA-51329802-1', 'ahimanyusirohi.github.io');
+    ga('send', 'pageview');
 
 </script>      
   </head>
@@ -76,69 +78,101 @@
 <li><b>Search Handler</b>: Searches for a structure based on its properties</li>
 <li><b>Context-Menu Handler</b>: Provides additional useful options on structure files</li>
 </ul>
-
-<h1><a name="about-thumbfish" class="anchor" href="#about-thumbfish"><span class="octicon octicon-link"></span></a>Using ThumbFish</h1>
+<a id="gettingstarted"><h1>Getting Started</h1></a>
+            Here is how to quickly try out the main features in 3 easy steps using the included sample files. Double-click the sample files link on your desktop 
+            to open it in Windows Explorer.
+            <h3>1... View Thumbnails</h3>
+            <p>
+                The first thing that you will see after installing ThumbFish is the "ThumbFish Sample Files" shortcut link on your desktop. This is a shortcut to a folder 
+                containing some sample molecule and reaction files and is automatically installed by the setup program. When you open this folder, Windows
+                will call ThumbFish components to generate thumbnails for the files if the thumbnail view is currently active. You can switch to thumbnail view
+                by right clicking inside the folder and selecting a <i>View</i> or using the <i>View</i> item from the menu. Try View >> Large Icons.
+                
+            </p><img src="images/getting-started.png" alt="Getting Started" title="Getting Started" style="border:dotted;border-width:thin"/>
+            <h3>2... Preview</h3>
+            <p>
+                Preview Pane needs to be enabled to view molecule previews. To enable preview pane in Windows 7, click the preview pane button on the top right side 
+                in Windows Explorer (see screenshot above). In Windows 8, use the View tab and select <i>Preview Pane</i>. Once the preview pane is enabled, select any
+                file to view its image and properties.
+            </p>
+            <h3>3... Search for molecules</h3>
+            <p>To quickly search for molecules containing 13 atoms, type "na_13" in the search box (see screenshot above). This should filter the current view and show 
+                only 3 molecules (Adrenaline.mol. Adrenaline.smiles and Aspirin.mol). If its not working for you then you need to enable searching in "File Contents". 
+                In Windows 7, click "File Contents" in "Search Again In" section inside Windows Explorer where the thumbnails are displayed. In Windows 8, goto the "Search Tab" 
+                then "Advanced Options" and enable "File Contents". Check out <a href="#search">Search</a> section for more details.</p>
+<h1>Components</h1>
 <p>
     <h2>Thumbnail Handler</h2>Thumbnail handler displays thumbnail images in Windows Explorer for supported chemical 
-    formats. In case of SDF files, the thumbnail shows the first four structures to help 
-    users identify a particular SDF without opening the file in the associated program.<br />
+    formats. In case of multi-molecule files such as SDF or CML, the thumbnail shows first four structures to help 
+    users identify a particular file without opening the file in the associated program.<br />
     
             <br /><img src="images/thumbnail1.png" alt="Thumbnail" title="Thumbnail" style="border:dotted;border-width:thin"/><br />
             <br /><img src="images/cml1.png" alt="CML File" title="CML File" style="border:dotted;border-width:thin"/><br />
 &nbsp;<br />
-    <h2>Preview Handler</h2>Preview handler can be used to view common properties associated with a structure file. Preview shows properties such as 
-    Name, Formula, SMILES, InChI and many more. These properties can be copied to the clipboard using the &quot;Copy Properties&quot; option in the context-menu on the preview dialog. 
-            It copies all available properties to the clipboard in a Key:Value format. 
+    <h2>Preview Handler</h2>Preview handler can be used to view properties associated with a structure file. Preview shows properties such as 
+    Name, Formula, SMILES, InChI and many more. These properties can be copied to the clipboard using the &quot;Copy Properties&quot; option in the context-menu 
+    on the preview window. It copies all available properties to the clipboard in a Key:Value format. 
             <br />
-            <span class="auto-style1">Note that no properties are displayed 
-    for multi-molecule files such as SDF.</span>
+            <u>Note that no properties are displayed for multi-molecule files such as SDF or CML</u>
             <br />
             <br />
-            If you do not see previews in Windows Explorer then try the following: 
-            <ol>
-                <li>Enable Preview Handlers by checking the following option: [Windows Explorer Tools &gt;&gt; Folder Options &gt;&gt; View &gt;&gt;Show preview handlers in preview pane]</li>
-                <li>To Show/Hide preview pane: [Windows Explorer &gt;&gt; Organize (Extreme Left on toolbar) &gt;&gt; Layout &gt;&gt;Preview Pane]</li>
-            </ol>
-            <img src="images/preview1.png" alt="Preview" title="Preview" style="border:dotted;border-width:thin"/><br />
+            If you do not see previews in Windows Explorer then try the following steps to enable previews: 
+            <ul>
+                <li>Enable Preview Handlers by checking the following option: 
+                    <br />[Windows Explorer Tools &gt;&gt; Folder Options &gt;&gt; View &gt;&gt;Show preview handlers in preview pane]
+                    <br /><br />
+                </li>
+                <li>Show/Hide preview pane:
+                    <br />[Windows Explorer &gt;&gt; Organize (Extreme Left on toolbar) &gt;&gt; Layout &gt;&gt;Preview Pane]</li>
+            </ul>
+            <img src="images/preview1.png" alt="Preview" title="Preview" style="border:dotted;border-width:thin"/><br /><br />
             Preview window provides a context-menu that has different useful options to Save and Copy structures and properties. 
     <ul>
-        <li>Save Structure: Saves a structure to disk in different formats: PNG, PDF, SVG, EMF and CDXML.</li>
-        <li>Copy Properties: Copies the currently displayed structure properties to clipboard in Key:Value format</li>
-        <li>Copy Structure As: Copies the current structure to clipboard in different useful formats including MDL MOL and ChemDraw's CDXML</li>
+        <li><u>Save Structure</u>: Saves a structure to disk in different formats: PNG, PDF, SVG, EMF and CDXML. Note that the structures are 
+            saved in user's AppData\LocalLow directory e.g.<br />"C:\Users\[USER]\AppData\LocalLow". See <a href="#known-limitations">Known Limitations</a></li>
+        <li><u>Copy Properties</u>: Copies the currently displayed structure properties to clipboard in Key:Value format</li>
+        <li><u>Copy Structure As</u>: Copies the current structure to clipboard in different useful formats including MDL MOL and ChemDraw's CDXML format</li>
     </ul>
             
             <img src="images/preview2.png" alt="Preview Menu" title="Preview Menu" style="border:dotted;border-width:thin"/>
             <br />
             <br />
-            <h2>Search Handler</h2>IFilter search handlers are used by Windows Search Engine to index information inside proprietary files. This IFilter search handler indexes 
-    properties such as formula, atom count, mass etc inside supported files and returns them to the Windows Search Engine so that the user can search for structures with given 
-    properties. Normally, the search engine only searches for file names and not inside a file&#39;s contents but the search handler makes it possible to search by a molecule properties. 
+            <a id="search"><h2>Search Handler</h2></a>Search handlers are used by Windows Search Engine to index information inside proprietary files. ThumbFish search handler indexes 
+    properties such as formula, atom-count, bond-count, mass etc inside supported files and indexes them so that the user can search for structures with given 
+    properties. Normally, the search engine only searches for file names and not inside a file&#39;s contents but the search handler makes it possible to search by molecule properties. 
     For example if there are 100 structure files inside a folder then typing benzene will search for file names containing the word &#39;benzene&#39; and matching files will be 
-    returned. With a Search handler such as this one, a user can search for structures having atom count as 12 by typing na_12. 
+    returned. With a Search handler such as this one, a user can search for structures having 13 atoms by typing na_13. <br /><br />
     <img src="images/search1.png" alt="Search" title="Search" style="border:dotted;border-width:thin"/>
 
     <h3>Setting Up Search</h3>
     <ul>
-        <li>Make sure Windows Search is enabled in Control Panel [Control Panel &gt;&gt; Programs and Features &gt;&gt; Turn Windows Features on or off &gt;&gt; Windows Search]</li>
-        <li>Make sure that the folder in which you want to search is included for indexing [Control Panel &gt;&gt; Indexing Options] (your folder should be listed here)</li>
+        <li>Make sure Windows Search is enabled in Control Panel
+            <br />[Control Panel &gt;&gt; Programs and Features &gt;&gt; Turn Windows Features on or off &gt;&gt; Windows Search]</li>
+        <li>Make sure that the folder in which you want to search is included for indexing
+            <br />[Control Panel &gt;&gt; Indexing Options] (your folder should be listed here)</li>
     </ul>
     
     <h3>Troubleshooting Search</h3>
     You can try the following steps if search is not working as expected.
     <ul>
-        <li>Rebuild the search index in case it is corrupt or not built because of user activity: [Control Panel &gt;&gt; Indexing Options &gt;&gt; Advanced &gt;&gt; Rebuild]
-            Note that this can take some time based on the number of files to index</li>
-        <li>Enable to always search a file&#39;s content [Explorer &gt;&gt; Folder Options &gt;&gt; Search &gt;&gt; What to Search &gt;&gt; Always search file name and contents]</li>
-        <li>Finally to always re-index and search: [Explorer >> Tools >> Options >> Search >> Don't use the index when searching in file folders...]</li>
-        <li>Still not working, check the ThumbFish Log for any error messages.</li>
+        <li>Rebuild the search index in case it is corrupt or not built because of user activity
+            <br />[Control Panel &gt;&gt; Indexing Options &gt;&gt; Advanced &gt;&gt; Rebuild]<br />
+            Note that this can take some time based on the number of files to index
+        </li>
+        <li>Enable to always search a file&#39;s content
+            <br />[Explorer &gt;&gt; Folder Options &gt;&gt; Search &gt;&gt; What to Search &gt;&gt; Always search file name and contents]
+        </li>
+        <li>Finally to always re-index and search
+            <br />[Explorer >> Tools >> Options >> Search >> Don't use the index when searching in file folders...]
+        </li>
+        <li>Still not working, check the ThumbFish Log for error messages at the following location
+            <br /><u>C:\Users\[USER]\AppData\LocalLow\ThumbFish.log</u>
+        </li>
     </ul>
     <h3>Search Examples</h3>
-    Note that a underscore &#39;_&#39; is used instead of an equals to &#39;=&#39; sign because an equals to sign is a word breaker. Properties are supplied to the 
-    search engine as a long string containing semicolons to separate different properties (&#39;formula_c6h6;na_12;name_benzene;&#39;). These properties are further 
-    split by the search engine to extract words that can be indexed so passing a &#39;na=12&#39; will store &#39;na&#39; and &#39;12&#39; because &#39;=&#39; is a word breaker. 
-    In order to make search such as &#39;na_12&#39; possible it should not contain any word breaker.The following property searches are possible: 
+    The following property searches are possible. Note that an underscore &#39;_&#39; is used instead of an equals to &#39;=&#39; sign.<br />
     <ul>
-        <li>Name: name_{x} [e.g. n_benzene] Note that name is the structure name stored in the file</li>
+        <li>Name: name_{x} [e.g. n_benzene] Note that name is the structure name not the file name</li>
         <li>Formula: formula_{x} [e.g. formula_c6h6]</li>
         <li>NumAtoms: na_{x} [e.g. na_12]</li>
         <li>NumBonds: nb_{x} [e.g. nb_10]</li>
@@ -155,7 +189,7 @@
     <h2>Context-Menu handler</h2>
     ThumbFish context-menu is integrated into the Window Explorer context-menu and provides commands that work on single and multi molecule files. 
     As of now the context-menu does not have any feature commands. It is there to let users know that the future versions of this product will add
-    commands to it.
+    commands to it.<br /><br />
     <img src="images/contextmenu1.png" alt="Context Menu" title="Context Menu" style="border:dotted;border-width:thin"/>
 </p>
 
@@ -167,18 +201,21 @@
     <li>When a structure is saved using the "Save Structure" command in Preview Handler then it can only be saved in user's AppData\LocalLow directory. 
         This is because the Preview Handler runs in a low integrity mode under Windows and does not have access to other locations.</li>
     <li>The Copy Structure As >> InChi Key command is NOT operational. The command has been intentionally disabled because of some problems associated with it.</li>
-    <li>ThumbFish handles do not currently support Windows 8. Some of the APIs used in the handlers fail on Windows 8 which is being investigated.</li>
 </ol>
             <h1>Supported OS</h1>
+            (Both 32 and 64 bit platforms are supported)
             <ul>
-                <li>Windows Vista SP2 (32 & 64 bit)</li>
-                <li>Windows 7 (32 & 64 bit)</li>
+                <li>Windows Vista SP2</li>
+                <li>Windows 7 SP1</li>
+                <li>Windows 8.1</li>
             </ul>
+            <hr>
         </section>
 
         <aside id="sidebar">
+            <p>Use the links below to download the latest installers for Windows Vista and above. Installers are LESS than 3 MB in size and takes less than a minute to install.</p>
           <a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/neptune-beta1/ThumbFishSetupx64.msi" class="button">
-            <small>Neptune Beta.1</small>
+            <small>Neptune BETA.1</small>
             64-bit
           </a>
           <a href="" class="button">
