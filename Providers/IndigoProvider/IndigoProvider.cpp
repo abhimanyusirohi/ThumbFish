@@ -413,7 +413,8 @@ void SetIndigoOptions(LPOPTIONS options)
 {
 	if(options == NULL || !options->Changed) return;
 
-	indigoSetOptionBool("render-coloring", options->RenderColoring ? 1 : 0);
+	// Issue #57: coloring disabled for thumbnails
+	indigoSetOptionBool("render-coloring", (options->RenderColoring && !options->IsThumbnail) ? 1 : 0);
 	indigoSetOptionXY("render-margins", options->RenderMarginX, options->RenderMarginY);
 	indigoSetOptionFloat("render-relative-thickness", options->RenderRelativeThickness);
 
