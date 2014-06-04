@@ -37,6 +37,7 @@
 // ShellChangeNotify
 #include <MsiQuery.h>
 #include <ShlObj.h>
+#include <ShellAPI.h>
 #include "Utils.h"
 
 extern HINSTANCE hInstance;

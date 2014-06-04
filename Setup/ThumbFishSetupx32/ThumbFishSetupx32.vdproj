@@ -235,7 +235,7 @@
         {
             "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_1DEE845075C84493906E3AE53D4F7A5C"
             {
-            "Name" = "8:Primary Output from IndigoProvider (Release Win32)"
+            "Name" = "8:RefreshIcons"
             "Condition" = "8:"
             "Object" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
             "FileType" = "3:1"
@@ -247,9 +247,23 @@
             "InstallerClass" = "11:FALSE"
             "CustomActionData" = "8:"
             }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_7784A16BCBAA41CCABA607CE7ED362E9"
+            {
+            "Name" = "8:LaunchGettingStarted"
+            "Condition" = "8:"
+            "Object" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
+            "FileType" = "3:1"
+            "InstallAction" = "3:2"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:LaunchGettingStarted"
+            "Sequence" = "3:2"
+            "Identifier" = "8:_64FB55B1_E364_4C26_93AD_E0AA52CD3822"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:"
+            }
             "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_FBDB433E85F741148D6AE63382870C27"
             {
-            "Name" = "8:Primary Output from IndigoProvider (Release Win32)"
+            "Name" = "8:RefreshIcons"
             "Condition" = "8:"
             "Object" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
             "FileType" = "3:1"

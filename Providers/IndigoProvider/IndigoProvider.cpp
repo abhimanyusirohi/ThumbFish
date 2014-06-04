@@ -361,6 +361,14 @@ extern "C" UINT __stdcall RefreshIcons(MSIHANDLE hInstall)
 	return ERROR_SUCCESS;
 }
 
+/** Open the Getting Started online link in default browser */
+extern "C" UINT __stdcall LaunchGettingStarted(MSIHANDLE hInstall)
+{
+	ShellExecute(NULL, _T("open"), _T("http://abhimanyusirohi.github.io/ThumbFish/#gettingstarted"), 
+		NULL, NULL, SW_SHOWNORMAL);
+	return ERROR_SUCCESS;
+}
+
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value)
 {
 	size_t len = _tcslen(name) + 1;

@@ -17,6 +17,7 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options);
 
 extern "C" __declspec(dllexport) UINT __stdcall RefreshIcons(MSIHANDLE hInstall);
+extern "C" __declspec(dllexport) UINT __stdcall LaunchGettingStarted(MSIHANDLE hInstall);
 
 void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value);
 std::string GetData(LPBUFFER buffer);
