@@ -39,7 +39,6 @@
 #include <pantheios\implicit_link\util.h>
 #include <pantheios\implicit_link\core.h>
 #include <pantheios\implicit_link\be.file.h>
-#include <pantheios\implicit_link\fe.Simple.h>
 
 #include <string>
 #include <map>

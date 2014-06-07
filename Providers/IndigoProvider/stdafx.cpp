@@ -4,4 +4,23 @@
 
 #include "stdafx.h"
 
-PANTHEIOS_EXTERN_C const PAN_CHAR_T PANTHEIOS_FE_PROCESS_IDENTITY[] = PANTHEIOS_LITERAL_STRING("Provider");
+// Custom Pantheios FrontEnd implementation to filter messages
+PANTHEIOS_CALL(int) pantheios_fe_init(void* /* reserved */, void** ptoken)
+{
+	*ptoken = NULL;
+	return 0;
+}
+
+PANTHEIOS_CALL(void) pantheios_fe_uninit(void* /* token */) {}
+PANTHEIOS_CALL(PAN_CHAR_T const*) pantheios_fe_getProcessIdentity(void* /* token */) { return _T("Provider"); }
+
+PANTHEIOS_CALL(int) pantheios_fe_isSeverityLogged(void* /* token */, int severity, int /* backEndId */)
+{
+	// define DETAILEDLOG in final release so that only WARNING and above messages are logged
+	// for other releases such as beta, all informational messages should be logged
+	#if DETAILEDLOG
+		return 1;	// log all messages
+	#else
+		return severity <= pantheios::warning;	// log warnings and above only
+	#endif
+}
