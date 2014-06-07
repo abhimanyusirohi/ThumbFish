@@ -39,4 +39,5 @@ protected:
 	void SetSearchContent(CString& value);
 	virtual BOOL GetThumbnail(UINT, HBITMAP*, WTS_ALPHATYPE*);
 	virtual void OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds);
+	int FindMolVersion(char* data, int dataLength, int lineNum);
 };

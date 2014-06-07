@@ -12,7 +12,7 @@ const enum PropFlags {
 	propName = 0x1, propNumAtoms = 0x2, propNumBonds = 0x4, propImplH = 0x8, propHeavyAtoms = 0x10, propGrossFormula = 0x20,
 	propMolWeight = 0x40, propMostAbundantMass = 0x80, propMonoIsotopicMass = 0x100, propIsChiral = 0x200, propHasCoord = 0x400,
 	propHasZCoord = 0x800, propSmiles = 0x1000, propCanonicalSmiles = 0x2000, propLayeredCode = 0x4000, propInChI = 0x8000, 
-	propInChIKey = 0x10000
+	propInChIKey = 0x10000, propDataVersion = 0x20000
 };
 
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options)
@@ -89,6 +89,10 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 				indigoFree(collection);
 			}
 
+			// draw a V3000 indicator for thumbnails
+			if(options->IsThumbnail && (buffer->DataVersion == 2))
+				DrawVersionIndicator(hDC);
+
 			indigoFree(ptr);
 			return true;
 		}
@@ -135,6 +139,14 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoName(mol));
 				AddProperty(properties, index+=2, searchNames ? _T("name") : _T("Name"), temp);
+			}
+
+			if(flags & propDataVersion)
+			{
+				int dv = buffer->DataVersion;
+				_snwprintf_s(temp, 500, 500, L"%s", 
+					(dv == 1) ? _T("V2000") : ((dv == 2) ? _T("V3000") : _T("NA")));
+				AddProperty(properties, index+=2, searchNames ? _T("version") : _T("Version"), temp);
 			}
 
 			if(flags & propNumAtoms)
@@ -443,13 +455,13 @@ INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps)
 	*numProps = 0;
 	if(_tcsicmp(ext, _T(".mol")) == 0)
 	{
-		*numProps = 16;
+		*numProps = 17;
 		return ULONG_MAX; // set all bits, show all properties
 	}
 	else if(_tcsicmp(ext, _T(".rxn")) == 0)
 	{
-		*numProps = 3;
-		return (propName | propSmiles | propIsChiral);
+		*numProps = 4;
+		return (propName | propSmiles | propIsChiral | propDataVersion);
 	}
 	else if((_tcsicmp(ext, _T(".smi")) == 0) || (_tcsicmp(ext, _T(".smiles")) == 0))
 	{
@@ -502,4 +514,21 @@ void DrawErrorBitmap(HDC hDC, LPRECT lpRect)
 	{
 		pantheios::log_WARNING(_T("DrawErrorBitmap> LoadBitmap FAILED."));
 	}
+}
+
+void DrawVersionIndicator(HDC hDC)
+{
+	HBRUSH greenBrush = ::CreateSolidBrush(RGB(7, 203, 75));
+	HPEN oldPen = (HPEN)SelectObject(hDC, GetStockObject(WHITE_PEN));
+	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, greenBrush);
+
+	// draw empty rectangle
+	::Ellipse(hDC, 10, 10, 25, 25);
+
+	// revert to old pens and brushes
+	SelectObject(hDC, oldPen);
+	SelectObject(hDC, oldBrush);
+
+	// delete the newly created pen
+	DeleteObject(greenBrush);
 }

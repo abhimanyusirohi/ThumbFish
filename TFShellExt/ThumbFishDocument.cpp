@@ -169,11 +169,23 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		if(m_Buffer.DataLength < MAX_MOL_SIZE)
 		{
 			m_Buffer.pData = new char[m_Buffer.DataLength];
-			return (stream->Read(m_Buffer.pData, m_Buffer.DataLength, (ULONG*)&m_Buffer.DataLength) == S_OK);
+
+			HRESULT hr = stream->Read(m_Buffer.pData, m_Buffer.DataLength, (ULONG*)&m_Buffer.DataLength);
+
+			if(hr == S_OK)
+			{
+				// set data version (V2000, V3000) info for MOL and RXN files
+				if(m_Buffer.FileExtension == extMOL)
+					m_Buffer.DataVersion = FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 4);
+				else if(m_Buffer.FileExtension == extRXN)
+					m_Buffer.DataVersion = FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 1);
+			}
+
+			return hr;
 		}
 		else
 		{
-			pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> File too large and cannot be read. Size= "),
+			pantheios::log_WARNING(_T("ThumbFishDocument::LoadStream> File too large and cannot be read. Size= "),
 				pantheios::integer(m_Buffer.DataLength));
 
 			m_Buffer.DataLength = -1;	// file too large
@@ -190,6 +202,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 
 	char readBuffer;
 	ULONG readCount = 0;
+	bool firstMolVersionChecked = false;
 	char largeTempBuffer[MAX_CACHE_SIZE];
 	size_t delimiterLen = strlen(recordDelimiter);
 	int matchIndex = 0, totalReadBytes = 0, recordCount = 0, recordsReadBytes = 0;
@@ -206,6 +219,20 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		{
 			if(matchIndex == delimiterLen) // whole delimiter string matches
 			{
+				if(!firstMolVersionChecked)
+				{
+					if(m_Buffer.FileExtension == extSDF)
+					{
+						m_Buffer.DataVersion = FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4);
+						firstMolVersionChecked = true;
+					}
+					else if((m_Buffer.FileExtension == extRDF) && (recordCount == 1))	// RDF has start tag unlike SDF ending tag $$$$
+					{
+						m_Buffer.DataVersion = FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4);
+						firstMolVersionChecked = true;
+					}
+				}
+
 				recordsReadBytes = totalReadBytes;	// count of bytes upto which we got records
 				recordCount++;
 			}
@@ -234,6 +261,32 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	}
 
 	return FALSE;
+}
+
+int ThumbFishDocument::FindMolVersion(char* data, int dataLength, int lineNum)
+{
+	int line = 0;
+	for(int index = 0; index < dataLength; index++)
+	{
+		if(data[index] == '\n')
+		{
+			line++;
+
+			// when we are at the end of desired line, check if the last few 
+			// chars corresponds to some version number
+			if(line == lineNum)
+			{
+				// if the LF char is preceded by a CR then we have to shift our compare index
+				int shiftIndex = (data[index - 1] == '\r') ? 6 : 5;
+
+				// compare the last 5/6 characters to get the version number
+				// For V3000 format, the text 'V3000' will always be there. This is not true
+				// for V2000 which could be missing in a RXN file
+				if (_strnicmp(&(data[index - shiftIndex]), "V3000", 5) == 0) return 2;
+				else return 1;	// default to V2000
+			}
+		}
+	}
 }
 
 /// <summary>

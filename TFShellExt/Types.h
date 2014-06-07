@@ -59,9 +59,10 @@ struct Buffer
 	long			DataLength;
 	TCHAR			FileName[MAX_PATH];
 	Extension		FileExtension;
+	unsigned short	DataVersion;	// usually MDL/RXN version. (0=unknown, 1=V2000, 2=V3000)
 
 public:
-	Buffer() : pData(NULL), DataLength(0) {}
+	Buffer() : pData(NULL), DataLength(0), DataVersion(0) {}
 };
 
 typedef Buffer BUFFER, *LPBUFFER;

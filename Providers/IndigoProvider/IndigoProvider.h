@@ -25,3 +25,4 @@ int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type);
 void SetIndigoOptions(LPOPTIONS options);
 INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps);
 void DrawErrorBitmap(HDC hDC, LPRECT lpRect);
+void DrawVersionIndicator(HDC hDC);
