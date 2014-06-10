@@ -23,7 +23,7 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 	if(hr == S_OK)
 	{
 		// initialize BUFFER
-		m_Buffer.DataLength = MAKELONG(stat.cbSize.LowPart, stat.cbSize.HighPart);
+		m_Buffer.DataLength = stat.cbSize.LowPart;
 		_tcscpy_s(m_Buffer.FileName, MAX_PATH, OLE2W(stat.pwcsName));
 
 		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Name="), m_Buffer.FileName, 
@@ -45,8 +45,8 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 
 		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Loading Stream..."));
 
-		// load stream into BUFFER always
-		if(!LoadStream(pStream))
+		// load stream into BUFFER only when it contains data
+		if((m_Buffer.DataLength > 0) && !LoadStream(pStream))
 			pantheios::log_ERROR(_T("ThumbFishDocument::LoadFromStream> Could not load data."),
 				m_Buffer.FileName, _T(", DataLength"), pantheios::integer(m_Buffer.DataLength));
 	}
@@ -234,7 +234,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 				}
 
 				recordsReadBytes = totalReadBytes;	// count of bytes upto which we got records
-				recordCount++;
+				recordCount++;	// RDF will have one less than MAX_CACHE_RECORD_COUNT coz it has starting tag
 			}
 
 			if(recordCount == MAX_CACHE_RECORD_COUNT) break;	// desired number of records read
@@ -245,11 +245,14 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		}
 	}
 
-	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> Records Read="), 
-		pantheios::integer(recordCount), _T(", Bytes Read="), pantheios::integer(recordsReadBytes));
-
 	if(recordCount > 0)
 	{
+		// approximate the total number of records
+		if((m_Buffer.FileExtension == extSDF) || (m_Buffer.FileExtension == extCML))
+			m_Buffer.TotalRecords = (m_Buffer.DataLength / (recordsReadBytes / 4));
+		else if(m_Buffer.FileExtension == extRDF)
+			m_Buffer.TotalRecords = (m_Buffer.DataLength / (recordsReadBytes / 3));
+
 		m_Buffer.pData = new char[recordsReadBytes];
 		m_Buffer.DataLength = recordsReadBytes;
 		memcpy(m_Buffer.pData, largeTempBuffer, recordsReadBytes);
@@ -259,6 +262,10 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	{
 		m_Buffer.DataLength = 0;	// no records read
 	}
+
+	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> Records Read="), pantheios::integer(recordCount), 
+		_T(", Bytes Read="), pantheios::integer(recordsReadBytes),
+		_T(", Approx Records="), pantheios::integer(m_Buffer.TotalRecords));
 
 	return FALSE;
 }

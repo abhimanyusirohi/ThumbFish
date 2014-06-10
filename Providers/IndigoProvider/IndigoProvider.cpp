@@ -89,9 +89,14 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 				indigoFree(collection);
 			}
 
-			// draw a V3000 indicator for thumbnails
-			if(options->IsThumbnail && (buffer->DataVersion == 2))
-				DrawVersionIndicator(hDC);
+			if(options->IsThumbnail)
+			{
+				// draw a V3000 indicator for thumbnails
+				if(buffer->DataVersion == 2) DrawVersionIndicator(hDC);
+
+				// draw approx record count value
+				if(buffer->TotalRecords > 0) DrawRecordCount(hDC, rect, buffer->TotalRecords);
+			}
 
 			indigoFree(ptr);
 			return true;
@@ -531,4 +536,46 @@ void DrawVersionIndicator(HDC hDC)
 
 	// delete the newly created pen
 	DeleteObject(greenBrush);
+}
+
+void DrawRecordCount(HDC hDC, RECT rect, int recordCount)
+{
+	SIZE szText;
+	wchar_t text[10];
+	int len = _snwprintf_s(text, 10, 10, L"%d±", recordCount);
+
+	// create a large font to display molecule count
+	HFONT font = CreateFont(20, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS, 
+		ANTIALIASED_QUALITY, FF_DONTCARE, NULL);
+	HFONT oldFont = (HFONT)SelectObject(hDC, font);
+
+	// get width of text with currently selected font
+	GetTextExtentPoint(hDC, text, len, &szText);
+
+	// add margins to text
+	szText.cx += 10;
+	szText.cy += 5;
+
+	int destWidth = (rect.right - rect.left);
+	int destHeight = (rect.bottom - rect.top);
+	
+	HBRUSH lightgreenBrush = ::CreateSolidBrush(RGB(103, 250, 154));	// light green
+	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, lightgreenBrush);
+
+	HPEN pen = CreatePen(PS_SOLID, 1, RGB(7, 203, 75));	// little darker green than the fill colour
+	HPEN oldPen = (HPEN)SelectObject(hDC, pen);
+
+	Rectangle(hDC, destWidth - szText.cx - 5, 5, destWidth - 5, szText.cy + 5);
+
+	SetBkMode(hDC, TRANSPARENT);
+	SetTextColor(hDC, RGB(3, 82, 31));
+	TextOut(hDC, destWidth-szText.cx, 7, text, len);
+
+	SelectObject(hDC, oldFont);
+	SelectObject(hDC, oldBrush);
+	SelectObject(hDC, oldPen);
+
+	DeleteObject(pen);
+	DeleteObject(lightgreenBrush);
+	DeleteObject(font);
 }

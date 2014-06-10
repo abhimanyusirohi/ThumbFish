@@ -56,13 +56,14 @@ typedef OPTIONS* LPOPTIONS;
 struct Buffer
 {
 	char*			pData;
-	long			DataLength;
+	unsigned long	DataLength;
 	TCHAR			FileName[MAX_PATH];
 	Extension		FileExtension;
 	unsigned short	DataVersion;	// usually MDL/RXN version. (0=unknown, 1=V2000, 2=V3000)
+	int				TotalRecords;	// approx number of records
 
 public:
-	Buffer() : pData(NULL), DataLength(0), DataVersion(0) {}
+	Buffer() : pData(NULL), DataLength(0), DataVersion(0), TotalRecords(0) {}
 };
 
 typedef Buffer BUFFER, *LPBUFFER;

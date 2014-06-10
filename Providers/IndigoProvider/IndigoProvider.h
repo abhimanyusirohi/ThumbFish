@@ -26,3 +26,4 @@ void SetIndigoOptions(LPOPTIONS options);
 INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps);
 void DrawErrorBitmap(HDC hDC, LPRECT lpRect);
 void DrawVersionIndicator(HDC hDC);
+void DrawRecordCount(HDC hDC, RECT rect, int recordCount);
