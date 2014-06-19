@@ -8,7 +8,7 @@ ThumbFish uses the following open source components:
 
 ![ScreenShot](https://raw.githubusercontent.com/abhimanyusirohi/ThumbFish/gh-pages/images/preview2.png)
 
-For more information see the [project page](http://abhimanyusirohi.github.io/ThumbFish/).
+For more information see the [project page](http://abhimanyusirohi.github.io/ThumbFish/). For product updates check out the [Blog](http://thumbfish.blogspot.com).
 
 ### License
 
