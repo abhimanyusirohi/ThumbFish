@@ -3,6 +3,27 @@
 #include <strsafe.h>
 #include "AboutDlg.h"
 
+typedef struct
+{
+	char* helpTextA;
+	wchar_t* helpTextW;
+} HELPTEXT;
+
+const HELPTEXT c_HelpStrings[] = 
+{
+		{"Save selected structure to disk in different formats", L"Save selected structure to disk in different formats"},
+		{"Copy structure in SMILES format", L"Copy structure in SMILES format"},
+		{"Copy structure in InChi format", L"Copy structure in InChi format"},
+		{"Copy structure in InChi Key format", L"Copy structure in InChi Key format"},
+		{"Copy structure in MOLV2000 format", L"Copy structure in MOLV2000 format"},
+		{"Copy structure in MOLV3000 format", L"Copy structure in MOLV3000 format"},
+		{"Copy structure in CDXML format", L"Copy structure in CDXML format"},
+		{"Copy structure in EMF format", L"Copy structure in EMF format"},
+		{"Copy selected structure to clipboard in different formats", L"Copy selected structure to clipboard in different formats"},
+		{"Displays the online help page for ThumbFish", L"Displays the online help page for ThumbFish"},
+		{"Displays the About dialog", L"Displays the About dialog"}
+};
+
 #pragma region IShellExtInit methods
 
 // Initializes the context menu extension.
@@ -10,11 +31,7 @@ IFACEMETHODIMP CContextMenuHandler::Initialize(
     LPCITEMIDLIST pidlFolder, LPDATAOBJECT pDataObj, HKEY hProgID)
 {
     HRESULT hr = E_INVALIDARG;
-    
-    if (NULL == pDataObj)
-    {
-        return hr;
-    }
+    if (NULL == pDataObj) return hr;
 
     FORMATETC fe = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
     STGMEDIUM stm;
@@ -31,25 +48,15 @@ IFACEMETHODIMP CContextMenuHandler::Initialize(
             UINT nFiles = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
             if (nFiles != 0)
             {
-                // Get the name of the first file.
-                if (0 != DragQueryFile(hDrop, 0, m_szFileName, MAX_PATH))
+                // Enumerates the selected files and directories.
+                for (UINT i = 0; i < nFiles; i++)
                 {
-                    hr = S_OK;
+					TCHAR* szFileName = new TCHAR[MAX_PATH];
+                    if (DragQueryFile(hDrop, i, szFileName, MAX_PATH) != 0)
+						m_Files.push_back(szFileName);
                 }
 
-                // [-or-]
-
-                // Enumerates the selected files and directories.
-                //wchar_t szFileName[MAX_PATH];
-                //for (UINT i = 0; i < nFiles; i++)
-                //{
-                //    // Get the next filename.
-                //    if (0 == DragQueryFile(hDrop, i, szFileName, MAX_PATH))
-                //        continue;
-
-                //    //...
-                //}
-                //hr = S_OK;
+                hr = S_OK;
             }
 
             GlobalUnlock(stm.hGlobal);
@@ -57,6 +64,8 @@ IFACEMETHODIMP CContextMenuHandler::Initialize(
 
         ReleaseStgMedium(&stm);
     }
+
+	m_bMultiSelection = (m_Files.size() > 1);
 
     // If any value other than S_OK is returned from the method, the context 
     // menu is not displayed.
@@ -98,15 +107,51 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
         return MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(0));
     }
 
+	bool multiMolFile = (m_Files.size() == 1) ? Utils::IsMultiMolFile(m_Files[0]) : false;
+
 	// First, create and populate a submenu.
     HMENU hSubmenu = CreatePopupMenu();
 	UINT id = idCmdFirst;
 
-    InsertMenu(hSubmenu, 0, MF_BYPOSITION, id++, _T("&Online Help"));
+	// -- Save Structure
+	InsertMenu(hSubmenu, 0, MF_BYPOSITION | ((!m_bMultiSelection && !multiMolFile) ? MF_ENABLED : MF_DISABLED), id++, _T("&Save Structure..."));
+	HBITMAP hbmSave = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_SAVE));
+	SetMenuItemBitmaps(hSubmenu, 0, MF_BYPOSITION, hbmSave, hbmSave);
+
+	// -- Copy Structure As
+	#pragma region Create CopyAs SubMenu
+
+	HMENU hCopyAsMenu = CreatePopupMenu();
+    InsertMenu(hCopyAsMenu, 0, MF_BYPOSITION, id++, _T("&SMILES"));
+	InsertMenu(hCopyAsMenu, 1, MF_BYPOSITION, id++, _T("&InChi"));
+	//TODO: enable this when Copy As InChiKey is fixed
+	InsertMenu(hCopyAsMenu, 2, MF_BYPOSITION | MF_DISABLED, id++, _T("InChi &Key"));
+	InsertMenu(hCopyAsMenu, 3, MF_BYPOSITION, id++, _T("MOL V&2000"));
+	InsertMenu(hCopyAsMenu, 4, MF_BYPOSITION, id++, _T("MOL V&3000"));
+	InsertMenu(hCopyAsMenu, 5, MF_BYPOSITION, id++, _T("CD&XML"));
+	InsertMenu(hCopyAsMenu, 6, MF_BYPOSITION, id++, _T("&EMF Picture"));
+
+	MENUITEMINFO miiCopyAs = { sizeof(MENUITEMINFO) };
+	miiCopyAs.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID | MIIM_BITMAP | MIIM_STATE;
+	miiCopyAs.wID = id++;
+    miiCopyAs.hSubMenu = hCopyAsMenu;
+    miiCopyAs.dwTypeData = _T("&Copy Structure As");
+	miiCopyAs.hbmpItem = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_COPY));
+	miiCopyAs.fState = (!m_bMultiSelection && !multiMolFile) ? MFS_ENABLED : MFS_DISABLED;
+    InsertMenuItem (hSubmenu, 1, TRUE, &miiCopyAs);
+
+	#pragma endregion
+
+	// separator
+	InsertMenu(hSubmenu, 2, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+
+	// -- Online Help
+    InsertMenu(hSubmenu, 3, MF_BYPOSITION, id++, _T("&Online Help"));
 	HBITMAP hbmHelp = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_HELP));
-	SetMenuItemBitmaps(hSubmenu, 0, MF_BYPOSITION, hbmHelp, hbmHelp);
+	SetMenuItemBitmaps(hSubmenu, 2, MF_BYPOSITION, hbmHelp, hbmHelp);
 	
-    InsertMenu(hSubmenu, 1, MF_BYPOSITION, id++, _T("&About ThumbFish"));
+	// -- About ThumbFish
+    InsertMenu(hSubmenu, 4, MF_BYPOSITION, id++, _T("&About ThumbFish"));
 
 	// Insert the submenu into the ctx menu provided by Explorer.
 	MENUITEMINFO mii = { sizeof(MENUITEMINFO) };
@@ -125,7 +170,6 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 	return MAKE_HRESULT(SEVERITY_SUCCESS, FACILITY_NULL, id - idCmdFirst);
 }
 
-
 // If a user highlights one of the items added by a context menu handler, the handler's 
 // IContextMenu::GetCommandString method is called to request a Help text string that will 
 // be displayed on the Windows Explorer status bar. This method can also be called to 
@@ -137,47 +181,22 @@ IFACEMETHODIMP CContextMenuHandler::GetCommandString(
 {
     HRESULT hr = E_INVALIDARG;
 
-    if (idCommand == 0)
+	int nHelpStrings = (sizeof(c_HelpStrings)/sizeof(HELPTEXT));
+	if(idCommand >= nHelpStrings) return hr;
+
+    switch (uFlags)
     {
-		char helpTextA[] = "Displays the online help page for ThumbFish";
-		wchar_t helpTextW[] = L"Displays the online help page for ThumbFish";
+		case GCS_HELPTEXTA:
+			hr = StringCchCopyNA(pszName, uMaxNameLen, c_HelpStrings[idCommand].helpTextA, lstrlenA(c_HelpStrings[idCommand].helpTextA));
+			break;
 
-        switch (uFlags)
-        {
-        case GCS_HELPTEXTA:
-            hr = StringCchCopyNA(pszName, uMaxNameLen, helpTextA, lstrlenA(helpTextA));
-            break;
+		case GCS_HELPTEXTW:
+			hr = StringCchCopyNW((LPWSTR)pszName, uMaxNameLen, c_HelpStrings[idCommand].helpTextW, lstrlenW((LPWSTR)c_HelpStrings[idCommand].helpTextW));
+			break;
 
-        case GCS_HELPTEXTW:
-            hr = StringCchCopyNW((LPWSTR)pszName, uMaxNameLen, helpTextW, lstrlenW((LPWSTR)helpTextW));
-            break;
-
-        default:
-            hr = S_OK;
-        }
-    }
-	else if(idCommand = 1)
-	{
-		char helpTextA[] = "Displays the About dialog";
-		wchar_t helpTextW[] = L"Displays the About dialog";
-
-        switch (uFlags)
-        {
-        case GCS_HELPTEXTA:
-            hr = StringCchCopyNA(pszName, uMaxNameLen, helpTextA, lstrlenA(helpTextA));
-            break;
-
-        case GCS_HELPTEXTW:
-            hr = StringCchCopyNW((LPWSTR)pszName, uMaxNameLen, helpTextW, lstrlenW((LPWSTR)helpTextW));
-            break;
-
-        default:
-            hr = S_OK;
-        }
+		default:
+			hr = S_OK;
 	}
-
-    // If the command (idCommand) is not supported by this context menu 
-    // extension handler, return E_INVALIDARG.
 
     return hr;
 }
@@ -204,23 +223,64 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
         }
     }
 
-    // If the command cannot be identified through the verb string, then 
-    // check the identifier offset.
-	if (LOWORD(lpcmi->lpVerb) == 0)
-    {
-        OnThumbFishOnline();
-    }
-	else if (LOWORD(lpcmi->lpVerb) == 1)
+	int commandID = LOWORD(lpcmi->lpVerb);
+	if(commandID == 9)			// Open ThumbFish Online webpage
+	{
+		OnThumbFishOnline();
+	}
+	else if(commandID == 10)	// About ThumbFish dialog
 	{
 		OnAboutThumbFish();
 	}
-    else
-    {
-        // If the verb is not recognized by the context menu handler, it 
-        // must return E_FAIL to allow it to be passed on to the other 
-        // context menu handlers that might implement that verb.
-        return E_FAIL;
-    }
+	else
+	{
+		char* data = NULL;
+		ThumbFishDocument doc;
+		IStream* dataStream = NULL;
+		if(SUCCEEDED(SHCreateStreamOnFileEx(m_Files[0], STGM_READ | STGM_SHARE_DENY_NONE, FILE_ATTRIBUTE_NORMAL, FALSE, NULL, &dataStream)))
+		{
+			if(SUCCEEDED(doc.LoadFromStream(dataStream, STGM_READ | STGM_SHARE_DENY_NONE)) && (doc.m_Buffer.DataLength > 0))
+			{
+				OPTIONS options;
+				switch(commandID)
+				{
+				case 0:	// Save Structure
+					Utils::DoSaveStructure(NULL, &doc.m_Buffer, &options);
+					break;
+
+				case 1:	// SMILES
+				case 2:	// InChi
+				case 3:	// InChiKey
+				case 4: // MOLV2000
+				case 5:	// MOLV3000
+				case 6: // CDXML
+				case 7:	// EMF
+					// convert the structure in document buffer to required format
+					data = Utils::ConvertStructure(&doc.m_Buffer, (ConvertFormats)commandID, &options);
+					if(data != NULL)
+					{
+						// copy the converted structure to clipboard in appropriate format
+						Utils::CopyToClipboard(data, options.OutBufferSize, 
+							(commandID == ConvertFormats::EMF) ? CF_ENHMETAFILE : CF_TEXT);
+					}
+					else
+					{
+						pantheios::log_ERROR(_T("CContextMenuHandler::InvokeCommand> Convert method FAILED. OutBufferSize= "),
+							pantheios::integer(options.OutBufferSize));
+					}
+					break;
+
+				default:
+					return E_FAIL;
+				}
+			}
+		}
+		else
+		{
+			pantheios::log_ERROR(_T("CContextMenuHandler::InvokeCommand> SHCreateStreamOnFileEx() method FAILED. File= "),
+				m_Files[0]);
+		}
+	}
 
     return S_OK;
 }

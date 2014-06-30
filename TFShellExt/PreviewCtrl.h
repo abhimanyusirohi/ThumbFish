@@ -20,7 +20,6 @@ protected:
 	virtual void SetRect(const RECT* prc, BOOL bRedraw);
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-	LRESULT OnInitMenuPopup(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
 	void InsertLVItem(HWND hWndList, int index, TCHAR* item, int subitem);
@@ -28,8 +27,6 @@ private:
 	void InsertLVItem(HWND hWndList, int index, TCHAR* item, TCHAR* subitem);
 
 	void AutoSizeControls(RECT& parentRect);
-	bool CopyTextToClipboard(const TCHAR* text);
-	bool CopyDataToClipboard(const char* data, int dataLength, int format);
 
 public:
 	CPreviewCtrl();
@@ -41,7 +38,6 @@ public:
 
 		MESSAGE_HANDLER(WM_CONTEXTMENU, OnContextMenu)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-		MESSAGE_HANDLER(WM_INITMENUPOPUP, OnInitMenuPopup);
 
 		// chains the above msg map with base class
 		CHAIN_MSG_MAP(CAtlDlgPreviewCtrlImpl)

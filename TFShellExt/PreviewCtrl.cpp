@@ -138,6 +138,8 @@ LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 {
 	HWND targetWnd = (HWND) wParam;
 	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
+	
+	bool multiMolFile = Utils::IsMultiMolFile(pDoc->m_Buffer.FileName);
 
 	HMENU hPopupMenu = LoadMenu(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDR_PROPLISTMENU));
 	hPopupMenu = GetSubMenu(hPopupMenu, 0);
@@ -151,25 +153,17 @@ LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 	if(pDoc != NULL)
 	{
-		::EnableMenuItem(hPopupMenu, ID_OPTIONS_SAVESTRUCTURE, MF_BYCOMMAND | (m_previewDrawn ? MF_ENABLED : MF_DISABLED));
+		::EnableMenuItem(hPopupMenu, ID_OPTIONS_SAVESTRUCTURE, MF_BYCOMMAND | ((m_previewDrawn && !multiMolFile) ? MF_ENABLED : MF_DISABLED));
 		::EnableMenuItem(hPopupMenu, ID_OPTIONS_COPYPROPERTIES, MF_BYCOMMAND | (m_propsGenerated ? MF_ENABLED : MF_DISABLED));
 
 		for(int id = ID_COPYSTRUCTUREAS_CDXML; id <= ID_COPYSTRUCTUREAS_MOLV2000; id++)
-			::EnableMenuItem(hPopupMenu, id, MF_BYCOMMAND | (m_previewDrawn ? MF_ENABLED : MF_DISABLED));
+			::EnableMenuItem(hPopupMenu, id, MF_BYCOMMAND | ((m_previewDrawn && !multiMolFile) ? MF_ENABLED : MF_DISABLED));
 
 		//TODO: enable this when Copy As InChiKey is fixed
 		::EnableMenuItem(hPopupMenu, ID_COPYSTRUCTUREAS_INCHIKEY, MF_BYCOMMAND | MF_DISABLED);
 	}
 
 	TrackPopupMenu(hPopupMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, m_hWnd, NULL);
-
-	return 0;
-}
-
-LRESULT CPreviewCtrl::OnInitMenuPopup(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	//HMENU hPopup = (HMENU)wParam;
-	//::EnableMenuItem(hPopup, ID_OPTIONS_SAVESTRUCTURE, MF_BYCOMMAND | MF_DISABLED);
 
 	return 0;
 }
@@ -235,54 +229,17 @@ void CPreviewCtrl::AutoSizeControls(RECT& parentRect)
 		pictRect.bottom + 50, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 }
 
-bool CPreviewCtrl::CopyTextToClipboard(const TCHAR* text)
-{
-	size_t size = _tcslen(text);
-	if(size == 0) return false;
-
-	// Allocate string
-	HGLOBAL hdst = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, (size + 1) * sizeof(WCHAR));
-	LPWSTR dst = (LPWSTR)GlobalLock(hdst);
-	memcpy(dst, text, size * sizeof(WCHAR));
-	dst[size] = NULL;
-	GlobalUnlock(hdst);
-
-	// Set clipboard data
-	if (OpenClipboard())
-	{
-		EmptyClipboard();
-		if (SetClipboardData(CF_UNICODETEXT, hdst))
-		{
-			CloseClipboard();
-		}
-		else
-		{
-			pantheios::log_ERROR(_T("CPreviewCtrl::CopyToClipboard> SetClipboardData FAILED. GetLastError="), 
-						pantheios::integer(GetLastError()));
-			return false;
-		}
-	}
-	else
-	{
-		pantheios::log_ERROR(_T("CPreviewCtrl::CopyToClipboard> OpenClipboard FAILED. GetLastError="),
-					pantheios::integer(GetLastError()));
-		return false;
-	}
-
-	return true;
-}
-
 LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
 
-	TCHAR largeText[FOUR_KB];
+	wchar_t largeText[FOUR_KB];
 	memset(largeText, 0, FOUR_KB);
 
 	int count = ListView_GetItemCount(hWndList);
 	for(int index = 0; index < count; index++)
 	{
-		TCHAR propText[255], valueText[ONE_KB];
+		wchar_t propText[255], valueText[ONE_KB];
 
 		// get both column values
 		ListView_GetItemText(hWndList, index, 0, propText, 255);
@@ -295,8 +252,11 @@ LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 		_tcscat_s(largeText, FOUR_KB, _T("\r\n"));
 	}
 
-	// copy large text to clipboard
-	CopyTextToClipboard(largeText);
+	USES_CONVERSION;
+
+	// convert to ASCII and copy text to clipboard
+	LPSTR data = W2A(largeText);
+	Utils::CopyToClipboard(data, strlen(data), CF_TEXT);
 
 	bHandled = TRUE;
 	return 0;
@@ -312,52 +272,15 @@ LRESULT CPreviewCtrl::OnOptionsAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 LRESULT CPreviewCtrl::OnOptionsSaveStructure(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	WCHAR filePath[MAX_PATH];
-
-	//TODO: for some reason, setting owner to our preview control handle suppresses the dialog
-	// passing NULL as owner handle has the side effect of showing the Save dialog in taskbar
-	if(Utils::DoFileSaveDialog(NULL, filePath) == S_OK)
+	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
+	if(pDoc)
 	{
 		OPTIONS options;
-		ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
-
-		LPWSTR ext = ::PathFindExtensionW(filePath);
-		sprintf_s(options.RenderOutputExtension, EXTLEN, "%ws", (ext[0] == '.') ? ext + 1 : ext);
 		options.RenderImageWidth = options.RenderImageHeight = 300;
-
-		// convert existing structure into bytes in specified format
-		char* data = pConvertFunc(&pDoc->m_Buffer, &options);
-
-		if(data != NULL)
-		{
-			HANDLE hFile; 
-			DWORD dwBytesToWrite = (DWORD)options.OutBufferSize;
-			DWORD dwBytesWritten = 0;
-			BOOL bErrorFlag = FALSE;
-
-			// create the file and then write data to it
-			hFile = CreateFile(filePath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL,	NULL);
-			if (hFile != INVALID_HANDLE_VALUE)
-			{
-				bErrorFlag = WriteFile(hFile, data, dwBytesToWrite, &dwBytesWritten, NULL);
-				if ((FALSE == bErrorFlag) || (dwBytesWritten != dwBytesToWrite))
-				{
-					::MessageBox(m_hWnd, _T("Unable to write data to the file"), _T("File Write Error"), MB_OK | MB_ICONERROR);
-				}
-			}
-			else
-			{
-				::MessageBox(m_hWnd, _T("Unable to create file"), _T("File Write Error"), MB_OK | MB_ICONERROR);
-			}
-
-			CloseHandle(hFile);
-		}
-		else
-		{
-			pantheios::log_ERROR(_T("CPreviewCtrl::OnOptionsSaveStructure> No data returned from Convert method. OutBufferSize= "), 
-				pantheios::integer(options.OutBufferSize));
-		}
+		Utils::DoSaveStructure(m_hWnd, &pDoc->m_Buffer, &options);
 	}
+	else
+		pantheios::log_WARNING(_T("CPreviewCtrl::OnOptionsSaveStructure> m_pDocument is NULL."));
 
 	return 0;
 }
@@ -366,102 +289,31 @@ LRESULT CPreviewCtrl::OnOptionsCopyStructureAs(WORD wNotifyCode, WORD wID, HWND 
 {
 	OPTIONS options;
 	int cbFormat = CF_TEXT;
+	ConvertFormats format;
+	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
 
 	switch (wID)
 	{
-	case ID_COPYSTRUCTUREAS_MOLV2000:
-	case ID_COPYSTRUCTUREAS_MOLV3000:
-		cbFormat = CF_TEXT;
-		options.MOLSavingMode = (wID == ID_COPYSTRUCTUREAS_MOLV2000) ? 1 : 2;
-		strcpy_s(options.RenderOutputExtension, EXTLEN, "mol");
-		break;
-
-	case ID_COPYSTRUCTUREAS_EMF:
-		cbFormat = CF_ENHMETAFILE;
-		strcpy_s(options.RenderOutputExtension, EXTLEN, "emf");
-		break;
-
-	case ID_COPYSTRUCTUREAS_CDXML:
-		cbFormat = CF_TEXT;
-		strcpy_s(options.RenderOutputExtension, EXTLEN, "cdxml");
-		break;
-
-	case ID_COPYSTRUCTUREAS_SMILES:
-		cbFormat = CF_TEXT;
-		strcpy_s(options.RenderOutputExtension, EXTLEN, "smi");
-		break;
-
-	case ID_COPYSTRUCTUREAS_INCHI:
-		cbFormat = CF_TEXT;
-		strcpy_s(options.RenderOutputExtension, EXTLEN, "inchi");
-		break;
-
-	case ID_COPYSTRUCTUREAS_INCHIKEY:
-		cbFormat = CF_TEXT;
-		strcpy_s(options.RenderOutputExtension, EXTLEN, "inchik");
-		break;
+		case ID_COPYSTRUCTUREAS_MOLV2000: format = ConvertFormats::MolV2000; break;
+		case ID_COPYSTRUCTUREAS_MOLV3000: format = ConvertFormats::MolV3000; break;
+		case ID_COPYSTRUCTUREAS_EMF: format = ConvertFormats::EMF; break;
+		case ID_COPYSTRUCTUREAS_CDXML: format = ConvertFormats::CDXML; break;
+		case ID_COPYSTRUCTUREAS_SMILES: format = ConvertFormats::SMILES; break;
+		case ID_COPYSTRUCTUREAS_INCHI: format = ConvertFormats::InChi; break;
+		case ID_COPYSTRUCTUREAS_INCHIKEY: format = ConvertFormats::InChiKey; break;
 	}
 	
-	
-	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
-
-	// convert existing structure into bytes in specified format
-	// default width and height values are used for now
-	char* data = pConvertFunc(&pDoc->m_Buffer, &options);
-
+	char* data = Utils::ConvertStructure(&pDoc->m_Buffer, format, &options);
 	if(data != NULL)
 	{
-		CopyDataToClipboard(data, options.OutBufferSize, cbFormat);
+		Utils::CopyToClipboard(data, options.OutBufferSize, 
+			(format == ConvertFormats::EMF) ? CF_ENHMETAFILE : CF_TEXT);
 	}
 	else
 	{
-		pantheios::log_ERROR(_T("CPreviewCtrl::OnOptionsCopyStructureAs> No data returned from Convert method. OutBufferSize= "), 
+		pantheios::log_ERROR(_T("CPreviewCtrl::OnOptionsCopyStructureAs> Convert method FAILED. OutBufferSize= "),
 			pantheios::integer(options.OutBufferSize));
 	}
 
 	return 0;
-}
-
-bool CPreviewCtrl::CopyDataToClipboard(const char* data, int dataLength, int format)
-{
-	HANDLE handle = NULL;
-	if(format == CF_ENHMETAFILE)
-	{
-		handle = SetEnhMetaFileBits(dataLength, (BYTE*)data);
-	}
-	else
-	{
-		// Allocate string
-		handle = GlobalAlloc(GMEM_MOVEABLE | GMEM_DDESHARE, dataLength);
-		LPVOID dst = GlobalLock(handle);
-		memcpy(dst, data, dataLength);
-		GlobalUnlock(handle);
-	}
-
-	// Set clipboard data
-	if (OpenClipboard())
-	{
-		EmptyClipboard();
-		if (SetClipboardData(format, handle))
-		{
-			CloseClipboard();
-		}
-		else
-		{
-			pantheios::log_ERROR(_T("CPreviewCtrl::CopyToClipboard> SetClipboardData FAILED. GetLastError="),
-						pantheios::integer(GetLastError()));
-			return false;
-		}
-	}
-	else
-	{
-		pantheios::log_ERROR(_T("CPreviewCtrl::CopyToClipboard> OpenClipboard FAILED. GetLastError="),
-					pantheios::integer(GetLastError()));
-		return false;
-	}
-
-	if((format == CF_ENHMETAFILE) && (handle != NULL))
-		DeleteEnhMetaFile((HENHMETAFILE)handle);
-
-	return true;
 }

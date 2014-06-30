@@ -2,6 +2,8 @@
 
 #include "resource.h"       // main symbols
 #include "ThumbFish_i.h"
+#include "ThumbFishDocument.h"
+#include <vector>
 
 class ATL_NO_VTABLE CContextMenuHandler :
     public CComObjectRootEx<CComSingleThreadModel>,
@@ -14,6 +16,13 @@ public:
     {
 		pantheios::log_NOTICE(_T("CContextMenuHandler::CContextMenuHandler> ctor Called"));
     }
+
+	~CContextMenuHandler()
+	{
+		// delete the file name strings stored in vector
+		for(std::vector<TCHAR*>::iterator iter = m_Files.begin(); iter != m_Files.end(); iter++)
+			delete[] *iter;
+	}
 
     DECLARE_REGISTRY_RESOURCEID(IDR_CONTEXTMENU_HANDLER)
 
@@ -47,8 +56,8 @@ public:
 
 protected:
 
-    // The name of the first selected file
-    TCHAR m_szFileName[MAX_PATH];
+	bool m_bMultiSelection;			// specifies if multiple files are selected
+	std::vector<TCHAR*> m_Files;	// keeps a list of file to work on
 
     // The function that handles the "Sample" verb
     void OnSample(HWND hWnd);

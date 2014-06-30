@@ -29,19 +29,7 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Name="), m_Buffer.FileName, 
 		_T(", Size="), pantheios::integer(m_Buffer.DataLength));
 
-		// set extension enum
-		TCHAR* ext = ::PathFindExtension(m_Buffer.FileName);
-	
-		if(TEQUAL(ext, ".mol")) m_Buffer.FileExtension = extMOL;
-		else if(TEQUAL(ext, ".mol")) m_Buffer.FileExtension = extMOL;
-		else if(TEQUAL(ext, ".rxn")) m_Buffer.FileExtension = extRXN;
-		else if(TEQUAL(ext, ".smi")) m_Buffer.FileExtension = extSMI;
-		else if(TEQUAL(ext, ".smiles")) m_Buffer.FileExtension = extSMILES;
-		else if(TEQUAL(ext, ".smarts")) m_Buffer.FileExtension = extSMARTS;
-		else if(TEQUAL(ext, ".sdf")) m_Buffer.FileExtension = extSDF;
-		else if(TEQUAL(ext, ".rdf")) m_Buffer.FileExtension = extRDF;
-		else if(TEQUAL(ext, ".cml")) m_Buffer.FileExtension = extCML;
-		else m_Buffer.FileExtension = extUnknown;
+		m_Buffer.FileExtension = Utils::GetExtension(m_Buffer.FileName);
 
 		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Loading Stream..."));
 
