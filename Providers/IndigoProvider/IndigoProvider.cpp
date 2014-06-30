@@ -12,7 +12,7 @@ const enum PropFlags {
 	propName = 0x1, propNumAtoms = 0x2, propNumBonds = 0x4, propImplH = 0x8, propHeavyAtoms = 0x10, propGrossFormula = 0x20,
 	propMolWeight = 0x40, propMostAbundantMass = 0x80, propMonoIsotopicMass = 0x100, propIsChiral = 0x200, propHasCoord = 0x400,
 	propHasZCoord = 0x800, propSmiles = 0x1000, propCanonicalSmiles = 0x2000, propLayeredCode = 0x4000, propInChI = 0x8000, 
-	propInChIKey = 0x10000, propDataVersion = 0x20000
+	propInChIKey = 0x10000, propDataVersion = 0x20000, propSSSR = 0x40000
 };
 
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options)
@@ -248,6 +248,12 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 
 			//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));
 			//AddProperty(properties, 24, _T("InChi Key"), temp);
+
+			if(flags & propSSSR)
+			{
+				_snwprintf_s(temp, 500, 500, L"%d", indigoCountSSSR(mol));
+				AddProperty(properties, index+=2, searchNames ? _T("sssr") : _T("SSSR"), temp);
+			}
 		}
 		else
 		{
@@ -460,7 +466,7 @@ INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps)
 	*numProps = 0;
 	if(_tcsicmp(ext, _T(".mol")) == 0)
 	{
-		*numProps = 17;
+		*numProps = 18;
 		return ULONG_MAX; // set all bits, show all properties
 	}
 	else if(_tcsicmp(ext, _T(".rxn")) == 0)
@@ -470,13 +476,13 @@ INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps)
 	}
 	else if((_tcsicmp(ext, _T(".smi")) == 0) || (_tcsicmp(ext, _T(".smiles")) == 0))
 	{
-		*numProps = 7;
-		return (propName | propNumAtoms | propNumBonds | propHeavyAtoms | propSmiles | propCanonicalSmiles | propLayeredCode);
+		*numProps = 8;
+		return (propName | propNumAtoms | propNumBonds | propHeavyAtoms | propSmiles | propCanonicalSmiles | propLayeredCode | propSSSR);
 	}
 	else if(_tcsicmp(ext, _T(".smarts")) == 0)
 	{
-		*numProps = 6;
-		return (propName | propNumAtoms | propNumBonds | propHeavyAtoms | propGrossFormula | propSmiles);
+		*numProps = 7;
+		return (propName | propNumAtoms | propNumBonds | propHeavyAtoms | propGrossFormula | propSmiles | propSSSR);
 	}
 	else if((_tcsicmp(ext, _T(".sdf")) == 0) || (_tcsicmp(ext, _T(".rdf")) == 0) || (_tcsicmp(ext, _T(".cml")) == 0))
 		return 0;
