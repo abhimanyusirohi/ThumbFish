@@ -13,13 +13,16 @@ class CPreviewCtrl : public CAtlDlgPreviewCtrlImpl
 {
 private:
 	BOOL	m_previewDrawn;
-	BOOL	m_propsGenerated;
+	BOOL	m_propsGenerated;	// TRUE when there is at least 1 property
+	HWND	m_ttipWarning;
+	HWND	m_staticWarning;
 
 protected:
 	virtual void DoPaint(HDC hdc);
 	virtual void SetRect(const RECT* prc, BOOL bRedraw);
 	LRESULT OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 	LRESULT OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+	LRESULT OnCtlColor(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 private:
 	void InsertLVItem(HWND hWndList, int index, TCHAR* item, int subitem);
@@ -27,6 +30,9 @@ private:
 	void InsertLVItem(HWND hWndList, int index, TCHAR* item, TCHAR* subitem);
 
 	void AutoSizeControls(RECT& parentRect);
+	void CreateWarningControls(PTSTR pszText);
+	void FillProperties(LPBUFFER buffer);
+	void SetChemicalWarnings(LPOPTIONS options);
 
 public:
 	CPreviewCtrl();
@@ -38,6 +44,7 @@ public:
 
 		MESSAGE_HANDLER(WM_CONTEXTMENU, OnContextMenu)
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
+		MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColor)
 
 		// chains the above msg map with base class
 		CHAIN_MSG_MAP(CAtlDlgPreviewCtrlImpl)

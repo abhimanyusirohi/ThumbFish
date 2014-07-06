@@ -1,8 +1,16 @@
 #pragma once
 
 #define YOURS
-#define TEQUAL(a,b) (_tcsicmp(a, _T(b)) == 0)
+#define TEQUAL(a,b)	(_tcsicmp(a, _T(b)) == 0)
 #define EXTLEN 10
+#define ALLOC_AND_COPY(src, dest) if(src != NULL) {	\
+					size_t len = strlen(src) + 1;	\
+					if(len > 1)	{					\
+						dest = new char[len];		\
+						dest[len - 1] = NULL;		\
+						strcpy_s(dest, len, src);	\
+					}}													
+
 
 // supported file extension. Converted to enum to speed up extension checks
 const enum Extension { extUnknown, extMOL, extRXN, extSMI, extSMILES, extSMARTS, extSDF, extRDF, extCML };
@@ -38,17 +46,28 @@ struct OPTIONS
 		unsigned short	RenderImageHeight;				// height of image when rendering to buffer or file
 		unsigned short	MOLSavingMode;					// MDLMOL CT Version (0=auto, 1=2000, 2=3000)
 
+		char* OutWarning1;							// Chemical Warning 1
+		char* OutWarning2;							// Chemical Warning 2
+		char* OutWarning3;							// Chemical Warning 3
+
 public:
 	OPTIONS() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(true), RenderImplicitH(true),
 				RenderShowAtomID(false), RenderShowBondID(false), RenderAtomBondIDFromOne(true), 
 				RenderBaseColor(RGB(0, 0, 0)), RenderBackgroundColor(RGB(255, 255, 255)), RenderLabelMode(0),
 				RenderStereoStyle(1), RenderRelativeThickness(1.0), IsThumbnail(false), GridMaxMols(4), 
-				GridMaxReactions(2), RenderImageWidth(300), RenderImageHeight(300), MOLSavingMode(0)
+				GridMaxReactions(2), RenderImageWidth(300), RenderImageHeight(300), MOLSavingMode(0), 
+				OutWarning1(NULL), OutWarning2(NULL), OutWarning3(NULL)
 	{
 		// default render output to buffer or file is in PNG format
 		strcpy_s(RenderOutputExtension, EXTLEN, "png");
 	}
 
+	~OPTIONS()
+	{
+		delete[] OutWarning1;
+		delete[] OutWarning2;
+		delete[] OutWarning3;
+	}
 	//TODO: ReadOptions and SaveOptions
 };
 typedef OPTIONS* LPOPTIONS;

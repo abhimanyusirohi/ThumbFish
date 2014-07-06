@@ -97,6 +97,15 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 				// draw approx record count value
 				if(buffer->TotalRecords > 0) DrawRecordCount(hDC, rect, buffer->TotalRecords);
 			}
+			else
+			{
+				// return warnings only for previews
+				const char* warning = indigoCheckBadValence(ptr);
+				ALLOC_AND_COPY(warning, options->OutWarning1);
+
+				warning = indigoCheckAmbiguousH(ptr);
+				ALLOC_AND_COPY(warning, options->OutWarning2);
+			}
 
 			indigoFree(ptr);
 			return true;

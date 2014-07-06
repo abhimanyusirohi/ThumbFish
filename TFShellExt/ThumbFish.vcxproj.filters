@@ -175,6 +175,9 @@
     <None Include="ThumbFish.rgs">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="warning.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="ThumbFish.idl">

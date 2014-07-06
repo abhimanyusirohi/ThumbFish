@@ -5,7 +5,8 @@
 #define ONE_KB	1024
 #define FOUR_KB	4*ONE_KB
 
-CPreviewCtrl::CPreviewCtrl() : m_previewDrawn(false), m_propsGenerated(false)
+CPreviewCtrl::CPreviewCtrl() : m_previewDrawn(false), m_propsGenerated(false), 
+	m_ttipWarning(NULL), m_staticWarning(NULL)
 {
 	pantheios::log_NOTICE(_T("CPreviewCtrl::CPreviewCtrl> Called."));
 	m_pDocument = NULL;
@@ -18,62 +19,35 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 	OPTIONS options;
 	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
 
-	if((pDrawFunc != NULL) && (pDoc != NULL))
+	if(pDoc)
 	{
-		if(pDoc->m_Buffer.DataLength <= 0)
+		if(pDrawFunc)
 		{
-			pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Data is ZERO length. No preview will be generated."));
-			return;
-		}
-
-		HWND hPict = GetDlgItem(IDC_PICT);
-		if(hPict != NULL)
-		{
-			RECT rect;
-
-			// get client area of picture box
-			::GetClientRect(hPict, &rect);
-
-			// draw thumbnail in client area and get molecule properties
-			m_previewDrawn = pDrawFunc(::GetDC(hPict), rect, &pDoc->m_Buffer, &options);
-
-			if(!m_previewDrawn)
-				pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Draw returned FALSE."));
-
-			// get handle of property ListView
-			HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
-
-			// avoid refilling properties
-			if(ListView_GetItemCount(hWndList) == 0)
+			if(pDoc->m_Buffer.DataLength <= 0)
 			{
-				TCHAR** props = NULL;
-				int propCount = pGetPropsFunc(&pDoc->m_Buffer, &props, &options, false);
-				m_propsGenerated = ((props != NULL) && (propCount > 0));
+				pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Data is ZERO length. No preview will be generated."));
+				return;
+			}
 
-				if(m_propsGenerated)
-				{
-					pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Properties generated="), pantheios::integer(propCount));
+			HWND hPict = GetDlgItem(IDC_PICT);
+			if(hPict != NULL)
+			{
+				RECT rect;
 
-					// insert property values into list view control
-					for(int i = 0; i < propCount; i++)
-					{
-						InsertLVItem(hWndList, i, props[2*i], props[2*i + 1]);
-					}
+				// get client area of picture box
+				::GetClientRect(hPict, &rect);
 
-					// auto size to content - last column
-					ListView_SetColumnWidth(hWndList, 1, LVSCW_AUTOSIZE_USEHEADER);
-					delete[] props;
-				}
+				// draw thumbnail in client area and get molecule properties
+				m_previewDrawn = pDrawFunc(::GetDC(hPict), rect, &pDoc->m_Buffer, &options);
+
+				if(m_previewDrawn)
+					SetChemicalWarnings(&options);
 				else
-				{
-					// no properties to display, hide listview and show static message
-					::ShowWindow(hWndList, SW_HIDE);
-					::ShowWindow(::GetDlgItem(m_hWnd, IDC_NOPREVIEWTEXT), SW_SHOW);
-
-					pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> No properties generated."));
-				}
+					pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Draw returned FALSE."));
 			}
 		}
+
+		FillProperties(&pDoc->m_Buffer);
 	}
 	else
 	{
@@ -86,6 +60,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 LRESULT CPreviewCtrl::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	RECT parentRect;
+	INITCOMMONCONTROLSEX icex;
 
 	m_previewDrawn = m_propsGenerated = false;
 
@@ -117,6 +92,20 @@ LRESULT CPreviewCtrl::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		// set full row select and gridlines
 		ListView_SetExtendedListViewStyle(hWndList, LVS_EX_FULLROWSELECT | LVS_EX_GRIDLINES);
 	}
+
+    // Ensure that the common control DLL is loaded. 
+    icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
+    icex.dwICC  = ICC_BAR_CLASSES;	// loads tooltip controls
+    InitCommonControlsEx(&icex);
+
+	// create a simple static control to display warning icon inside preview window
+	m_staticWarning = CreateWindowEx(WS_EX_TOPMOST | WS_EX_TRANSPARENT, _T("static"), _T(""), WS_CHILD | SS_ICON | SS_NOTIFY,
+		10, 10, 60, 60, m_hWnd, reinterpret_cast<HMENU>(static_cast<INT_PTR>(IDC_CHEMWARNINGS)),
+							_AtlBaseModule.m_hInst, 0);
+
+	// set warning icon in the static control
+	HICON hWarningIcon = (HICON)LoadImage(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDI_WARN), IMAGE_ICON, 16, 16, NULL);
+	if(hWarningIcon) SendMessage(m_staticWarning, STM_SETIMAGE, (WPARAM)IMAGE_ICON, (LPARAM)hWarningIcon);
 
 	bHandled = TRUE;
 	return 1;
@@ -229,6 +218,70 @@ void CPreviewCtrl::AutoSizeControls(RECT& parentRect)
 		pictRect.bottom + 50, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 }
 
+void CPreviewCtrl::FillProperties(LPBUFFER buffer)
+{
+	OPTIONS options;
+
+	// get handle of property ListView
+	HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
+	if(ListView_GetItemCount(hWndList) == 0)
+	{
+		TCHAR** props = NULL;
+		int propCount = pGetPropsFunc(buffer, &props, &options, false);
+		m_propsGenerated = ((props != NULL) && (propCount > 0));
+
+		if(m_propsGenerated)
+		{
+			pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> Properties generated="), pantheios::integer(propCount));
+
+			// insert property values into list view control
+			for(int i = 0; i < propCount; i++)
+			{
+				InsertLVItem(hWndList, i, props[2*i], props[2*i + 1]);
+			}
+
+			// auto size to content - last column
+			ListView_SetColumnWidth(hWndList, 1, LVSCW_AUTOSIZE_USEHEADER);
+			delete[] props;
+		}
+		else
+		{
+			// no properties to display, hide listview and show static message
+			::ShowWindow(hWndList, SW_HIDE);
+			::ShowWindow(::GetDlgItem(m_hWnd, IDC_NOPREVIEWTEXT), SW_SHOW);
+
+			pantheios::log_NOTICE(_T("CPreviewCtrl::DoPaint> No properties generated."));
+		}
+	}
+}
+
+void CPreviewCtrl::SetChemicalWarnings(LPOPTIONS options)
+{
+	bool hasWarnings = false;
+	wchar_t largeText[ONE_KB];
+
+	// corresponds to bad valence warning
+	if(options->OutWarning1)
+	{
+		swprintf(largeText, ONE_KB, _T("Warning: %hs"), options->OutWarning1);
+		hasWarnings = true;
+	}
+
+	// corresponds to AmbiguousH warning
+	if(options->OutWarning2)
+	{
+		swprintf(largeText, ONE_KB, _T("%s\r\nWarning: %hs"), options->OutWarning2);
+		hasWarnings = true;
+	}
+
+	// warning icon on preview window is ONLY shown when there are warnings
+	::ShowWindow(m_staticWarning, hasWarnings ? SW_SHOW : SW_HIDE);
+
+	// if we have warnings && the tooltip control is NOT already created
+	if(hasWarnings && !m_ttipWarning)
+		CreateWarningControls(largeText);
+}
+
 LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
 	HWND hWndList = ::GetDlgItem(m_hWnd, IDC_PROPLIST);
@@ -316,4 +369,48 @@ LRESULT CPreviewCtrl::OnOptionsCopyStructureAs(WORD wNotifyCode, WORD wID, HWND 
 	}
 
 	return 0;
+}
+
+LRESULT CPreviewCtrl::OnCtlColor(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	HBRUSH hbr = NULL;
+
+	// paints the background of static warning control WHITE so it appears 
+	// transparent on the WHITE picture control that we have
+	if (::GetWindowLong((HWND)lParam, GWL_EXSTYLE) & WS_EX_TRANSPARENT)
+	{
+		HDC hDC = (HDC)wParam;
+		SetBkMode(hDC, TRANSPARENT);
+		hbr = (HBRUSH)GetStockObject(WHITE_BRUSH);
+	}
+
+	return (LRESULT)hbr;
+}
+
+void CPreviewCtrl::CreateWarningControls(PTSTR pszText)
+{
+    // create balloon tooltip for static warning control
+    m_ttipWarning = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_ALWAYSTIP | TTS_BALLOON,
+                              CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, m_hWnd, NULL, _AtlBaseModule.m_hInst, NULL);
+    
+	if(m_ttipWarning)
+	{
+		// associate the tooltip with the static control
+		TOOLINFO toolInfo = { 0 };
+		toolInfo.cbSize = sizeof(toolInfo);
+		toolInfo.hwnd = m_hWnd;
+		toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_CENTERTIP;
+		toolInfo.uId = (UINT_PTR)m_staticWarning;
+		toolInfo.lpszText = pszText;
+
+		// set tooltip options
+		SendMessage(m_ttipWarning, TTM_ADDTOOL, 0, (LPARAM)&toolInfo);	// add tooltip to static control
+		SendMessage(m_ttipWarning, TTM_SETMAXTIPWIDTH, 0, 400);
+		SendMessage(m_ttipWarning, TTM_SETDELAYTIME, TTDT_AUTOPOP, 10000);	// set showtime to 10s
+		SendMessage(m_ttipWarning, TTM_SETTITLE, TTI_WARNING, (LPARAM)_T("Chemical Warnings"));
+	}
+	else
+	{
+		pantheios::log_ERROR(_T("CPreviewCtrl::CreateWarningControls> Tooltip creation FAILED."));
+	}
 }

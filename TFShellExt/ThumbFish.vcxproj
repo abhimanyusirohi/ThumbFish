@@ -355,6 +355,7 @@
     <None Include="ThumbFish.ico" />
     <None Include="ThumbFish.rgs" />
     <None Include="ThumbnailHandler.rgs" />
+    <None Include="warning.ico" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="ThumbFish.idl" />
