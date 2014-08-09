@@ -129,6 +129,7 @@ LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
 	
 	bool multiMolFile = Utils::IsMultiMolFile(pDoc->m_Buffer.FileName);
+	ChemFormat format = CommonUtils::GetFormatFromFileName(pDoc->m_Buffer.FileName);
 
 	HMENU hPopupMenu = LoadMenu(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDR_PROPLISTMENU));
 	hPopupMenu = GetSubMenu(hPopupMenu, 0);
@@ -145,11 +146,17 @@ LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 		::EnableMenuItem(hPopupMenu, ID_OPTIONS_SAVESTRUCTURE, MF_BYCOMMAND | ((m_previewDrawn && !multiMolFile) ? MF_ENABLED : MF_DISABLED));
 		::EnableMenuItem(hPopupMenu, ID_OPTIONS_COPYPROPERTIES, MF_BYCOMMAND | (m_propsGenerated ? MF_ENABLED : MF_DISABLED));
 
-		for(int id = ID_COPYSTRUCTUREAS_CDXML; id <= ID_COPYSTRUCTUREAS_MOLV2000; id++)
-			::EnableMenuItem(hPopupMenu, id, MF_BYCOMMAND | ((m_previewDrawn && !multiMolFile) ? MF_ENABLED : MF_DISABLED));
+		UINT startId = ID_COPYSTRUCTUREAS_CDXML;
+		HMENU hCopyAsMenu = Utils::CreateCopyMenu(format, &startId);
 
-		//TODO: enable this when Copy As InChiKey is fixed
-		::EnableMenuItem(hPopupMenu, ID_COPYSTRUCTUREAS_INCHIKEY, MF_BYCOMMAND | MF_DISABLED);
+		MENUITEMINFO miiCopyAs = { sizeof(MENUITEMINFO) };
+		miiCopyAs.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID | MIIM_BITMAP | MIIM_STATE;
+		miiCopyAs.wID = ID_COPYSTRUCTUREAS;
+		miiCopyAs.hSubMenu = hCopyAsMenu;
+		miiCopyAs.dwTypeData = _T("&Copy Structure As");
+		miiCopyAs.hbmpItem = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_COPY));
+		miiCopyAs.fState = (!multiMolFile) ? MFS_ENABLED : MFS_DISABLED;
+		InsertMenuItem (hPopupMenu, 2, TRUE, &miiCopyAs);
 	}
 
 	TrackPopupMenu(hPopupMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, m_hWnd, NULL);
@@ -309,7 +316,7 @@ LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 
 	// convert to ASCII and copy text to clipboard
 	LPSTR data = W2A(largeText);
-	Utils::CopyToClipboard(data, strlen(data), CF_TEXT);
+	Utils::CopyToClipboard(data, (int)strlen(data), CF_TEXT);
 
 	bHandled = TRUE;
 	return 0;
@@ -342,31 +349,24 @@ LRESULT CPreviewCtrl::OnOptionsCopyStructureAs(WORD wNotifyCode, WORD wID, HWND 
 {
 	OPTIONS options;
 	int cbFormat = CF_TEXT;
-	ConvertFormats format;
+	ChemFormat format = fmtUnknown;
 	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
 
 	switch (wID)
 	{
-		case ID_COPYSTRUCTUREAS_MOLV2000: format = ConvertFormats::MolV2000; break;
-		case ID_COPYSTRUCTUREAS_MOLV3000: format = ConvertFormats::MolV3000; break;
-		case ID_COPYSTRUCTUREAS_EMF: format = ConvertFormats::EMF; break;
-		case ID_COPYSTRUCTUREAS_CDXML: format = ConvertFormats::CDXML; break;
-		case ID_COPYSTRUCTUREAS_SMILES: format = ConvertFormats::SMILES; break;
-		case ID_COPYSTRUCTUREAS_INCHI: format = ConvertFormats::InChi; break;
-		case ID_COPYSTRUCTUREAS_INCHIKEY: format = ConvertFormats::InChiKey; break;
+		case ID_COPYSTRUCTUREAS_MOLV2000: format = fmtMOLV2; break;
+		case ID_COPYSTRUCTUREAS_MOLV3000: format = fmtMOLV3; break;
+		case ID_COPYSTRUCTUREAS_RXNV2000: format = fmtRXNV2; break;
+		case ID_COPYSTRUCTUREAS_RXNV3000: format = fmtRXNV3; break;
+		case ID_COPYSTRUCTUREAS_EMF: format = fmtEMF; break;
+		case ID_COPYSTRUCTUREAS_CDXML: format = fmtCDXML; break;
+		case ID_COPYSTRUCTUREAS_SMILES: format = fmtSMILES; break;
+		case ID_COPYSTRUCTUREAS_INCHI: format = fmtINCHI; break;
+		case ID_COPYSTRUCTUREAS_INCHIKEY: format = fmtINCHIKEY; break;
+		case ID_COPYSTRUCTUREAS_CML: format = fmtCML; break;
 	}
 	
-	char* data = Utils::ConvertStructure(&pDoc->m_Buffer, format, &options);
-	if(data != NULL)
-	{
-		Utils::CopyToClipboard(data, options.OutBufferSize, 
-			(format == ConvertFormats::EMF) ? CF_ENHMETAFILE : CF_TEXT);
-	}
-	else
-	{
-		pantheios::log_ERROR(_T("CPreviewCtrl::OnOptionsCopyStructureAs> Convert method FAILED. OutBufferSize= "),
-			pantheios::integer(options.OutBufferSize));
-	}
+	Utils::ConvertAndCopy(&pDoc->m_Buffer, format, &options);
 
 	return 0;
 }

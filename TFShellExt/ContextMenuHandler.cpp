@@ -12,13 +12,16 @@ typedef struct
 const HELPTEXT c_HelpStrings[] = 
 {
 		{"Save selected structure to disk in different formats", L"Save selected structure to disk in different formats"},
-		{"Copy structure in SMILES format", L"Copy structure in SMILES format"},
+		{"Copy structure in CDXML format", L"Copy structure in CDXML format"},
+		{"Copy structure in CML format", L"Copy structure in CML format"},
+		{"Copy structure in EMF format", L"Copy structure in EMF format"},
 		{"Copy structure in InChi format", L"Copy structure in InChi format"},
 		{"Copy structure in InChi Key format", L"Copy structure in InChi Key format"},
 		{"Copy structure in MOLV2000 format", L"Copy structure in MOLV2000 format"},
 		{"Copy structure in MOLV3000 format", L"Copy structure in MOLV3000 format"},
-		{"Copy structure in CDXML format", L"Copy structure in CDXML format"},
-		{"Copy structure in EMF format", L"Copy structure in EMF format"},
+		{"Copy structure in RXNV2000 format", L"Copy structure in RXNV2000 format"},
+		{"Copy structure in RXNV3000 format", L"Copy structure in RXNV3000 format"},
+		{"Copy structure in SMILES format", L"Copy structure in SMILES format"},
 		{"Copy selected structure to clipboard in different formats", L"Copy selected structure to clipboard in different formats"},
 		{"Displays the online help page for ThumbFish", L"Displays the online help page for ThumbFish"},
 		{"Displays the About dialog", L"Displays the About dialog"}
@@ -107,29 +110,28 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
         return MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(0));
     }
 
-	bool multiMolFile = (m_Files.size() == 1) ? Utils::IsMultiMolFile(m_Files[0]) : false;
+	bool multiMolFile = false;
+	ChemFormat format = fmtUnknown;
+	if(m_Files.size() == 1) 
+	{
+		multiMolFile = Utils::IsMultiMolFile(m_Files[0]);
+		format = CommonUtils::GetFormatFromFileName(m_Files[0]);
+	}
 
 	// First, create and populate a submenu.
     HMENU hSubmenu = CreatePopupMenu();
 	UINT id = idCmdFirst;
 
 	// -- Save Structure
-	InsertMenu(hSubmenu, 0, MF_BYPOSITION | ((!m_bMultiSelection && !multiMolFile) ? MF_ENABLED : MF_DISABLED), id++, _T("&Save Structure..."));
+	InsertMenu(hSubmenu, 0, MF_BYPOSITION | ((!m_bMultiSelection && !multiMolFile) ? MF_ENABLED : MF_DISABLED), 
+		id++, _T("&Save Structure..."));
 	HBITMAP hbmSave = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_SAVE));
 	SetMenuItemBitmaps(hSubmenu, 0, MF_BYPOSITION, hbmSave, hbmSave);
 
 	// -- Copy Structure As
 	#pragma region Create CopyAs SubMenu
 
-	HMENU hCopyAsMenu = CreatePopupMenu();
-    InsertMenu(hCopyAsMenu, 0, MF_BYPOSITION, id++, _T("&SMILES"));
-	InsertMenu(hCopyAsMenu, 1, MF_BYPOSITION, id++, _T("&InChi"));
-	//TODO: enable this when Copy As InChiKey is fixed
-	InsertMenu(hCopyAsMenu, 2, MF_BYPOSITION | MF_DISABLED, id++, _T("InChi &Key"));
-	InsertMenu(hCopyAsMenu, 3, MF_BYPOSITION, id++, _T("MOL V&2000"));
-	InsertMenu(hCopyAsMenu, 4, MF_BYPOSITION, id++, _T("MOL V&3000"));
-	InsertMenu(hCopyAsMenu, 5, MF_BYPOSITION, id++, _T("CD&XML"));
-	InsertMenu(hCopyAsMenu, 6, MF_BYPOSITION, id++, _T("&EMF Picture"));
+	HMENU hCopyAsMenu = Utils::CreateCopyMenu(format, &id);
 
 	MENUITEMINFO miiCopyAs = { sizeof(MENUITEMINFO) };
 	miiCopyAs.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID | MIIM_BITMAP | MIIM_STATE;
@@ -224,17 +226,16 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
     }
 
 	int commandID = LOWORD(lpcmi->lpVerb);
-	if(commandID == 9)			// Open ThumbFish Online webpage
+	if(commandID == 12)			// Open ThumbFish Online webpage
 	{
 		OnThumbFishOnline();
 	}
-	else if(commandID == 10)	// About ThumbFish dialog
+	else if(commandID == 13)	// About ThumbFish dialog
 	{
 		OnAboutThumbFish();
 	}
 	else
 	{
-		char* data = NULL;
 		ThumbFishDocument doc;
 		IStream* dataStream = NULL;
 		if(SUCCEEDED(SHCreateStreamOnFileEx(m_Files[0], STGM_READ | STGM_SHARE_DENY_NONE, FILE_ATTRIBUTE_NORMAL, FALSE, NULL, &dataStream)))
@@ -242,31 +243,43 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 			if(SUCCEEDED(doc.LoadFromStream(dataStream, STGM_READ | STGM_SHARE_DENY_NONE)) && (doc.m_Buffer.DataLength > 0))
 			{
 				OPTIONS options;
+				ChemFormat format = fmtUnknown;
+
 				switch(commandID)
 				{
 				case 0:	// Save Structure
 					Utils::DoSaveStructure(NULL, &doc.m_Buffer, &options);
 					break;
 
-				case 1:	// SMILES
-				case 2:	// InChi
-				case 3:	// InChiKey
-				case 4: // MOLV2000
-				case 5:	// MOLV3000
-				case 6: // CDXML
-				case 7:	// EMF
-					// convert the structure in document buffer to required format
-					data = Utils::ConvertStructure(&doc.m_Buffer, (ConvertFormats)commandID, &options);
-					if(data != NULL)
+				case 1:
+					if(format == fmtUnknown) format = fmtCDXML;
+				case 2:
+					if(format == fmtUnknown) format = fmtCML;
+				case 3:
+					if(format == fmtUnknown) format = fmtEMF;
+				case 4:
+					if(format == fmtUnknown) format = fmtINCHI;
+				case 5:
+					if(format == fmtUnknown) format = fmtINCHIKEY;
+				case 6:
+					if(format == fmtUnknown) format = fmtMOLV2;
+				case 7:
+					if(format == fmtUnknown) format = fmtMOLV3;
+				case 8:
+					if(format == fmtUnknown) format = fmtRXNV2;
+				case 9:
+					if(format == fmtUnknown) format = fmtRXNV3;
+				case 10:
+					if(format == fmtUnknown) format = fmtSMILES;
+
+					if(format != fmtUnknown)
 					{
-						// copy the converted structure to clipboard in appropriate format
-						Utils::CopyToClipboard(data, options.OutBufferSize, 
-							(commandID == ConvertFormats::EMF) ? CF_ENHMETAFILE : CF_TEXT);
+						// convert the structure in document buffer to required format
+						Utils::ConvertAndCopy(&doc.m_Buffer, format, &options);
 					}
 					else
 					{
-						pantheios::log_ERROR(_T("CContextMenuHandler::InvokeCommand> Convert method FAILED. OutBufferSize= "),
-							pantheios::integer(options.OutBufferSize));
+						pantheios::log_ERROR(_T("CContextMenuHandler::InvokeCommand> Called for Unknown format."));
 					}
 					break;
 

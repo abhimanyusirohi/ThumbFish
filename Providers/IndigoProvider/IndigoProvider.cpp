@@ -8,18 +8,11 @@
 #include "api\plugins\inchi\indigo-inchi.h"
 #include "plugins\renderer\indigo-renderer.h"
 
-const enum PropFlags {
-	propName = 0x1, propNumAtoms = 0x2, propNumBonds = 0x4, propImplH = 0x8, propHeavyAtoms = 0x10, propGrossFormula = 0x20,
-	propMolWeight = 0x40, propMostAbundantMass = 0x80, propMonoIsotopicMass = 0x100, propIsChiral = 0x200, propHasCoord = 0x400,
-	propHasZCoord = 0x800, propSmiles = 0x1000, propCanonicalSmiles = 0x2000, propLayeredCode = 0x4000, propInChI = 0x8000, 
-	propInChIKey = 0x10000, propDataVersion = 0x20000, propSSSR = 0x40000
-};
-
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options)
 {
 	pantheios::log_NOTICE(_T("API-Draw> Called. File="), buffer->FileName, 
 			_T(", Length="), pantheios::integer(buffer->DataLength));
-
+	
 	ReturnObjectType retType = SingleMol;
 
 	if(buffer->DataLength > 0)
@@ -50,8 +43,8 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 				{
 					// check if mol/reaction is valid
 					bool isValid = false;
-					if(buffer->FileExtension == extRDF) isValid = (indigoCountReactants(mol) > 0);
-					else if((buffer->FileExtension == extSDF) || (buffer->FileExtension == extCML))
+					if(buffer->DataFormat == fmtRDF) isValid = (indigoCountReactants(mol) > 0);
+					else if((buffer->DataFormat == fmtSDF) || (buffer->DataFormat == fmtCML))
 						isValid = (indigoCountAtoms(mol) > 0);
 
 					if(isValid)
@@ -62,8 +55,8 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 						indigoFree(mol);
 
 						// limit number of mol/reactions displayed depending on the file type
-						if((buffer->FileExtension == extRDF) && (index >= options->GridMaxReactions)) break;
-						if(((buffer->FileExtension == extSDF) || (buffer->FileExtension == extCML)) 
+						if((buffer->DataFormat == fmtRDF) && (index >= options->GridMaxReactions)) break;
+						if(((buffer->DataFormat == fmtSDF) || (buffer->DataFormat == fmtCML)) 
 							&& (index >= options->GridMaxMols)) break;
 					}
 				}
@@ -76,7 +69,7 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 					indigoSetOptionXY("render-grid-margins", 5, 5);
 					//indigoSetOptionXY("render-image-size", rect.right - rect.left + 10, rect.bottom - rect.top + 10);
 
-					int nCols = (buffer->FileExtension == extRDF) ? 1 : 2;
+					int nCols = (buffer->DataFormat == fmtRDF) ? 1 : 2;
 					indigoRenderGrid(collection, NULL, nCols, dc);
 				}
 				else
@@ -92,19 +85,21 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 			if(options->IsThumbnail)
 			{
 				// draw a V3000 indicator for thumbnails
-				if(buffer->DataVersion == 2) DrawVersionIndicator(hDC);
+				if((buffer->DataFormat == fmtMOLV3) || (buffer->DataFormat == fmtRXNV3)) DrawVersionIndicator(hDC);
 
 				// draw approx record count value
-				if(buffer->TotalRecords > 0) DrawRecordCount(hDC, rect, buffer->TotalRecords);
+				if((int)buffer->Extra > 0) DrawRecordCount(hDC, rect, (int)buffer->Extra);
 			}
 			else
 			{
+				size_t outlen;
+
 				// return warnings only for previews
 				const char* warning = indigoCheckBadValence(ptr);
-				ALLOC_AND_COPY(warning, options->OutWarning1);
+				ALLOC_AND_COPY(warning, options->OutWarning1, &outlen);
 
 				warning = indigoCheckAmbiguousH(ptr);
-				ALLOC_AND_COPY(warning, options->OutWarning2);
+				ALLOC_AND_COPY(warning, options->OutWarning2, &outlen);
 			}
 
 			indigoFree(ptr);
@@ -138,7 +133,8 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 	if(mol != -1)
 	{
 		// get properties to display for this file type
-		INT64 flags = GetPropFlagsForFile(buffer->FileName, &propCount);
+		propCount = (int)FormatPropInfo[buffer->DataFormat][0];
+		INT64 flags = FormatPropInfo[buffer->DataFormat][1];
 
 		if(propCount > 0)
 		{
@@ -157,9 +153,9 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 
 			if(flags & propDataVersion)
 			{
-				int dv = buffer->DataVersion;
 				_snwprintf_s(temp, 500, 500, L"%s", 
-					(dv == 1) ? _T("V2000") : ((dv == 2) ? _T("V3000") : _T("NA")));
+					((buffer->DataFormat == fmtMOLV2) || (buffer->DataFormat == fmtRXNV2)) ? _T("V2000") 
+						: (((buffer->DataFormat == fmtMOLV3) || (buffer->DataFormat == fmtRXNV3)) ? _T("V3000") : _T("NA")));
 				AddProperty(properties, index+=2, searchNames ? _T("version") : _T("Version"), temp);
 			}
 
@@ -279,103 +275,144 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 	return propCount;
 }
 
-/* ConvertTo
-** Converts the molecule specified through BUFFER to other formats specified in OPTIONS
+/**
+	Converts the molecule specified through BUFFER to format specified in outFormat. 
+	The method supports	the following formats:
+	Input: MOL, RXN, SMILES, SMARTS, SDF, RDF, CML, SMILES
+	Output: MOLV2000, MOLV3000, RXNV2000, RXNV3000, SMILES, INCHI, INCHIKEY, MDLCT, CML,
+			CDXML, EMF, PDF, PNG, SVG
+	In case of multimol files as input, it converts the first record in the file.
+	@param buffer Input buffer specifies the file to convert
+	@param outFormat Specified the output format
+	@param options Specified the program options to use during convert
+	@return Returns an instance of OUTBUFFER containing converted data and datalength values. The caller
+			is responsible to delete the OUTBUFFER reference.
 */
-INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options)
+INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, LPOPTIONS options)
 {
+	USES_CONVERSION;
+
+	LPOUTBUFFER outbuf = new OUTBUFFER();
+
 	pantheios::log_NOTICE(_T("API-ConvertTo> Called. File="), buffer->FileName, 
 			_T(", Length="), pantheios::integer(buffer->DataLength),
-			_T(", OutExt="), options->RenderOutputExtension);
+			_T(", OutFormat="), pantheios::integer(outFormat));
 
 	char* retBuffer = NULL;
 	ReturnObjectType retType = SingleMol;
 
 	if(buffer->DataLength > 0)
 	{
+		int iter = 0;
 		int ptr = ReadBuffer(buffer, &retType);
+
+		// for multimol files, get the first record from reader
+		if((ptr != -1) && (retType == MultiMol))
+		{
+			iter = ptr;		// in case of multimol, the return value is a iterator
+			ptr = indigoNext(iter);
+		}
+
 		if(ptr != -1)
 		{
-			if(retType == SingleMol)
+			// in-memory buffer
+			int bufHandle = NULL;
+
+			switch(outFormat)
 			{
-				// in-memory buffer
-				int bufHandle = NULL;
-
-				if(strcmpi(options->RenderOutputExtension, "mol") == 0)
-				{
-					// connection table version
-					indigoSetOption("molfile-saving-mode", (options->MOLSavingMode == 0) ? "auto" 
-						: ((options->MOLSavingMode == 1) ? "2000" : "3000"));
-
+				case fmtMOLV2:
+				case fmtMOLV3:
+					indigoSetOption("molfile-saving-mode", (outFormat == fmtMOLV2) ? "2000" : "3000");
 					bufHandle = indigoWriteBuffer();
-					indigoSaveMolfile(ptr, bufHandle);
-				}
-				else if(strcmpi(options->RenderOutputExtension, "smi") == 0)
-				{
-					const char* smiles = indigoSmiles(ptr);
-					if(smiles != NULL)
-					{
-						size_t len = strlen(smiles) + 1;
-						retBuffer = new char[len];
-						strcpy_s(retBuffer, len, smiles);
-						options->OutBufferSize = len;
-					}
-				}
-				else if(strcmpi(options->RenderOutputExtension, "inchi") == 0)
-				{
-					const char* inchi = indigoInchiGetInchi(ptr);
-					if(inchi != NULL)
-					{
-						size_t len = strlen(inchi) + 1;
-						retBuffer = new char[len];
-						strcpy_s(retBuffer, len, inchi);
-						options->OutBufferSize = len;
-					}
-				}
-				else if(strcmpi(options->RenderOutputExtension, "inchik") == 0)
-				{
-					//TODO: Crashing code
-					//const char* inchi = indigoInchiGetInchi(ptr);
-					//const char* inchiKey = indigoInchiGetInchiKey(inchi);
-					//size_t len = strlen(inchiKey) + 1;
-					//retBuffer = new char[len];
-					//strcpy_s(retBuffer, len, inchiKey);
-					//options->OutBufferSize = len;
-				}
-				else
-				{
-					indigoSetOption("render-output-format", options->RenderOutputExtension);
-					indigoSetOptionXY("render-image-size", options->RenderImageWidth, options->RenderImageHeight);
-					//TODO: Paint bg color if required because setting the bg color option freaks out renderer
-					//indigoSetOptionColor("render-background-color",  GetRValue(options->RenderBackgroundColor), 
-					//					GetGValue(options->RenderBackgroundColor), GetBValue(options->RenderBackgroundColor));
+					if(indigoSaveMolfile(ptr, bufHandle) <= 0)
+						pantheios::log_ERROR("API-ConvertTo> indigoSaveMolfile Failed. bufHandle=", pantheios::integer(bufHandle));
+					break;
 
-					// render file to buffer
+				case fmtRXNV2:
+				case fmtRXNV3:
+					indigoSetOption("molfile-saving-mode", (outFormat == fmtRXNV2) ? "2000" : "3000");
 					bufHandle = indigoWriteBuffer();
-					indigoRender(ptr, bufHandle);
-				}
+					if(indigoSaveRxnfile(ptr, bufHandle) <= 0)
+						pantheios::log_ERROR("API-ConvertTo> indigoSaveRxnfile Failed. bufHandle=", pantheios::integer(bufHandle));
+					break;
 
-				// smiles, inchi, inchikey is directly copied to the return buffer
-				if(bufHandle != NULL)
-				{
-					// get raw data from buffer and return it to the caller
-					int outSize = 0;
-					char* tempBuffer;
-					if((indigoToBuffer(bufHandle, &tempBuffer, &outSize) > 0) && (outSize > 0))
+				case fmtSMILES:
 					{
-						retBuffer = new char[outSize];
-						memcpy_s(retBuffer, outSize, tempBuffer, outSize);
-						options->OutBufferSize = outSize;
+						const char* smiles = indigoSmiles(ptr);
+						ALLOC_AND_COPY(smiles, outbuf->pData, &outbuf->DataLength);
 					}
-				}
+					break;
 
-				indigoFree(ptr);
+				case fmtINCHI:
+					{
+						const char* inchi = indigoInchiGetInchi(ptr);
+						ALLOC_AND_COPY(inchi, outbuf->pData, &outbuf->DataLength);
+					}
+					break;
+
+				case fmtINCHIKEY:
+					{
+						//TODO: Crashing code
+						const char* inchi = indigoInchiGetInchi(ptr);
+						if(inchi != NULL)
+						{
+							const char* inchiKey = indigoInchiGetInchiKey(inchi);
+							ALLOC_AND_COPY(inchiKey, outbuf->pData, &outbuf->DataLength);
+						}
+					}
+					break;
+
+				case fmtMDLCT:
+					bufHandle = indigoWriteBuffer();
+					if(indigoSaveMDLCT(ptr, bufHandle) <= 0)
+						pantheios::log_ERROR("API-ConvertTo> indigoSaveMDLCT Failed. bufHandle=", pantheios::integer(bufHandle));
+					break;
+					
+				case fmtCML:
+					{
+						const char* cml = indigoCml(ptr);
+						ALLOC_AND_COPY(cml, outbuf->pData, &outbuf->DataLength);
+					}
+					break;
+					
+				case fmtCDXML:
+				case fmtEMF:
+				case fmtPDF:
+				case fmtPNG:
+				case fmtSVG:
+					{
+						TCHAR format[MAX_FORMAT];
+						CommonUtils::GetStrDataFormat(outFormat, format, MAX_FORMAT);
+						indigoSetOption("render-output-format", W2A(format));
+						indigoSetOptionXY("render-image-size", options->RenderImageWidth, options->RenderImageHeight);
+
+						// render file to buffer
+						bufHandle = indigoWriteBuffer();
+						indigoRender(ptr, bufHandle);
+					}
+					break;
+
+				default:
+					pantheios::log_ERROR("API-ConvertTo> Unsupported Format requested: ", pantheios::integer(outFormat));
+					break;
 			}
-			else
+
+			// smiles, inchi, inchikey is directly copied to the return buffer
+			if(bufHandle != NULL)
 			{
-				//TODO: Conversion of multimol files such as SDF etc
-				pantheios::log_WARNING(_T("API-ConvertTo> Function called for MultiMol file. Not Implemented."));
+				// get raw data from buffer and return it to the caller
+				int outSize = 0;
+				char* tempBuffer;
+				if((indigoToBuffer(bufHandle, &tempBuffer, &outSize) > 0) && (outSize > 0))
+				{
+					outbuf->pData = new char[outSize];
+					memcpy_s(outbuf->pData, outSize, tempBuffer, outSize);
+					outbuf->DataLength = outSize;
+				}
 			}
+
+			indigoFree(ptr);
+			if(iter != 0) indigoFree(iter);
 		}
 		else
 		{
@@ -383,7 +420,7 @@ INDIGOPROVIDER_API char* ConvertTo(LPBUFFER buffer, LPOPTIONS options)
 		}
 	}
 
-	return retBuffer;
+	return outbuf;
 }
 
 /** Refresh the icon cache to rebuilt the thumbnails */
@@ -416,26 +453,26 @@ int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type)
 {
 	if((buffer == NULL) || (buffer->DataLength <= 0)) return -1;
 
-	if((buffer->FileExtension == extMOL) || (buffer->FileExtension == extSMI)
-		|| (buffer->FileExtension == extSMILES))
-		return indigoLoadMoleculeFromBuffer(buffer->pData, buffer->DataLength);
-	else if(buffer->FileExtension == extRXN)
-		return indigoLoadReactionFromBuffer(buffer->pData, buffer->DataLength);
-	else if(buffer->FileExtension == extSMARTS)
-		return indigoLoadSmartsFromBuffer(buffer->pData, buffer->DataLength);
-	else if((buffer->FileExtension == extSDF) || (buffer->FileExtension == extRDF) || (buffer->FileExtension == extCML))
+	if((buffer->DataFormat == fmtMOLV2) || (buffer->DataFormat == fmtMOLV3))
+		return indigoLoadMoleculeFromBuffer(buffer->pData, (int)buffer->DataLength);
+	else if((buffer->DataFormat == fmtRXNV2) || (buffer->DataFormat == fmtRXNV3))
+		return indigoLoadReactionFromBuffer(buffer->pData, (int)buffer->DataLength);
+	else if(buffer->DataFormat == fmtSMARTS)
+		return indigoLoadSmartsFromBuffer(buffer->pData, (int)buffer->DataLength);
+	else if((buffer->DataFormat == fmtSDF) || (buffer->DataFormat == fmtRDF) 
+		|| (buffer->DataFormat == fmtCML) || (buffer->DataFormat == fmtSMILES))
 	{
 		*type = MultiMol;
-		int reader = indigoLoadBuffer(buffer->pData, buffer->DataLength);
+		int reader = indigoLoadBuffer(buffer->pData, (int)buffer->DataLength);
 
-		if(buffer->FileExtension == extSDF) return indigoIterateSDF(reader);
-		if(buffer->FileExtension == extRDF) return indigoIterateRDF(reader);
-		if(buffer->FileExtension == extCML) return indigoIterateCML(reader);
+		if(buffer->DataFormat == fmtSDF) return indigoIterateSDF(reader);
+		if(buffer->DataFormat == fmtRDF) return indigoIterateRDF(reader);
+		if(buffer->DataFormat == fmtCML) return indigoIterateCML(reader);
+		if(buffer->DataFormat == fmtSMILES) return indigoIterateSmiles(reader);
 	}
 	else
 	{
-		pantheios::log_WARNING(_T("ReadBuffer> Invalid file type="), 
-			pantheios::integer(buffer->FileExtension));
+		pantheios::log_ERROR(_T("ReadBuffer> Invalid file type="), buffer->FileName);
 	}
 
 	return -1;
@@ -466,37 +503,6 @@ void SetIndigoOptions(LPOPTIONS options)
 		: ((options->RenderLabelMode == 1) ? "hetero" : "none"));
 	indigoSetOption("render-stereo-style", (options->RenderStereoStyle == 0) ? "old" 
 		: ((options->RenderStereoStyle == 1) ? "ext" : "none"));
-}
-
-INT64 GetPropFlagsForFile(const TCHAR* fileName, int* numProps)
-{
-	LPTSTR ext = ::PathFindExtension(fileName);
-
-	*numProps = 0;
-	if(_tcsicmp(ext, _T(".mol")) == 0)
-	{
-		*numProps = 18;
-		return ULONG_MAX; // set all bits, show all properties
-	}
-	else if(_tcsicmp(ext, _T(".rxn")) == 0)
-	{
-		*numProps = 4;
-		return (propName | propSmiles | propIsChiral | propDataVersion);
-	}
-	else if((_tcsicmp(ext, _T(".smi")) == 0) || (_tcsicmp(ext, _T(".smiles")) == 0))
-	{
-		*numProps = 8;
-		return (propName | propNumAtoms | propNumBonds | propHeavyAtoms | propSmiles | propCanonicalSmiles | propLayeredCode | propSSSR);
-	}
-	else if(_tcsicmp(ext, _T(".smarts")) == 0)
-	{
-		*numProps = 7;
-		return (propName | propNumAtoms | propNumBonds | propHeavyAtoms | propGrossFormula | propSmiles | propSSSR);
-	}
-	else if((_tcsicmp(ext, _T(".sdf")) == 0) || (_tcsicmp(ext, _T(".rdf")) == 0) || (_tcsicmp(ext, _T(".cml")) == 0))
-		return 0;
-	else
-		return 0;	// do not display any property
 }
 
 void DrawErrorBitmap(HDC hDC, LPRECT lpRect)

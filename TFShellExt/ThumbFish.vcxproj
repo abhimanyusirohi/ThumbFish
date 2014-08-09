@@ -317,9 +317,12 @@
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="atldlgpreviewctrlimpl.h" />
+    <ClInclude Include="Buffer.h" />
+    <ClInclude Include="CommonUtils.h" />
     <ClInclude Include="ContextMenuHandler.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="FilterHandler.h" />
+    <ClInclude Include="Options.h" />
     <ClInclude Include="PreviewCtrl.h" />
     <ClInclude Include="PreviewHandler.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>

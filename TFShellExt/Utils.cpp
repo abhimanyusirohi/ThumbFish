@@ -58,6 +58,7 @@ HRESULT Utils::DoFileSaveDialog(HWND owner, PWSTR filePath)
                     if (SUCCEEDED(hr))
                     {
                         // Set the default extension to be ".png" file.
+						//TODO: Will go in options
                         hr = pfd->SetDefaultExtension(L"png");
                         if (SUCCEEDED(hr))
                         {
@@ -75,8 +76,7 @@ HRESULT Utils::DoFileSaveDialog(HWND owner, PWSTR filePath)
                                     // We are just going to print out the 
                                     // name of the file for sample sake.
                                     PWSTR pszFilePath = NULL;
-                                    hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, 
-                                                        &pszFilePath);
+                                    hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
                                     if (SUCCEEDED(hr))
                                     {
 										_tcscpy_s(filePath, MAX_PATH, pszFilePath);
@@ -144,21 +144,21 @@ bool Utils::ShellExecuteLink(const TCHAR* link)
 void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 {
 	WCHAR filePath[MAX_PATH];
+	LPOUTBUFFER oBuffer = NULL;
 
 	// TODO: for some reason, setting owner to our preview control handle suppresses the dialog
 	// passing NULL as owner handle has the side effect of showing the Save dialog in taskbar
 	if(Utils::DoFileSaveDialog(NULL, filePath) == S_OK)
 	{
-		LPWSTR ext = ::PathFindExtensionW(filePath);
-		sprintf_s(options->RenderOutputExtension, EXTLEN, "%ws", (ext[0] == '.') ? ext + 1 : ext);
+		ChemFormat format = CommonUtils::GetFormatFromFileName(filePath);
 
 		// convert existing structure into bytes in specified format
-		char* data = pConvertFunc(buffer, options);
+		oBuffer = pConvertFunc(buffer, format, options);
 
-		if(data != NULL)
+		if(oBuffer != NULL)
 		{
 			HANDLE hFile; 
-			DWORD dwBytesToWrite = (DWORD)options->OutBufferSize;
+			DWORD dwBytesToWrite = (DWORD)oBuffer->DataLength;
 			DWORD dwBytesWritten = 0;
 			BOOL bErrorFlag = FALSE;
 
@@ -166,7 +166,7 @@ void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 			hFile = CreateFile(filePath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL,	NULL);
 			if (hFile != INVALID_HANDLE_VALUE)
 			{
-				bErrorFlag = WriteFile(hFile, data, dwBytesToWrite, &dwBytesWritten, NULL);
+				bErrorFlag = WriteFile(hFile, oBuffer->pData, dwBytesToWrite, &dwBytesWritten, NULL);
 				if ((FALSE == bErrorFlag) || (dwBytesWritten != dwBytesToWrite))
 				{
 					::MessageBox(parentWnd, _T("Unable to write data to the file"), _T("File Write Error"), MB_OK | MB_ICONERROR);
@@ -181,10 +181,11 @@ void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 		}
 		else
 		{
-			pantheios::log_ERROR(_T("Utils::DoSaveStructure> No data returned from Convert method. OutBufferSize= "), 
-				pantheios::integer(options->OutBufferSize));
+			pantheios::log_ERROR(_T("Utils::DoSaveStructure> No data returned from Convert method."));
 		}
 	}
+
+	if(oBuffer) delete oBuffer;
 }
 
 bool Utils::CopyToClipboard(const char* data, int dataLength, int format)
@@ -239,64 +240,51 @@ bool Utils::CopyToClipboard(const char* data, int dataLength, int format)
 	return true;
 }
 
-char* Utils::ConvertStructure(LPBUFFER buffer, ConvertFormats convertTo, LPOPTIONS options)
+void Utils::ConvertAndCopy(LPBUFFER buffer, ChemFormat convertTo, LPOPTIONS options)
 {
-	switch (convertTo)
+	LPOUTBUFFER oBuffer = pConvertFunc(buffer, convertTo, options);
+	if(oBuffer != NULL)
 	{
-		case ConvertFormats::SMILES:		// CopyAs SMILES
-			strcpy_s(options->RenderOutputExtension, EXTLEN, "smi");
-			break;
-
-		case ConvertFormats::InChi:			// CopyAs InChi
-			strcpy_s(options->RenderOutputExtension, EXTLEN, "inchi");
-			break;
-
-		case ConvertFormats::InChiKey:			// CopyAs InChiKey
-			strcpy_s(options->RenderOutputExtension, EXTLEN, "inchik");
-			break;
-
-		case ConvertFormats::MolV2000:			// CopyAs MOLV2000
-		case ConvertFormats::MolV3000:			// CopyAs MOLV3000
-			options->MOLSavingMode = (convertTo == ConvertFormats::MolV2000) ? 1 : 2;
-			strcpy_s(options->RenderOutputExtension, EXTLEN, "mol");
-			break;
-
-		case ConvertFormats::CDXML:				// CopyAs CDXML
-			strcpy_s(options->RenderOutputExtension, EXTLEN, "cdxml");
-			break;
-
-		case ConvertFormats::EMF:				// CopyAs EMF
-			strcpy_s(options->RenderOutputExtension, EXTLEN, "emf");
-			break;
-
-		default:
-			return NULL;
+		Utils::CopyToClipboard(oBuffer->pData, oBuffer->DataLength, 
+			(convertTo == fmtEMF) ? CF_ENHMETAFILE : CF_TEXT);
+		delete oBuffer;
 	}
-	
-	// convert existing structure into bytes in specified format
-	// default width and height values are used for now
-	return pConvertFunc(buffer, options);
-}
+	else
+	{
+		pantheios::log_ERROR(_T("Utils::ConvertAndCopy> Convert method FAILED. OutBuffer is NULL. Conversion From="),
+			pantheios::integer(buffer->DataFormat), _T(", To="), pantheios::integer(convertTo));
 
-Extension Utils::GetExtension(TCHAR* fileName)
-{
-	// set extension enum
-	TCHAR* ext = ::PathFindExtension(fileName);
-	
-	if(TEQUAL(ext, ".mol")) return extMOL;
-	else if(TEQUAL(ext, ".mol")) return extMOL;
-	else if(TEQUAL(ext, ".rxn")) return extRXN;
-	else if(TEQUAL(ext, ".smi")) return extSMI;
-	else if(TEQUAL(ext, ".smiles")) return extSMILES;
-	else if(TEQUAL(ext, ".smarts")) return extSMARTS;
-	else if(TEQUAL(ext, ".sdf")) return extSDF;
-	else if(TEQUAL(ext, ".rdf")) return extRDF;
-	else if(TEQUAL(ext, ".cml")) return extCML;
-	else return extUnknown;
+		// display message to the user that the operation failed
+		::MessageBox(NULL, _T("The selected file cannot be copied in specified format."), 
+			_T("Copy Failed"), MB_OK | MB_ICONERROR);
+	}
 }
 
 bool Utils::IsMultiMolFile(TCHAR* fileName)
 {
-	Extension ext = Utils::GetExtension(fileName);
-	return ((ext == extSDF) || (ext == extRDF) || (ext == extCML));
+	ChemFormat format = CommonUtils::GetFormatFromFileName(fileName);
+	return ((format == fmtSDF) || (format == fmtRDF) || (format == fmtCML));
+}
+
+HMENU Utils::CreateCopyMenu(ChemFormat srcFormat, UINT* idStart)
+{
+	HMENU hCopyAsMenu = CreatePopupMenu();
+
+	bool isMol = (srcFormat == fmtMOLV2) || (srcFormat == fmtMOLV3);
+	bool isRxn = (srcFormat == fmtRXNV2) || (srcFormat == fmtRXNV3);
+	bool isMolRxn = (srcFormat == fmtCML) || (srcFormat == fmtSMILES) || (srcFormat == fmtSMARTS);
+	bool isAllExceptSDFRDF = isMol || isRxn ||isMolRxn;
+
+	InsertMenu(hCopyAsMenu, 0, MF_BYPOSITION | (isAllExceptSDFRDF ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("CDXML"));
+	InsertMenu(hCopyAsMenu, 1, MF_BYPOSITION | (isAllExceptSDFRDF ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("CML"));
+	InsertMenu(hCopyAsMenu, 2, MF_BYPOSITION | (isAllExceptSDFRDF ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("EMF"));
+	InsertMenu(hCopyAsMenu, 3, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("INCHI"));
+	InsertMenu(hCopyAsMenu, 4, MF_BYPOSITION | MF_DISABLED, (*idStart)++, _T("INCHI KEY"));
+	InsertMenu(hCopyAsMenu, 6, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("MOL V2000"));
+	InsertMenu(hCopyAsMenu, 7, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("MOL V3000"));
+	InsertMenu(hCopyAsMenu, 8, MF_BYPOSITION | ((isRxn || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("RXN V2000"));
+	InsertMenu(hCopyAsMenu, 9, MF_BYPOSITION | ((isRxn || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("RXN V3000"));
+    InsertMenu(hCopyAsMenu, 10, MF_BYPOSITION | (isAllExceptSDFRDF ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("SMILES"));
+
+	return hCopyAsMenu;
 }

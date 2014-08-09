@@ -29,7 +29,7 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Name="), m_Buffer.FileName, 
 		_T(", Size="), pantheios::integer(m_Buffer.DataLength));
 
-		m_Buffer.FileExtension = Utils::GetExtension(m_Buffer.FileName);
+		m_Buffer.DataFormat = CommonUtils::GetFormatFromFileName(m_Buffer.FileName);
 
 		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Loading Stream..."));
 
@@ -139,17 +139,21 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	
 	m_Buffer.pData = NULL;
 
-	if(m_Buffer.FileExtension == extSDF)
+	if(m_Buffer.DataFormat == fmtSDF)
 	{
 		strcpy_s(recordDelimiter, 20, "$$$$");
 	}
-	else if(m_Buffer.FileExtension == extRDF)
+	else if(m_Buffer.DataFormat == fmtRDF)
 	{
 		strcpy_s(recordDelimiter, 20, "$RFMT");
 	}
-	else if(m_Buffer.FileExtension == extCML)
+	else if(m_Buffer.DataFormat == fmtCML)
 	{
 		strcpy_s(recordDelimiter, 20, "</molecule>");
+	}
+	else if(m_Buffer.DataFormat == fmtSMILES)
+	{
+		strcpy_s(recordDelimiter, 20, "\r\n");
 	}
 	else
 	{
@@ -163,10 +167,10 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 			if(hr == S_OK)
 			{
 				// set data version (V2000, V3000) info for MOL and RXN files
-				if(m_Buffer.FileExtension == extMOL)
-					m_Buffer.DataVersion = FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 4);
-				else if(m_Buffer.FileExtension == extRXN)
-					m_Buffer.DataVersion = FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 1);
+				if(m_Buffer.DataFormat == fmtMOLV2)
+					m_Buffer.DataFormat = (FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 4) == 1) ? fmtMOLV2 : fmtMOLV3;
+				else if(m_Buffer.DataFormat == fmtRXNV2)
+					m_Buffer.DataFormat = (FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 1) == 1) ? fmtRXNV2 : fmtRXNV3;
 			}
 
 			return hr;
@@ -209,14 +213,16 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 			{
 				if(!firstMolVersionChecked)
 				{
-					if(m_Buffer.FileExtension == extSDF)
+					if(m_Buffer.DataFormat == fmtSDF)
 					{
-						m_Buffer.DataVersion = FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4);
+						m_Buffer.DataFormat = (FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4) == 1) 
+							? fmtMOLV2 : fmtMOLV3;
 						firstMolVersionChecked = true;
 					}
-					else if((m_Buffer.FileExtension == extRDF) && (recordCount == 1))	// RDF has start tag unlike SDF ending tag $$$$
+					else if((m_Buffer.DataFormat == fmtRDF) && (recordCount == 1))	// RDF has start tag unlike SDF ending tag $$$$
 					{
-						m_Buffer.DataVersion = FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4);
+						m_Buffer.DataFormat = (FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4) == 1) 
+							? fmtRXNV2 : fmtRXNV3;
 						firstMolVersionChecked = true;
 					}
 				}
@@ -236,10 +242,10 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	if(recordCount > 0)
 	{
 		// approximate the total number of records
-		if((m_Buffer.FileExtension == extSDF) || (m_Buffer.FileExtension == extCML))
-			m_Buffer.TotalRecords = (m_Buffer.DataLength / (recordsReadBytes / 4));
-		else if(m_Buffer.FileExtension == extRDF)
-			m_Buffer.TotalRecords = (m_Buffer.DataLength / (recordsReadBytes / 3));
+		if((m_Buffer.DataFormat == fmtSDF) || (m_Buffer.DataFormat == fmtCML) || (m_Buffer.DataFormat == fmtSMILES))
+			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / 4));
+		else if(m_Buffer.DataFormat == fmtRDF)
+			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / 3));
 
 		m_Buffer.pData = new char[recordsReadBytes];
 		m_Buffer.DataLength = recordsReadBytes;
@@ -253,7 +259,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 
 	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> Records Read="), pantheios::integer(recordCount), 
 		_T(", Bytes Read="), pantheios::integer(recordsReadBytes),
-		_T(", Approx Records="), pantheios::integer(m_Buffer.TotalRecords));
+		_T(", Approx Records="), pantheios::integer((int)m_Buffer.Extra));
 
 	return FALSE;
 }

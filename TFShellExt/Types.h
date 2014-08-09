@@ -2,91 +2,26 @@
 
 #define YOURS
 #define TEQUAL(a,b)	(_tcsicmp(a, _T(b)) == 0)
-#define EXTLEN 10
-#define ALLOC_AND_COPY(src, dest) if(src != NULL) {	\
+#define ALLOC_AND_COPY(src, dest, outlen) if(src != NULL) {	\
 					size_t len = strlen(src) + 1;	\
 					if(len > 1)	{					\
 						dest = new char[len];		\
 						dest[len - 1] = NULL;		\
 						strcpy_s(dest, len, src);	\
-					}}													
+					} if(outlen) *outlen = len; }
 
+// supported formats
+const enum ChemFormat { fmtUnknown, fmtMOLV2, fmtMOLV3, fmtRXNV2, fmtRXNV3, fmtSMILES, fmtSMARTS, 
+	fmtSDF, fmtRDF, fmtCML,	fmtCDXML, fmtINCHI, fmtINCHIKEY, fmtEMF, fmtPNG, fmtPDF, fmtSVG, fmtMDLCT };
 
-// supported file extension. Converted to enum to speed up extension checks
-const enum Extension { extUnknown, extMOL, extRXN, extSMI, extSMILES, extSMARTS, extSDF, extRDF, extCML };
+#include "Options.h"
+#include "Buffer.h"
+#include "CommonUtils.h"
 
-struct OPTIONS
-{
-		bool			Changed;					// specifies whether options have changed
-		bool			IsThumbnail;				// TRUE if the call is made by a thumbnail handler
-		int				OutBufferSize;				// Size of the buffer returned by a method
-
-		unsigned short  RenderMarginX;				// render-margins XY
-		unsigned short	RenderMarginY;				// render-margins XY
-
-		float			RenderRelativeThickness;	// render-relative-thickness D=1.0
-
-		bool			RenderColoring;				// render-coloring BOOL D=False
-		bool			RenderImplicitH;			// render-implicit-hydrogens-visible BOOL D=True
-		bool			RenderShowAtomID;			// render-atom-ids-visible BOOL D=False
-		bool			RenderShowBondID;			// render-bond-ids-visible BOOL D=False
-		bool			RenderAtomBondIDFromOne;	// render-atom-bond-ids-from-one BOOL D=False
-
-		COLORREF		RenderBaseColor;			// render-base-color STRING "r,g,b" D=BLACK
-		COLORREF		RenderBackgroundColor;		// render-background-color STRING "r,g,b" D=TRANSPARENT
-
-		unsigned short	RenderLabelMode;			// render-label-mode STRING "terminal-hetero"(D), "hetero", "none"
-		unsigned short	RenderStereoStyle;			// render-stereo-style STRING "old"(D), "ext", "none"
-
-		unsigned short	GridMaxMols;				// Maximum number of molecules to display in a Grid (both Preview and Thumbnail)
-		unsigned short	GridMaxReactions;			// Maximum number of reactions to display in a Grid (both Preview and Thumbnail)
-
-		char			RenderOutputExtension[EXTLEN];	// The extension to use when rendering to buffer or file (No DOT)
-		unsigned short	RenderImageWidth;				// width of image when rendering to buffer or file
-		unsigned short	RenderImageHeight;				// height of image when rendering to buffer or file
-		unsigned short	MOLSavingMode;					// MDLMOL CT Version (0=auto, 1=2000, 2=3000)
-
-		char* OutWarning1;							// Chemical Warning 1
-		char* OutWarning2;							// Chemical Warning 2
-		char* OutWarning3;							// Chemical Warning 3
-
-public:
-	OPTIONS() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(true), RenderImplicitH(true),
-				RenderShowAtomID(false), RenderShowBondID(false), RenderAtomBondIDFromOne(true), 
-				RenderBaseColor(RGB(0, 0, 0)), RenderBackgroundColor(RGB(255, 255, 255)), RenderLabelMode(0),
-				RenderStereoStyle(1), RenderRelativeThickness(1.0), IsThumbnail(false), GridMaxMols(4), 
-				GridMaxReactions(2), RenderImageWidth(300), RenderImageHeight(300), MOLSavingMode(0), 
-				OutWarning1(NULL), OutWarning2(NULL), OutWarning3(NULL)
-	{
-		// default render output to buffer or file is in PNG format
-		strcpy_s(RenderOutputExtension, EXTLEN, "png");
-	}
-
-	~OPTIONS()
-	{
-		delete[] OutWarning1;
-		delete[] OutWarning2;
-		delete[] OutWarning3;
-	}
-	//TODO: ReadOptions and SaveOptions
-};
-typedef OPTIONS* LPOPTIONS;
-
-struct Buffer
-{
-	char*			pData;
-	unsigned long	DataLength;
-	TCHAR			FileName[MAX_PATH];
-	Extension		FileExtension;
-	unsigned short	DataVersion;	// usually MDL/RXN version. (0=unknown, 1=V2000, 2=V3000)
-	int				TotalRecords;	// approx number of records
-
-public:
-	Buffer() : pData(NULL), DataLength(0), DataVersion(0), TotalRecords(0) {}
-};
-
-typedef Buffer BUFFER, *LPBUFFER;
+#pragma region API Function Pointers
 
 typedef bool (__cdecl *DrawFuncType)(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options);
 typedef int	 (__cdecl *GetPropertiesFuncType)(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options, bool searchNames);
-typedef YOURS char* (__cdecl *ConvertToFuncType)(LPBUFFER buffer, LPOPTIONS options);
+typedef YOURS LPOUTBUFFER (__cdecl *ConvertToFuncType)(LPBUFFER buffer, ChemFormat outFormat, LPOPTIONS options);
+
+#pragma endregion
