@@ -370,8 +370,21 @@ INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, 
 					
 				case fmtCML:
 					{
-						const char* cml = indigoCml(ptr);
-						ALLOC_AND_COPY(cml, outbuf->pData, &outbuf->DataLength);
+						if((buffer->DataFormat == fmtRXNV2) || (buffer->DataFormat == fmtRXNV3))
+						{
+							TCHAR format[MAX_FORMAT];
+							CommonUtils::GetStrDataFormat(outFormat, format, MAX_FORMAT);
+
+							bufHandle = indigoWriteBuffer();
+							int saver = indigoCreateSaver(bufHandle, W2A(format));
+							indigoAppend(saver, ptr);
+							indigoClose(saver);
+						}
+						else
+						{
+							const char* cml = indigoCml(ptr);
+							ALLOC_AND_COPY(cml, outbuf->pData, &outbuf->DataLength);
+						}
 					}
 					break;
 					
