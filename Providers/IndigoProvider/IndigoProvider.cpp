@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "IndigoProvider.h"
 
+#include <sys/stat.h>
 #include "api\indigo.h"
 #include "api\plugins\inchi\indigo-inchi.h"
 #include "plugins\renderer\indigo-renderer.h"
@@ -39,7 +40,7 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 				int mol = 0, index = 0;
 				int collection = indigoCreateArray();
 
-				while(mol = indigoNext(ptr))
+				while((mol = indigoNext(ptr)) > 0)
 				{
 					// check if mol/reaction is valid
 					bool isValid = false;
@@ -373,7 +374,7 @@ INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, 
 						if((buffer->DataFormat == fmtRXNV2) || (buffer->DataFormat == fmtRXNV3))
 						{
 							TCHAR format[MAX_FORMAT];
-							CommonUtils::GetStrDataFormat(outFormat, format, MAX_FORMAT);
+							CommonUtils::GetFormatString(outFormat, format, MAX_FORMAT);
 
 							bufHandle = indigoWriteBuffer();
 							int saver = indigoCreateSaver(bufHandle, W2A(format));
@@ -395,7 +396,7 @@ INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, 
 				case fmtSVG:
 					{
 						TCHAR format[MAX_FORMAT];
-						CommonUtils::GetStrDataFormat(outFormat, format, MAX_FORMAT);
+						CommonUtils::GetFormatString(outFormat, format, MAX_FORMAT);
 						indigoSetOption("render-output-format", W2A(format));
 						indigoSetOptionXY("render-image-size", options->RenderImageWidth, options->RenderImageHeight);
 
@@ -434,6 +435,139 @@ INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, 
 	}
 
 	return outbuf;
+}
+
+INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
+{
+	USES_CONVERSION;
+
+	char* sourceFile = W2A(params->sourceFile);
+	char* fileFormat = W2A(params->fileFormat);
+	char* folderPath = W2A(params->folderPath);	// folderPath contains {DIR}\{FILENAME}%d.{EXT}
+
+	int reader = -1;
+	if(params->sourceExtension == fmtSDF) reader = indigoIterateSDFile(sourceFile);
+	else if(params->sourceExtension == fmtRDF) reader = indigoIterateRDFile(sourceFile);
+	else if(params->sourceExtension == fmtCML) reader = indigoIterateCMLFile(sourceFile);
+	else if(params->sourceExtension == fmtSMILES) reader = indigoIterateSmilesFile(sourceFile);
+	else
+	{
+		pantheios::log_ERROR(_T("API-Extract> Source file format is NOT supported. Src File="), params->sourceFile);
+		return;
+	}
+
+	struct stat st;
+	bool cancel = false;
+	CallbackEventArgs args;
+	int mol, goodIndex = 1, index = 0;
+	int skipped = 0, noPerm = 0, writeFail = 0;
+	char fullFilePath[MAX_PATH];
+	
+	args.type = progressWorking;
+	while((mol = indigoNext(reader)) > 0)
+	{
+		index++;	// processed (includes skipped ones)
+
+		// construct file name 
+		_snprintf_s(fullFilePath, MAX_PATH, folderPath, index);
+		
+		// check if a file already exists with the same name
+		bool fileExists = (stat(fullFilePath, &st) == 0);
+		
+		if(fileExists)
+		{
+			if(params->overwriteFiles)
+			{
+				// check if we have write permissions on this file
+				if((st.st_mode & S_IWRITE) == 0)
+				{
+					// skipped: no permission to write for this file
+					noPerm++;
+					indigoFree(mol);
+					continue;
+				}
+			}
+			else
+			{
+				// skipped: param does not allow overwriting
+				skipped++;
+				indigoFree(mol);
+				continue;
+			}
+		}
+
+		if((params->sourceExtension == fmtSDF) && ((params->dataFormat == fmtMOLV2) || (params->dataFormat == fmtMOLV3)))
+		{			
+			indigoSetOption("molfile-saving-mode", (params->dataFormat == fmtMOLV2) ? "2000" : "3000");
+			if(indigoSaveMolfileToFile(mol, fullFilePath) < 1) writeFail++;
+		}
+		else if((params->sourceExtension == fmtRDF) && ((params->dataFormat == fmtRXNV2) || (params->dataFormat == fmtRXNV3)))
+		{
+			indigoSetOption("molfile-saving-mode", (params->dataFormat == fmtRXNV2) ? "2000" : "3000");
+			if(indigoSaveRxnfileToFile(mol, fullFilePath) < 1) writeFail++;
+		}
+		else if((params->sourceExtension == fmtCML) && (params->dataFormat == fmtCML))
+		{
+			if(indigoSaveCmlToFile(mol, fullFilePath) < 1) writeFail++;
+		}
+		else if((params->sourceExtension == fmtSMILES) && (params->dataFormat == fmtSMILES))
+		{
+			int smiFile = indigoWriteFile(fullFilePath);
+			if(indigoSmilesAppend(smiFile, mol) < 1) writeFail++;
+		}
+		else if((params->dataFormat == fmtCDXML) || (params->dataFormat == fmtEMF))
+		{
+			TCHAR format[MAX_FORMAT];
+			CommonUtils::GetFormatString(params->dataFormat, format, MAX_FORMAT);
+			indigoSetOption("render-output-format", W2A(format));
+			indigoSetOptionXY("render-image-size", options->RenderImageWidth, options->RenderImageHeight);
+
+			// render to file
+			if(indigoRenderToFile(mol, fullFilePath) < 1)
+				pantheios::log_ERROR(_T("API-Extract> indigoRenderToFile failed for: ", fullFilePath));
+		}
+		else
+		{
+			pantheios::log_WARNING(_T("API-Extract> Unsupported export formats. DataFormat="), 
+				pantheios::integer(params->dataFormat));
+		}
+
+		indigoFree(mol);
+
+		// break if limit is reached
+		if(goodIndex++ == params->extractMolCount) break;
+
+		// callback to notify parent
+		if(params->callback != NULL)
+		{
+			args.processed = index;
+			cancel = params->callback(params->caller, &args);
+		}
+
+		// check if user cancelled
+		if(cancel) break;
+	}
+
+	TCHAR summary[512];
+	TCHAR summaryTemplate[256];
+
+	// load summary template from resource
+	LoadString(hInstance, IDS_EXTRACT_SUMMARY, summaryTemplate, 256);
+
+	// construct a summary for extract operation and sedn it to the caller using callback method
+	if(_sntprintf_s(summary, 512, summaryTemplate, PathFindFileName(params->sourceFile),
+		index, goodIndex - 1, skipped, noPerm, writeFail) > 0)
+	{
+		if(params->callback != NULL) 
+		{
+			args.type = progressDone;
+			args.message = summary;
+			args.total = args.processed = index;
+			params->callback(params->caller, &args);
+		}
+	}
+
+	indigoFree(reader);
 }
 
 /** Refresh the icon cache to rebuilt the thumbnails */

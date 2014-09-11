@@ -19,12 +19,6 @@ const enum PropFlags {
 	propInChIKey = 0x10000, propDataVersion = 0x20000, propSSSR = 0x40000
 };
 
-//typedef struct
-//{
-//	int propCount;
-//	INT64 propsAvailable;
-//} PROPINFO;
-
 /**
 	Specifies the available properties for each format type.
 	Update this array when a new format is added to the ChemFormat enum.
@@ -53,6 +47,7 @@ const INT64 FormatPropInfo[18][2] = {
 INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options);
 INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options, bool searchNames);
 INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, LPOPTIONS options);
+INDIGOPROVIDER_API void		Extract(LPEXTRACTPARAMS params, LPOPTIONS options);
 
 // called by installer
 extern "C" __declspec(dllexport) UINT __stdcall RefreshIcons(MSIHANDLE hInstall);

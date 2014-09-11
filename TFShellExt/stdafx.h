@@ -52,3 +52,4 @@ extern HINSTANCE ThisInstance;
 extern DrawFuncType pDrawFunc;
 extern GetPropertiesFuncType pGetPropsFunc;
 extern ConvertToFuncType pConvertFunc;
+extern ExtractFuncType pExtractFunc;

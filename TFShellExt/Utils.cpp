@@ -9,6 +9,38 @@ Utils::~Utils(void)
 {
 }
 
+HRESULT Utils::DoFolderDialog(HWND owner, LPCTSTR title, LPTSTR startFolder, LPTSTR folderPath)
+{
+    BROWSEINFO bi = { 0 };
+    bi.lpszTitle  = title;
+    bi.ulFlags    = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
+    bi.lpfn       = BrowseFolderCallback;
+    bi.lParam     = (LPARAM) startFolder;
+	bi.hwndOwner  = owner;
+	
+    LPITEMIDLIST pidl = SHBrowseForFolder ( &bi );
+
+    if ( pidl != 0 )
+    {
+        // get the name of the folder and put it in path
+        SHGetPathFromIDList (pidl, folderPath);
+
+        // free memory used
+        IMalloc * imalloc = 0;
+        if (SUCCEEDED(SHGetMalloc(&imalloc)))
+        {
+            imalloc->Free(pidl);
+            imalloc->Release();
+        }
+
+		return S_OK;
+	}
+	else
+	{
+		return S_FALSE;
+	}
+}
+
 // This code is taken from an MSDN Sample
 // http://msdn.microsoft.com/en-us/library/windows/desktop/bb776913(v=vs.85).aspx
 // Opens up Save File Dialog. The PrevHost (Preview Handler executable) runs in Low integrity and can 
@@ -287,4 +319,65 @@ HMENU Utils::CreateCopyMenu(ChemFormat srcFormat, UINT* idStart)
     InsertMenu(hCopyAsMenu, 10, MF_BYPOSITION | (isAllExceptSDFRDF ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("SMILES"));
 
 	return hCopyAsMenu;
+}
+
+//bool Utils::GetDataFormat(Extension ext, TCHAR* outBuffer, int bufferLength)
+//{
+//	if(ext == extMOL) _tcscpy_s(outBuffer, bufferLength, _T("MOL"));
+//	else if(ext == extMOLV3000) _tcscpy_s(outBuffer, bufferLength, _T("MOLV3000"));
+//	else if(ext == extRXN) _tcscpy_s(outBuffer, bufferLength, _T("RXN"));
+//	else if(ext == extSMI) _tcscpy_s(outBuffer, bufferLength, _T("SMILES"));
+//	else if(ext == extSMILES) _tcscpy_s(outBuffer, bufferLength, _T("SMILES"));
+//	else if(ext == extSMARTS) _tcscpy_s(outBuffer, bufferLength, _T("SMARTS"));
+//	else if(ext == extSDF) _tcscpy_s(outBuffer, bufferLength, _T("SDF"));
+//	else if(ext == extRDF) _tcscpy_s(outBuffer, bufferLength, _T("RDF"));
+//	else if(ext == extCML) _tcscpy_s(outBuffer, bufferLength, _T("CML"));
+//	else if(ext == extCDXML) _tcscpy_s(outBuffer, bufferLength, _T("CDXML"));
+//	else if(ext == extEMF) _tcscpy_s(outBuffer, bufferLength, _T("EMF"));
+//	else return false;
+//
+//	return true;
+//}
+//
+//bool Utils::GetStrExtension(Extension ext, TCHAR* outBuffer, int bufferLength)
+//{
+//	if(ext == extMOL) _tcscpy_s(outBuffer, bufferLength, _T("mol"));
+//	else if(ext == extMOLV3000) _tcscpy_s(outBuffer, bufferLength, _T("molV3000"));
+//	else if(ext == extRXN) _tcscpy_s(outBuffer, bufferLength, _T("rxn"));
+//	else if(ext == extSMI) _tcscpy_s(outBuffer, bufferLength, _T("smiles"));
+//	else if(ext == extSMILES) _tcscpy_s(outBuffer, bufferLength, _T("smiles"));
+//	else if(ext == extSMARTS) _tcscpy_s(outBuffer, bufferLength, _T("smarts"));
+//	else if(ext == extSDF) _tcscpy_s(outBuffer, bufferLength, _T("sdf"));
+//	else if(ext == extRDF) _tcscpy_s(outBuffer, bufferLength, _T("rdf"));
+//	else if(ext == extCML) _tcscpy_s(outBuffer, bufferLength, _T("cml"));
+//	else if(ext == extCDXML) _tcscpy_s(outBuffer, bufferLength, _T("cdxml"));
+//	else if(ext == extEMF) _tcscpy_s(outBuffer, bufferLength, _T("emf"));
+//	else return false;
+//
+//	return true;
+//}
+//
+//Extension Utils::GetExtensionFromFormat(TCHAR* format)
+//{
+//	if(TEQUAL(format, "mol")) return extMOL;
+//	else if(TEQUAL(format, "molV3000")) return extMOLV3000;
+//	else if(TEQUAL(format, "rxn")) return extRXN;
+//	else if(TEQUAL(format, "smi")) return extSMI;
+//	else if(TEQUAL(format, "smiles")) return extSMILES;
+//	else if(TEQUAL(format, "smarts")) return extSMARTS;
+//	else if(TEQUAL(format, "sdf")) return extSDF;
+//	else if(TEQUAL(format, "rdf")) return extRDF;
+//	else if(TEQUAL(format, "cml")) return extCML;
+//	else if(TEQUAL(format, "cdxml")) return extCDXML;
+//	else if(TEQUAL(format, "emf")) return extEMF;
+//	else return extUnknown;
+//}
+
+int CALLBACK Utils::BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+{
+    if (uMsg == BFFM_INITIALIZED) {
+        LPCTSTR path = reinterpret_cast<LPCTSTR>(lpData);
+        ::SendMessage(hwnd, BFFM_SETSELECTION, true, (LPARAM) path);
+    }
+    return 0;
 }

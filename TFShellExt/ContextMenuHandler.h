@@ -63,6 +63,7 @@ protected:
     void OnSample(HWND hWnd);
 	void OnThumbFishOnline();
 	void OnAboutThumbFish();
+	void OnExtract();
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(ContextMenuHandler), CContextMenuHandler)

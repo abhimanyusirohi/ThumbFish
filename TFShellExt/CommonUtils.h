@@ -1,7 +1,41 @@
 
 #pragma once
 
+#include <map>
+
 #define MAX_FORMAT 10
+#define MAX_EXTENSION 10
+#define MAX_FORMAT_LONG 255
+
+typedef struct
+{
+	ChemFormat format;
+	TCHAR extension[MAX_EXTENSION];
+	TCHAR formatTag[MAX_FORMAT];
+	TCHAR formatTagLong[MAX_FORMAT_LONG];
+} FORMATINFO, *LPFORMATINFO;
+
+const FORMATINFO cFormatInfo[19] = {
+	{ fmtMOLV2, _T(".mol"), _T("MOL V2000"), _T("MDL MOL V2000") },
+	{ fmtMOLV3, _T(".mol"), _T("MOL V3000"), _T("MDL MOL V3000") },
+	{ fmtRXNV2, _T(".rxn"), _T("RXN V2000"), _T("MDL RXN V2000") },
+	{ fmtRXNV2, _T(".rxn"), _T("RXN V3000"), _T("MDL RXN V3000") },
+	{ fmtCDXML, _T(".cdxml"), _T("CDXML"), _T("ChemDraw XML") },
+	{ fmtSMILES, _T(".smi"), _T("SMILES"), _T("SMILES") },
+	{ fmtSMILES, _T(".smiles"), _T("SMILES"), _T("SMILES") },
+	{ fmtSMARTS, _T(".sma"), _T("SMARTS"), _T("SMARTS") },
+	{ fmtSMARTS, _T(".smarts"), _T("SMARTS"), _T("SMARTS") },
+	{ fmtSDF, _T(".sdf"), _T("SDF"), _T("Structure Data File") },
+	{ fmtRDF, _T(".rdf"), _T("RDF"), _T("Reaction Data File") },
+	{ fmtEMF, _T(".emf"), _T("EMF"), _T("Enhanced Meta File") },
+	{ fmtCML, _T(".cml"), _T("CML"), _T("Chemical Markup Language") },
+	{ fmtPNG, _T(".png"), _T("PNG"), _T("Portable Network Graphics") },
+	{ fmtPDF, _T(".pdf"), _T("PDF"), _T("Portable Document Format") },
+	{ fmtSVG, _T(".svg"), _T("SVG"), _T("Scalable Vector Graphics") },
+	{ fmtINCHI, _T(".inchi"), _T("INCHI"), _T("InChi") },
+	{ fmtINCHIKEY, _T(".inchik"), _T("INCHIKEY"), _T("InChi Key") },
+	{ fmtMDLCT, _T(".ct"), _T("MDLCT"), _T("MDL Connection Table") }
+};
 
 /**
 	Contains helper functions common between the main dll and provider.
@@ -13,47 +47,18 @@ public:
 	{
 		LPWSTR ext = ::PathFindExtension(fileName);
 
-		if(TEQUAL(ext, ".mol")) return fmtMOLV2;
-		else if(TEQUAL(ext, ".rxn")) return fmtRXNV2;
-		else if(TEQUAL(ext, ".smi")) return fmtSMILES;
-		else if(TEQUAL(ext, ".smiles")) return fmtSMILES;
-		else if(TEQUAL(ext, ".sma")) return fmtSMARTS;
-		else if(TEQUAL(ext, ".smarts")) return fmtSMARTS;
-		else if(TEQUAL(ext, ".sdf")) return fmtSDF;
-		else if(TEQUAL(ext, ".rdf")) return fmtRDF;
-		else if(TEQUAL(ext, ".emf")) return fmtEMF;
-		else if(TEQUAL(ext, ".cml")) return fmtCML;
-		else if(TEQUAL(ext, ".png")) return fmtPNG;
-		else if(TEQUAL(ext, ".pdf")) return fmtPDF;
-		else if(TEQUAL(ext, ".svg")) return fmtSVG;
-		else if(TEQUAL(ext, ".cdxml")) return fmtCDXML;
-		else if(TEQUAL(ext, ".inchi")) return fmtINCHI;
-		else if(TEQUAL(ext, ".inchik")) return fmtINCHIKEY;
-		else if(TEQUAL(ext, ".ct")) return fmtMDLCT;
-		else return fmtUnknown;
+		for(int index = 0; index < sizeof(cFormatInfo); index++)
+			if(TEQUAL(ext, cFormatInfo[index].extension)) return cFormatInfo[index].format;
+
+		return fmtUnknown;
 	}
 
-	static bool GetStrDataFormat(ChemFormat fmt, TCHAR* outBuffer, int bufferLength)
+	static bool GetFormatString(ChemFormat fmt, TCHAR* outBuffer, int bufferLength)
 	{
-		if(fmt == fmtMOLV2) _tcscpy_s(outBuffer, bufferLength, _T("MOL V2000"));
-		else if(fmt == fmtMOLV3) _tcscpy_s(outBuffer, bufferLength, _T("MOL V3000"));
-		else if(fmt == fmtRXNV2) _tcscpy_s(outBuffer, bufferLength, _T("RXN V2000"));
-		else if(fmt == fmtRXNV3) _tcscpy_s(outBuffer, bufferLength, _T("RXN V3000"));
-		else if(fmt == fmtSMILES) _tcscpy_s(outBuffer, bufferLength, _T("SMILES"));
-		else if(fmt == fmtSMARTS) _tcscpy_s(outBuffer, bufferLength, _T("SMARTS"));
-		else if(fmt == fmtSDF) _tcscpy_s(outBuffer, bufferLength, _T("SDF"));
-		else if(fmt == fmtRDF) _tcscpy_s(outBuffer, bufferLength, _T("RDF"));
-		else if(fmt == fmtCML) _tcscpy_s(outBuffer, bufferLength, _T("CML"));
-		else if(fmt == fmtCDXML) _tcscpy_s(outBuffer, bufferLength, _T("CDXML"));
-		else if(fmt == fmtINCHI) _tcscpy_s(outBuffer, bufferLength, _T("INCHI"));
-		else if(fmt == fmtINCHIKEY) _tcscpy_s(outBuffer, bufferLength, _T("INCHIKEY"));
-		else if(fmt == fmtEMF) _tcscpy_s(outBuffer, bufferLength, _T("EMF"));
-		else if(fmt == fmtPNG) _tcscpy_s(outBuffer, bufferLength, _T("PNG"));
-		else if(fmt == fmtPDF) _tcscpy_s(outBuffer, bufferLength, _T("PDF"));
-		else if(fmt == fmtSVG) _tcscpy_s(outBuffer, bufferLength, _T("SVG"));
-		else if(fmt == fmtMDLCT) _tcscpy_s(outBuffer, bufferLength, _T("MDLCT"));
-		else return false;
+		for(int index = 0; index < sizeof(cFormatInfo); index++)
+			if(fmt == cFormatInfo[index].format)
+				return (_tcscpy_s(outBuffer, bufferLength, cFormatInfo[index].formatTag) == 0);
 
-		return true;
+		return false;
 	}
 };

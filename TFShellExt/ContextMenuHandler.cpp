@@ -2,6 +2,7 @@
 #include "ContextMenuHandler.h"
 #include <strsafe.h>
 #include "AboutDlg.h"
+#include "ExtractDlg.h"
 
 typedef struct
 {
@@ -23,6 +24,7 @@ const HELPTEXT c_HelpStrings[] =
 		{"Copy structure in RXNV3000 format", L"Copy structure in RXNV3000 format"},
 		{"Copy structure in SMILES format", L"Copy structure in SMILES format"},
 		{"Copy selected structure to clipboard in different formats", L"Copy selected structure to clipboard in different formats"},
+		{"Extract molecules as separate files", L"Extract molecules as separate files"},
 		{"Displays the online help page for ThumbFish", L"Displays the online help page for ThumbFish"},
 		{"Displays the About dialog", L"Displays the About dialog"}
 };
@@ -94,6 +96,12 @@ void CContextMenuHandler::OnAboutThumbFish()
 	dlg.DoModal(NULL);
 }
 
+void CContextMenuHandler::OnExtract()
+{
+	CExtractDlg dlg(m_Files[0]);
+	dlg.DoModal(NULL);
+}
+
 #pragma endregion
 
 #pragma region IContextMenu methods
@@ -120,13 +128,15 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 
 	// First, create and populate a submenu.
     HMENU hSubmenu = CreatePopupMenu();
+
+	int menuPos = 0;
 	UINT id = idCmdFirst;
 
 	// -- Save Structure
 	InsertMenu(hSubmenu, 0, MF_BYPOSITION | ((!m_bMultiSelection && !multiMolFile) ? MF_ENABLED : MF_DISABLED), 
 		id++, _T("&Save Structure..."));
 	HBITMAP hbmSave = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_SAVE));
-	SetMenuItemBitmaps(hSubmenu, 0, MF_BYPOSITION, hbmSave, hbmSave);
+	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmSave, hbmSave);
 
 	// -- Copy Structure As
 	#pragma region Create CopyAs SubMenu
@@ -140,20 +150,25 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
     miiCopyAs.dwTypeData = _T("&Copy Structure As");
 	miiCopyAs.hbmpItem = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_COPY));
 	miiCopyAs.fState = (!m_bMultiSelection && !multiMolFile) ? MFS_ENABLED : MFS_DISABLED;
-    InsertMenuItem (hSubmenu, 1, TRUE, &miiCopyAs);
+    InsertMenuItem (hSubmenu, menuPos++, TRUE, &miiCopyAs);
 
 	#pragma endregion
 
+	// Extract Molecules - only enabled when a SINGLE MULTIMOL file is selected
+	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | ((!m_bMultiSelection && multiMolFile) ? MF_ENABLED : MF_DISABLED), id++, _T("&Extract Molecules..."));
+	HBITMAP hbmExtract = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_EXTRACT));
+	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmExtract, hbmExtract);
+
 	// separator
-	InsertMenu(hSubmenu, 2, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
+	InsertMenu(hSubmenu, menuPos++, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
 
 	// -- Online Help
-    InsertMenu(hSubmenu, 3, MF_BYPOSITION, id++, _T("&Online Help"));
+    InsertMenu(hSubmenu, menuPos, MF_BYPOSITION, id++, _T("&Online Help"));
 	HBITMAP hbmHelp = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_HELP));
-	SetMenuItemBitmaps(hSubmenu, 2, MF_BYPOSITION, hbmHelp, hbmHelp);
+	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmHelp, hbmHelp);
 	
 	// -- About ThumbFish
-    InsertMenu(hSubmenu, 4, MF_BYPOSITION, id++, _T("&About ThumbFish"));
+    InsertMenu(hSubmenu, menuPos++, MF_BYPOSITION, id++, _T("&About ThumbFish"));
 
 	// Insert the submenu into the ctx menu provided by Explorer.
 	MENUITEMINFO mii = { sizeof(MENUITEMINFO) };
@@ -226,11 +241,15 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
     }
 
 	int commandID = LOWORD(lpcmi->lpVerb);
-	if(commandID == 12)			// Open ThumbFish Online webpage
+	if(commandID == 12)			// Extract Molecules
+	{
+		OnExtract();
+	}
+	else if(commandID == 13)	// Open ThumbFish Online webpage
 	{
 		OnThumbFishOnline();
 	}
-	else if(commandID == 13)	// About ThumbFish dialog
+	else if(commandID == 14)	// About ThumbFish dialog
 	{
 		OnAboutThumbFish();
 	}

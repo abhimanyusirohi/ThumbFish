@@ -161,6 +161,8 @@ LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 
 	TrackPopupMenu(hPopupMenu, TPM_TOPALIGN | TPM_LEFTALIGN, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), 0, m_hWnd, NULL);
 
+	DestroyMenu(hPopupMenu);
+
 	return 0;
 }
 

@@ -275,6 +275,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="ExtractDlg.cpp" />
     <ClCompile Include="PreviewCtrl.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -321,6 +322,8 @@
     <ClInclude Include="CommonUtils.h" />
     <ClInclude Include="ContextMenuHandler.h" />
     <ClInclude Include="dllmain.h" />
+    <ClInclude Include="ExtractDlg.h" />
+    <ClInclude Include="ExtractParam.h" />
     <ClInclude Include="FilterHandler.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="PreviewCtrl.h" />
@@ -347,6 +350,7 @@
     <None Include="About.bmp" />
     <None Include="ContextMenuHandler.rgs" />
     <None Include="Copy.bmp" />
+    <None Include="Extract.bmp" />
     <None Include="FilterHandler.rgs" />
     <None Include="FishG.bmp" />
     <None Include="Help.bmp" />
@@ -358,6 +362,7 @@
     <None Include="ThumbFish.ico" />
     <None Include="ThumbFish.rgs" />
     <None Include="ThumbnailHandler.rgs" />
+    <None Include="tick.ico" />
     <None Include="warning.ico" />
   </ItemGroup>
   <ItemGroup>

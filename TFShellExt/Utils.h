@@ -25,14 +25,21 @@ public:
 	Utils(void);
 	~Utils(void);
 
-	// 'DoXXX' functions interact with users by displaying a user interface
-	static HRESULT	DoFileSaveDialog(HWND owner, PWSTR filePath);
-	static void		DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options);
-	static bool		CopyToClipboard(const char* data, int dataLength, int format);
-	static void		ConvertAndCopy(LPBUFFER buffer, ChemFormat convertTo, LPOPTIONS options);
+	static int CALLBACK BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
 
-	static HRESULT	GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath);
-	static bool		ShellExecuteLink(const TCHAR* link);
-	static bool		IsMultiMolFile(TCHAR* fileName);
-	static HMENU	CreateCopyMenu(ChemFormat srcFormat, UINT* idStart);
+	// 'DoXXX' functions interact with users by displaying a user interface
+	static HRESULT		DoFolderDialog(HWND owner, LPCTSTR title, LPTSTR startFolder, PWSTR folderPath);
+	static HRESULT		DoFileSaveDialog(HWND owner, PWSTR filePath);
+	static void			DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options);
+	static bool			CopyToClipboard(const char* data, int dataLength, int format);
+	static void			ConvertAndCopy(LPBUFFER buffer, ChemFormat convertTo, LPOPTIONS options);
+
+	static HRESULT		GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath);
+	static bool			ShellExecuteLink(const TCHAR* link);
+	//static Extension	GetExtension(TCHAR* fileName);
+	static bool			IsMultiMolFile(TCHAR* fileName);
+	//static bool			GetDataFormat(Extension ext, TCHAR* outBuffer, int bufferLength);
+	//static bool			GetStrExtension(Extension ext, TCHAR* outBuffer, int bufferLength);
+	//static Extension	GetExtensionFromFormat(TCHAR* format);
+	static HMENU		CreateCopyMenu(ChemFormat srcFormat, UINT* idStart);
 };
