@@ -4,6 +4,7 @@
 #include "ThumbFish_i.h"
 #include "ThumbFishDocument.h"
 #include <vector>
+#include "CommonUtils.h"
 
 class ATL_NO_VTABLE CContextMenuHandler :
     public CComObjectRootEx<CComSingleThreadModel>,
@@ -58,6 +59,8 @@ protected:
 
 	bool m_bMultiSelection;			// specifies if multiple files are selected
 	std::vector<TCHAR*> m_Files;	// keeps a list of file to work on
+
+	static DWORD WINAPI ThreadProc(LPVOID lpParameter);
 
     // The function that handles the "Sample" verb
     void OnSample(HWND hWnd);

@@ -12,22 +12,27 @@ typedef struct
 
 const HELPTEXT c_HelpStrings[] = 
 {
-		{"Save selected structure to disk in different formats", L"Save selected structure to disk in different formats"},
-		{"Copy structure in CDXML format", L"Copy structure in CDXML format"},
-		{"Copy structure in CML format", L"Copy structure in CML format"},
-		{"Copy structure in EMF format", L"Copy structure in EMF format"},
-		{"Copy structure in InChi format", L"Copy structure in InChi format"},
-		{"Copy structure in InChi Key format", L"Copy structure in InChi Key format"},
-		{"Copy structure in MOLV2000 format", L"Copy structure in MOLV2000 format"},
-		{"Copy structure in MOLV3000 format", L"Copy structure in MOLV3000 format"},
-		{"Copy structure in RXNV2000 format", L"Copy structure in RXNV2000 format"},
-		{"Copy structure in RXNV3000 format", L"Copy structure in RXNV3000 format"},
-		{"Copy structure in SMILES format", L"Copy structure in SMILES format"},
-		{"Copy selected structure to clipboard in different formats", L"Copy selected structure to clipboard in different formats"},
-		{"Extract molecules as separate files", L"Extract molecules as separate files"},
-		{"Displays the online help page for ThumbFish", L"Displays the online help page for ThumbFish"},
-		{"Displays the About dialog", L"Displays the About dialog"}
+	{"Save selected structure to disk in different formats", L"Save selected structure to disk in different formats"},
+	{"Copy structure in CDXML format", L"Copy structure in CDXML format"},
+	{"Copy structure in CML format", L"Copy structure in CML format"},
+	{"Copy structure in EMF format", L"Copy structure in EMF format"},
+	{"Copy structure in InChi format", L"Copy structure in InChi format"},
+	{"Copy structure in InChi Key format", L"Copy structure in InChi Key format"},
+	{"Copy structure in MOLV2000 format", L"Copy structure in MOLV2000 format"},
+	{"Copy structure in MOLV3000 format", L"Copy structure in MOLV3000 format"},
+	{"Copy structure in RXNV2000 format", L"Copy structure in RXNV2000 format"},
+	{"Copy structure in RXNV3000 format", L"Copy structure in RXNV3000 format"},
+	{"Copy structure in SMILES format", L"Copy structure in SMILES format"},
+	{"Copy selected structure to clipboard in different formats", L"Copy selected structure to clipboard in different formats"},
+	{"Extract molecules as separate files", L"Extract molecules as separate files"},
+	{"Displays the online help page for ThumbFish", L"Displays the online help page for ThumbFish"},
+	{"Displays the About dialog", L"Displays the About dialog"}
 };
+
+// creates a new thread for UI operations. Closes the returned HANDLE immediately as it is not required
+// http://stackoverflow.com/questions/418742/is-it-reasonable-to-call-closehandle-on-a-thread-before-it-terminates
+#define CREATE_THREAD_FOR_UI(param)		CloseHandle(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&CContextMenuHandler::ThreadProc, \
+										param, 0, NULL));
 
 #pragma region IShellExtInit methods
 
@@ -74,12 +79,40 @@ IFACEMETHODIMP CContextMenuHandler::Initialize(
 
     // If any value other than S_OK is returned from the method, the context 
     // menu is not displayed.
-    return hr;
+	return hr;
 }
 
 #pragma endregion
 
 #pragma region Command Handlers
+
+// Called when a command needs to be executed on a separate thread
+DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
+{
+	LPCOMMANDPARAMS params = (LPCOMMANDPARAMS)lpParameter;
+
+	switch(params->CommandID)
+	{
+		case 12:
+			{
+				CExtractDlg dlg((PTSTR)params->Data);
+				dlg.DoModal(NULL);
+				delete[] ((TCHAR*)params->Data);
+			}
+			break;
+
+		case 14:
+			{
+				AboutDlg dlg;
+				dlg.DoModal(NULL);
+			}
+			break;
+	}
+
+	delete params;
+
+	return 0;
+}
 
 void CContextMenuHandler::OnThumbFishOnline()
 {
@@ -90,16 +123,13 @@ void CContextMenuHandler::OnThumbFishOnline()
 
 void CContextMenuHandler::OnAboutThumbFish()
 {
-	pantheios::log_NOTICE(_T("CContextMenuHandler::OnAboutThumbFish> Called"));
-
-	AboutDlg dlg;
-	dlg.DoModal(NULL);
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(14, NULL))
 }
 
 void CContextMenuHandler::OnExtract()
 {
-	CExtractDlg dlg(m_Files[0]);
-	dlg.DoModal(NULL);
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(12, m_Files[0]))
+	m_Files.clear();	// clear so that its not freed
 }
 
 #pragma endregion
@@ -120,10 +150,15 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 
 	bool multiMolFile = false;
 	ChemFormat format = fmtUnknown;
-	if(m_Files.size() == 1) 
+	if(m_Files.size() == 1)
 	{
-		multiMolFile = Utils::IsMultiMolFile(m_Files[0]);
 		format = CommonUtils::GetFormatFromFileName(m_Files[0]);
+
+		// a single file must be of readable format that we can process
+		if(!CommonUtils::IsReadableFormat(format))
+			return MAKE_HRESULT(SEVERITY_ERROR, FACILITY_NULL, 0);
+
+		multiMolFile = Utils::IsMultiMolFile(m_Files[0]);
 	}
 
 	// First, create and populate a submenu.
