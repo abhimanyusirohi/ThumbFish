@@ -24,8 +24,14 @@ public:
 	CExtractDlg(PTSTR sourceFile) : m_currentGroup(-1), m_threadHandle(NULL)
 	{
 		m_params.callback = (ProgressCallback)(&CExtractDlg::OnProgressChanged);
-		m_params.sourceExtension = CommonUtils::GetFormatFromFileName(sourceFile);
+		m_params.sourceFormat = CommonUtils::GetFormatFromFileName(sourceFile);
 		_tcscpy_s(m_params.sourceFile, MAX_PATH, sourceFile);
+
+		// set the default output format based on source file format
+		if(m_params.sourceFormat == fmtSDF) m_params.exportFormat = fmtMOLV2;
+		else if(m_params.sourceFormat == fmtRDF) m_params.exportFormat = fmtRXNV2;
+		else if(m_params.sourceFormat == fmtCML) m_params.exportFormat = fmtCML;
+		else if(m_params.sourceFormat == fmtSMILES) m_params.exportFormat = fmtSMILES;
 
 		// set output folder to source file folder
 		_tcscpy_s(m_params.folderPath, MAX_PATH, sourceFile);
@@ -68,13 +74,12 @@ END_MSG_MAP()
 		_snwprintf_s(grpCaption, MAX_PATH, _T("[%s]"), PathFindFileName(m_params.sourceFile));
 		SetDlgItemText(IDC_GRP_MAIN, grpCaption);
 
+		SetDlgItemInt(IDC_EDTEXTRACTCOUNT, 50);	// set default extract count value
+
 		SetDlgItemText(IDC_EDT_FILEFORMAT, m_params.fileFormat);
 		CheckDlgButton(m_params.extractMolCount == -1 ? IDC_RDO_EXTRACTALL : IDC_RDO_EXTRACTSOME, 1);
 
-		//TODO: Make separate method
-		RECT rect;
-		GetWindowRect(&rect);
-		SetWindowPos(NULL, -1, -1, rect.right - rect.left, 170, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
+		ResizeDialog(false);
 
 		return 1;  // Let the system set the focus
 	}
@@ -82,7 +87,7 @@ END_MSG_MAP()
 	LRESULT OnClickedOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 	{
 		TCHAR ext[10];
-		if(CommonUtils::GetFormatString(m_params.dataFormat, ext, 10))
+		if(CommonUtils::GetFormatExtension(m_params.exportFormat, ext, 10))
 		{
 			// set folder path to full export file template containing %d that will 
 			// be replaced during extract process
@@ -133,6 +138,14 @@ END_MSG_MAP()
 	void DisplayGroup(int groupId);
 	static bool OnProgressChanged(LPVOID sender, CallbackEventArgs* e);
 	static DWORD WINAPI ThreadProc(LPVOID lpParameter);
+
+	// resizes the dialog to display additional options
+	void ResizeDialog(bool expand)
+	{
+		RECT rect;
+		GetWindowRect(&rect);
+		SetWindowPos(NULL, -1, -1, rect.right - rect.left, expand ? 245 : 170, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
+	}
 
 	LRESULT OnNMClickLinkMolCount(int /*idCtrl*/, LPNMHDR pNMHDR, BOOL& /*bHandled*/);
 	LRESULT OnUpdateOptionsClicked(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

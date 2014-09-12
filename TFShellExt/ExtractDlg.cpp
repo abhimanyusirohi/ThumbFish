@@ -10,11 +10,11 @@ LRESULT CExtractDlg::OnNMClickLinkMolCount(int idCtrl, LPNMHDR pNMHDR, BOOL& bHa
 	PNMLINK link = (PNMLINK) pNMHDR;
 	switch(link->item.iLink)
 	{
-	case 0:
+	case 0:		// Extract Count
 		DisplayGroup(1);
 		break;
 
-	case 1:
+	case 1:		// Select Output Directory
 		if(!SUCCEEDED(Utils::DoFolderDialog(m_hWnd, _T("Extract Molecules to Folder..."), 
 			m_params.folderPath, m_params.folderPath)))
 		{
@@ -22,7 +22,7 @@ LRESULT CExtractDlg::OnNMClickLinkMolCount(int idCtrl, LPNMHDR pNMHDR, BOOL& bHa
 		}
 		break;
 
-	case 3:
+	case 3:		// File Format
 		DisplayGroup(2);
 		break;
 
@@ -51,29 +51,13 @@ LRESULT CExtractDlg::OnChangeDataFormat(WORD wNotifyCode, WORD wID, HWND hWndCtl
 {
 	switch(wID)
 	{
-	case ID_EXTRACTFORMAT_MOL:
-		m_params.dataFormat = fmtMOLV2;
-		break;
-
-	case ID_EXTRACTFORMAT_MOLV3000:
-		m_params.dataFormat = fmtMOLV3;
-		break;
-
-	case ID_EXTRACTFORMAT_RXN:
-		m_params.dataFormat = fmtRXNV2;
-		break;
-
-	case ID_EXTRACTFORMAT_CML:
-		m_params.dataFormat = fmtCML;
-		break;
-
-	case ID_EXTRACTFORMAT_EMF:
-		m_params.dataFormat = fmtEMF;
-		break;
-
-	case ID_EXTRACTFORMAT_CDXML:
-		m_params.dataFormat = fmtCDXML;
-		break;
+		case ID_EXTRACTFORMAT_MOL: m_params.exportFormat = fmtMOLV2; break;
+		case ID_EXTRACTFORMAT_MOLV3000: m_params.exportFormat = fmtMOLV3; break;
+		case ID_EXTRACTFORMAT_RXN: m_params.exportFormat = fmtRXNV2; break;
+		case ID_EXTRACTFORMAT_RXNV3000: m_params.exportFormat = fmtRXNV3; break;
+		case ID_EXTRACTFORMAT_CML: m_params.exportFormat = fmtCML; break;
+		case ID_EXTRACTFORMAT_EMF: m_params.exportFormat = fmtEMF; break;
+		case ID_EXTRACTFORMAT_CDXML: m_params.exportFormat = fmtCDXML; break;
 	}
 
 	UpdateLinkText();
@@ -114,10 +98,23 @@ LRESULT CExtractDlg::OnUpdateOptionsClicked(WORD wNotifyCode, WORD wID, HWND hWn
 			TCHAR format[50];
 			GetDlgItemText(IDC_EDT_FILEFORMAT, format, 50);
 
-			// make sure we have a %d in the format
-			if(_tcsstr(format, _T("%d")) == 0)
+			size_t start = 0;
+			int countPercentD = 0;
+			tstring strFormat(format);
+
+			// count the number of %d in format string
+			while ((start = strFormat.find(_T("%d"), start)) != std::string::npos) {
+				++countPercentD; start += 2;
+			}
+
+			// count the number of % sign in format string
+			size_t countPercents = std::count(strFormat.begin(), strFormat.end(), _T('%'));
+
+			// make sure we have exactly ONE %d in the format
+			if((countPercentD != 1) || (countPercents > 1))
 			{
-				MessageBox(_T("Format is not correct. Format string must contain a %d which will be replaced by a number during extract operation."), _T("Validation Failed"), MB_OK | MB_ICONWARNING);
+				MessageBox(_T("Format is not correct. Format string must contain exactly one %d which will be replaced by a number during extract operation."),
+					_T("Validation Failed"), MB_OK | MB_ICONWARNING);
 				return 0;
 			}
 
@@ -138,12 +135,9 @@ LRESULT CExtractDlg::OnUpdateOptionsClicked(WORD wNotifyCode, WORD wID, HWND hWn
 
 void CExtractDlg::DisplayGroup(int groupId)
 {
+	ResizeDialog(true);
+
 	m_currentGroup = groupId;
-
-	RECT rect;
-	GetWindowRect(&rect);
-	SetWindowPos(NULL, -1, -1, rect.right - rect.left, 245, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
-
 	bool molCountGroup = (groupId == 1);
 
 	SetDlgItemText(IDC_EXTRAOPTIONS, molCountGroup
@@ -153,8 +147,22 @@ void CExtractDlg::DisplayGroup(int groupId)
 	::ShowWindow(GetDlgItem(IDC_RDO_EXTRACTALL), molCountGroup ? SW_SHOW : SW_HIDE);
 	::ShowWindow(GetDlgItem(IDC_RDO_EXTRACTSOME), molCountGroup ? SW_SHOW : SW_HIDE);
 	::ShowWindow(GetDlgItem(IDC_EDTEXTRACTCOUNT), molCountGroup ? SW_SHOW : SW_HIDE);
+	::ShowWindow(GetDlgItem(IDC_STATIC_EXTRACTMOL), molCountGroup ? SW_SHOW : SW_HIDE);
 	::ShowWindow(GetDlgItem(IDC_LBL_FILEFORMAT), !molCountGroup ? SW_SHOW : SW_HIDE);
 	::ShowWindow(GetDlgItem(IDC_EDT_FILEFORMAT), !molCountGroup ? SW_SHOW : SW_HIDE);
+
+	// set focus to the textboxes
+	if(molCountGroup)
+	{
+		if(IsDlgButtonChecked(IDC_RDO_EXTRACTSOME) == BST_CHECKED)
+		{
+			::SetFocus(GetDlgItem(IDC_EDTEXTRACTCOUNT));
+		}
+	}
+	else
+	{
+		::SetFocus(GetDlgItem(IDC_EDT_FILEFORMAT));
+	}
 }
 
 void CExtractDlg::UpdateLinkText()
@@ -168,7 +176,7 @@ void CExtractDlg::UpdateLinkText()
 		m_params.GetStrMolCount(strMolCount, 10);
 
 		TCHAR dataFormat[10];
-		CommonUtils::GetFormatString(m_params.dataFormat, dataFormat, 10);
+		CommonUtils::GetFormatString(m_params.exportFormat, dataFormat, 10);
 
 		TCHAR overwrite[15];
 		m_params.GetStrOverwriteFiles(overwrite, 15);
@@ -193,6 +201,9 @@ bool CExtractDlg::OnProgressChanged(LPVOID sender, CallbackEventArgs* e)
 			break;
 
 		case progressDone:
+			// clear the progress message
+			::SetDlgItemText(hWndDlg, IDC_EXTRACTMSG, _T(""));
+
 			// display summary when done
 			if(::MessageBox(hWndDlg, e->message, 
 				m_userCancelled ? _T("Extraction Cancelled") : _T("Extraction Completed"), 

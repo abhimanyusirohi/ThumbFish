@@ -6,6 +6,16 @@
 #define MAX_FORMAT 10
 #define MAX_EXTENSION 10
 #define MAX_FORMAT_LONG 255
+#define FOREACH_FORMATINFO(x) for(int index = 0; index < (sizeof(cFormatInfo)/sizeof(cFormatInfo[0])); index++) { x }
+
+// Parameters required to execute a command on a new thread
+typedef struct CommandParams
+{
+	int		CommandID;	// command id of operation
+	LPVOID	Data;		// data required to execute this command
+
+	CommandParams(int id, LPVOID data) : CommandID(id), Data(data) {}
+} COMMANDPARAMS, *LPCOMMANDPARAMS;
 
 typedef struct
 {
@@ -15,7 +25,7 @@ typedef struct
 	TCHAR formatTagLong[MAX_FORMAT_LONG];
 } FORMATINFO, *LPFORMATINFO;
 
-const FORMATINFO cFormatInfo[19] = {
+const FORMATINFO cFormatInfo[] = {
 	{ fmtMOLV2, _T(".mol"), _T("MOL V2000"), _T("MDL MOL V2000") },
 	{ fmtMOLV3, _T(".mol"), _T("MOL V3000"), _T("MDL MOL V3000") },
 	{ fmtRXNV2, _T(".rxn"), _T("RXN V2000"), _T("MDL RXN V2000") },
@@ -46,19 +56,32 @@ public:
 	static ChemFormat GetFormatFromFileName(TCHAR* fileName)
 	{
 		LPWSTR ext = ::PathFindExtension(fileName);
-
-		for(int index = 0; index < sizeof(cFormatInfo); index++)
-			if(TEQUAL(ext, cFormatInfo[index].extension)) return cFormatInfo[index].format;
-
+		FOREACH_FORMATINFO(if(TEQUAL(ext, cFormatInfo[index].extension)) return cFormatInfo[index].format;)
 		return fmtUnknown;
 	}
 
 	static bool GetFormatString(ChemFormat fmt, TCHAR* outBuffer, int bufferLength)
 	{
-		for(int index = 0; index < sizeof(cFormatInfo); index++)
-			if(fmt == cFormatInfo[index].format)
-				return (_tcscpy_s(outBuffer, bufferLength, cFormatInfo[index].formatTag) == 0);
-
+		FOREACH_FORMATINFO(if(fmt == cFormatInfo[index].format) 
+			return (_tcscpy_s(outBuffer, bufferLength, cFormatInfo[index].formatTag) == 0);)
 		return false;
+	}
+
+	static bool GetFormatExtension(ChemFormat fmt, TCHAR* outBuffer, int bufferLength)
+	{
+		FOREACH_FORMATINFO(if(fmt == cFormatInfo[index].format)
+				return (_tcscpy_s(outBuffer, bufferLength, cFormatInfo[index].extension) == 0);)
+		return false;
+	}
+
+	static bool IsMultiMolFormat(ChemFormat format)
+	{
+		return ((format == fmtSDF) || (format == fmtRDF) || (format == fmtCML) || (format == fmtSMILES));
+	}
+
+	static bool IsReadableFormat(ChemFormat format)
+	{
+		return ((format == fmtMOLV2) || (format == fmtMOLV3) || (format == fmtRXNV2) || (format == fmtRXNV3) 
+			|| (format == fmtSDF) || (format == fmtRDF) || (format == fmtCML) || (format == fmtSMILES) || (format == fmtSMARTS));
 	}
 };

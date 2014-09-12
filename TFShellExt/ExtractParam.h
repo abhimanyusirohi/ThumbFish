@@ -3,13 +3,13 @@
 class ExtractParams
 {
 public:
-	ChemFormat			dataFormat;				// user option
+	ChemFormat			exportFormat;			// user option
 	bool				overwriteFiles;			// user option
 	int					extractMolCount;		// user option
 	TCHAR				fileFormat[50];			// user option
 	TCHAR				folderPath[MAX_PATH];	// user option
 	TCHAR				sourceFile[MAX_PATH];
-	ChemFormat			sourceExtension;
+	ChemFormat			sourceFormat;
 
 	LPVOID				caller;					// CExtractDlg class ref
 	ProgressCallback	callback;				// callback method for progress reporting
@@ -17,7 +17,7 @@ public:
 public:
 	ExtractParams() : extractMolCount(-1), overwriteFiles(false), callback(NULL)
 	{
-		dataFormat = fmtCDXML;
+		exportFormat = fmtCDXML;
 		_tcscpy_s(fileFormat, 50, _T("Structure%d"));
 		_tcscpy_s(folderPath, MAX_PATH, _T("Select Folder"));
 	}

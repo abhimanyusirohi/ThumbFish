@@ -446,10 +446,10 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 	char* folderPath = W2A(params->folderPath);	// folderPath contains {DIR}\{FILENAME}%d.{EXT}
 
 	int reader = -1;
-	if(params->sourceExtension == fmtSDF) reader = indigoIterateSDFile(sourceFile);
-	else if(params->sourceExtension == fmtRDF) reader = indigoIterateRDFile(sourceFile);
-	else if(params->sourceExtension == fmtCML) reader = indigoIterateCMLFile(sourceFile);
-	else if(params->sourceExtension == fmtSMILES) reader = indigoIterateSmilesFile(sourceFile);
+	if(params->sourceFormat == fmtSDF) reader = indigoIterateSDFile(sourceFile);
+	else if(params->sourceFormat == fmtRDF) reader = indigoIterateRDFile(sourceFile);
+	else if(params->sourceFormat == fmtCML) reader = indigoIterateCMLFile(sourceFile);
+	else if(params->sourceFormat == fmtSMILES) reader = indigoIterateSmilesFile(sourceFile);
 	else
 	{
 		pantheios::log_ERROR(_T("API-Extract> Source file format is NOT supported. Src File="), params->sourceFile);
@@ -496,29 +496,29 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 			}
 		}
 
-		if((params->sourceExtension == fmtSDF) && ((params->dataFormat == fmtMOLV2) || (params->dataFormat == fmtMOLV3)))
+		if((params->sourceFormat == fmtSDF) && ((params->exportFormat == fmtMOLV2) || (params->exportFormat == fmtMOLV3)))
 		{			
-			indigoSetOption("molfile-saving-mode", (params->dataFormat == fmtMOLV2) ? "2000" : "3000");
+			indigoSetOption("molfile-saving-mode", (params->exportFormat == fmtMOLV2) ? "2000" : "3000");
 			if(indigoSaveMolfileToFile(mol, fullFilePath) < 1) writeFail++;
 		}
-		else if((params->sourceExtension == fmtRDF) && ((params->dataFormat == fmtRXNV2) || (params->dataFormat == fmtRXNV3)))
+		else if((params->sourceFormat == fmtRDF) && ((params->exportFormat == fmtRXNV2) || (params->exportFormat == fmtRXNV3)))
 		{
-			indigoSetOption("molfile-saving-mode", (params->dataFormat == fmtRXNV2) ? "2000" : "3000");
+			indigoSetOption("molfile-saving-mode", (params->exportFormat == fmtRXNV2) ? "2000" : "3000");
 			if(indigoSaveRxnfileToFile(mol, fullFilePath) < 1) writeFail++;
 		}
-		else if((params->sourceExtension == fmtCML) && (params->dataFormat == fmtCML))
+		else if((params->sourceFormat == fmtCML) && (params->exportFormat == fmtCML))
 		{
 			if(indigoSaveCmlToFile(mol, fullFilePath) < 1) writeFail++;
 		}
-		else if((params->sourceExtension == fmtSMILES) && (params->dataFormat == fmtSMILES))
+		else if((params->sourceFormat == fmtSMILES) && (params->exportFormat == fmtSMILES))
 		{
 			int smiFile = indigoWriteFile(fullFilePath);
 			if(indigoSmilesAppend(smiFile, mol) < 1) writeFail++;
 		}
-		else if((params->dataFormat == fmtCDXML) || (params->dataFormat == fmtEMF))
+		else if((params->exportFormat == fmtCDXML) || (params->exportFormat == fmtEMF))
 		{
 			TCHAR format[MAX_FORMAT];
-			CommonUtils::GetFormatString(params->dataFormat, format, MAX_FORMAT);
+			CommonUtils::GetFormatString(params->exportFormat, format, MAX_FORMAT);
 			indigoSetOption("render-output-format", W2A(format));
 			indigoSetOptionXY("render-image-size", options->RenderImageWidth, options->RenderImageHeight);
 
@@ -529,7 +529,7 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 		else
 		{
 			pantheios::log_WARNING(_T("API-Extract> Unsupported export formats. DataFormat="), 
-				pantheios::integer(params->dataFormat));
+				pantheios::integer(params->exportFormat));
 		}
 
 		indigoFree(mol);
