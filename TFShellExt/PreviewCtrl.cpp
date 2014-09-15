@@ -318,7 +318,7 @@ LRESULT CPreviewCtrl::OnOptionsCopyAll(WORD wNotifyCode, WORD wID, HWND hWndCtl,
 
 	// convert to ASCII and copy text to clipboard
 	LPSTR data = W2A(largeText);
-	Utils::CopyToClipboard(data, (int)strlen(data), CF_TEXT);
+	Utils::CopyToClipboard(data, strlen(data), CF_TEXT);
 
 	bHandled = TRUE;
 	return 0;

@@ -524,7 +524,7 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 
 			// render to file
 			if(indigoRenderToFile(mol, fullFilePath) < 1)
-				pantheios::log_ERROR(_T("API-Extract> indigoRenderToFile failed for: ", fullFilePath));
+				pantheios::log_ERROR(_T("API-Extract> indigoRenderToFile failed for: "), fullFilePath);
 		}
 		else
 		{

@@ -170,7 +170,7 @@ bool Utils::ShellExecuteLink(const TCHAR* link)
     shInfo.nShow = SW_SHOW;
     shInfo.hInstApp = NULL;
 
-	return ShellExecuteEx(&shInfo);
+	return (ShellExecuteEx(&shInfo) == TRUE) ? true : false;
 }
 
 void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
@@ -220,12 +220,12 @@ void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 	if(oBuffer) delete oBuffer;
 }
 
-bool Utils::CopyToClipboard(const char* data, int dataLength, int format)
+bool Utils::CopyToClipboard(const char* data, size_t dataLength, int format)
 {
 	HANDLE handle = NULL;
 	if(format == CF_ENHMETAFILE)
 	{
-		handle = SetEnhMetaFileBits(dataLength, (BYTE*)data);
+		handle = SetEnhMetaFileBits((UINT)dataLength, (BYTE*)data);
 	}
 	else
 	{

@@ -31,7 +31,7 @@ public:
 	static HRESULT		DoFolderDialog(HWND owner, LPCTSTR title, LPTSTR startFolder, PWSTR folderPath);
 	static HRESULT		DoFileSaveDialog(HWND owner, PWSTR filePath);
 	static void			DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options);
-	static bool			CopyToClipboard(const char* data, int dataLength, int format);
+	static bool			CopyToClipboard(const char* data, size_t dataLength, int format);
 	static void			ConvertAndCopy(LPBUFFER buffer, ChemFormat convertTo, LPOPTIONS options);
 
 	static HRESULT		GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath);

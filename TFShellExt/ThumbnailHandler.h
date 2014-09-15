@@ -48,7 +48,7 @@ END_COM_MAP()
 protected:
 	virtual HRESULT GetBitmap(UINT cx, HBITMAP *phbmp, WTS_ALPHATYPE *pdwAlpha)
 	{
-		pantheios::log_NOTICE(_T("CThumbnailHandler::GetBitmap> Called. cx=", pantheios::integer(cx)));
+		pantheios::log_NOTICE(_T("CThumbnailHandler::GetBitmap> Called. cx="), pantheios::integer(cx));
 
 		if (m_pDocument == NULL)
 		{

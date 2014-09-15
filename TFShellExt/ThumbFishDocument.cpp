@@ -162,7 +162,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		{
 			m_Buffer.pData = new char[m_Buffer.DataLength];
 
-			HRESULT hr = stream->Read(m_Buffer.pData, m_Buffer.DataLength, (ULONG*)&m_Buffer.DataLength);
+			HRESULT hr = stream->Read(m_Buffer.pData, (ULONG)m_Buffer.DataLength, (ULONG*)&m_Buffer.DataLength);
 
 			if(hr == S_OK)
 			{
@@ -264,7 +264,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	return FALSE;
 }
 
-int ThumbFishDocument::FindMolVersion(char* data, int dataLength, int lineNum)
+int ThumbFishDocument::FindMolVersion(char* data, size_t dataLength, int lineNum)
 {
 	int line = 0;
 	for(int index = 0; index < dataLength; index++)
@@ -288,6 +288,8 @@ int ThumbFishDocument::FindMolVersion(char* data, int dataLength, int lineNum)
 			}
 		}
 	}
+
+	return 1;
 }
 
 /// <summary>
