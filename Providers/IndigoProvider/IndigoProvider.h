@@ -58,5 +58,5 @@ std::string GetData(LPBUFFER buffer);
 int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type);
 void SetIndigoOptions(LPOPTIONS options);
 void DrawErrorBitmap(HDC hDC, LPRECT lpRect);
-void DrawVersionIndicator(HDC hDC);
+void DrawMOLVersionIndicator(HDC hDC, bool v2000);
 void DrawRecordCount(HDC hDC, RECT rect, int recordCount);

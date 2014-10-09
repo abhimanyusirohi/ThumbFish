@@ -86,8 +86,11 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 
 			if(options->IsThumbnail)
 			{
-				// draw a V3000 indicator for thumbnails
-				if((buffer->DataFormat == fmtMOLV3) || (buffer->DataFormat == fmtRXNV3)) DrawVersionIndicator(hDC);
+				// draw a MOL version indicator on thumbnails for MOL, RXN, SDF and RDF
+				if(CommonUtils::IsMOLV2000Format(buffer->DataFormat))
+					DrawMOLVersionIndicator(hDC, true);
+				else if(CommonUtils::IsMOLV3000Format(buffer->DataFormat))
+					DrawMOLVersionIndicator(hDC, false);
 
 				// draw approx record count value
 				if((int)buffer->Extra > 0) DrawRecordCount(hDC, rect, (int)buffer->Extra);
@@ -696,21 +699,28 @@ void DrawErrorBitmap(HDC hDC, LPRECT lpRect)
 	}
 }
 
-void DrawVersionIndicator(HDC hDC)
+/**
+	Draws a small mark on specified HDC to identify MOLFILE version.
+*/
+void DrawMOLVersionIndicator(HDC hDC, bool v2000)
 {
-	HBRUSH greenBrush = ::CreateSolidBrush(RGB(7, 203, 75));
-	HPEN oldPen = (HPEN)SelectObject(hDC, GetStockObject(WHITE_PEN));
-	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, greenBrush);
+	HBRUSH bgBrush = ::CreateSolidBrush(RGB(224, 224, 224));
+	HPEN oldPen = (HPEN)SelectObject(hDC, GetStockObject(NULL_PEN));
+	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, bgBrush);
+	HFONT oldFont = (HFONT)SelectObject(hDC, GetStockObject(DEFAULT_GUI_FONT));
 
 	// draw empty rectangle
-	::Ellipse(hDC, 10, 10, 25, 25);
+	::Ellipse(hDC, 8, 8, 30, 30);
+	::SetBkMode(hDC, TRANSPARENT);
+	::TextOut(hDC, 12, 12, v2000 ? _T("V2") : _T("V3"), 2);
 
 	// revert to old pens and brushes
+	SelectObject(hDC, oldFont);
 	SelectObject(hDC, oldPen);
 	SelectObject(hDC, oldBrush);
 
 	// delete the newly created pen
-	DeleteObject(greenBrush);
+	DeleteObject(bgBrush);
 }
 
 void DrawRecordCount(HDC hDC, RECT rect, int recordCount)
@@ -720,9 +730,9 @@ void DrawRecordCount(HDC hDC, RECT rect, int recordCount)
 	int len = _snwprintf_s(text, 10, 10, L"%d±", recordCount);
 
 	// create a large font to display molecule count
-	HFONT font = CreateFont(20, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS, 
-		ANTIALIASED_QUALITY, FF_DONTCARE, NULL);
-	HFONT oldFont = (HFONT)SelectObject(hDC, font);
+	//HFONT font = CreateFont(20, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS, 
+	//	ANTIALIASED_QUALITY, FF_DONTCARE, NULL);
+	HFONT oldFont = (HFONT)SelectObject(hDC, GetStockObject(DEFAULT_GUI_FONT));
 
 	// get width of text with currently selected font
 	GetTextExtentPoint(hDC, text, len, &szText);
@@ -734,23 +744,23 @@ void DrawRecordCount(HDC hDC, RECT rect, int recordCount)
 	int destWidth = (rect.right - rect.left);
 	int destHeight = (rect.bottom - rect.top);
 	
-	HBRUSH lightgreenBrush = ::CreateSolidBrush(RGB(103, 250, 154));	// light green
-	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, lightgreenBrush);
+	HBRUSH bgBrush = ::CreateSolidBrush(RGB(224, 224, 224));
+	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, bgBrush);
 
-	HPEN pen = CreatePen(PS_SOLID, 1, RGB(7, 203, 75));	// little darker green than the fill colour
-	HPEN oldPen = (HPEN)SelectObject(hDC, pen);
+	//HPEN pen = CreatePen(PS_SOLID, 1, RGB(7, 203, 75));	// little darker green than the fill colour
+	HPEN oldPen = (HPEN)SelectObject(hDC, GetStockObject(NULL_PEN));
 
-	Rectangle(hDC, destWidth - szText.cx - 5, 5, destWidth - 5, szText.cy + 5);
+	Rectangle(hDC, destWidth - szText.cx - 5, 8, destWidth - 5, szText.cy + 8);
 
 	SetBkMode(hDC, TRANSPARENT);
-	SetTextColor(hDC, RGB(3, 82, 31));
-	TextOut(hDC, destWidth-szText.cx, 7, text, len);
+	//SetTextColor(hDC, RGB(3, 82, 31));
+	TextOut(hDC, destWidth-szText.cx, 10, text, len);
 
 	SelectObject(hDC, oldFont);
 	SelectObject(hDC, oldBrush);
 	SelectObject(hDC, oldPen);
 
-	DeleteObject(pen);
-	DeleteObject(lightgreenBrush);
-	DeleteObject(font);
+	//DeleteObject(pen);
+	DeleteObject(bgBrush);
+	//DeleteObject(font);
 }

@@ -89,4 +89,14 @@ public:
 			|| (format == fmtSDFV2)|| (format == fmtSDFV3) || (format == fmtRDFV2) || (format == fmtRDFV3) 
 			|| (format == fmtCML) || (format == fmtSMILES) || (format == fmtSMARTS));
 	}
+
+	static bool IsMOLV2000Format(ChemFormat format)
+	{
+		return ((format == fmtMOLV2) || (format == fmtRXNV2) || (format == fmtSDFV2) || (format == fmtRDFV2));
+	}
+
+	static bool IsMOLV3000Format(ChemFormat format)
+	{
+		return ((format == fmtMOLV3) || (format == fmtRXNV3) || (format == fmtSDFV3) || (format == fmtRDFV3));
+	}
 };

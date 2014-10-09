@@ -243,9 +243,9 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	{
 		// approximate the total number of records
 		if((m_Buffer.DataFormat == fmtSDFV2)|| (m_Buffer.DataFormat == fmtSDFV3) || (m_Buffer.DataFormat == fmtCML) || (m_Buffer.DataFormat == fmtSMILES))
-			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / 4));
+			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / recordCount));
 		else if((m_Buffer.DataFormat == fmtRDFV2) || (m_Buffer.DataFormat == fmtRDFV3))
-			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / 3));
+			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / recordCount));
 
 		m_Buffer.pData = new char[recordsReadBytes];
 		m_Buffer.DataLength = recordsReadBytes;
