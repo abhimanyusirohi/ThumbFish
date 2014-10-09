@@ -139,11 +139,11 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	
 	m_Buffer.pData = NULL;
 
-	if(m_Buffer.DataFormat == fmtSDF)
+	if((m_Buffer.DataFormat == fmtSDFV2) || (m_Buffer.DataFormat == fmtSDFV3))
 	{
 		strcpy_s(recordDelimiter, 20, "$$$$");
 	}
-	else if(m_Buffer.DataFormat == fmtRDF)
+	else if((m_Buffer.DataFormat == fmtRDFV2) || (m_Buffer.DataFormat == fmtRDFV3))
 	{
 		strcpy_s(recordDelimiter, 20, "$RFMT");
 	}
@@ -213,16 +213,16 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 			{
 				if(!firstMolVersionChecked)
 				{
-					if(m_Buffer.DataFormat == fmtSDF)
+					if(m_Buffer.DataFormat == fmtSDFV2)
 					{
 						m_Buffer.DataFormat = (FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4) == 1) 
-							? fmtMOLV2 : fmtMOLV3;
+							? fmtSDFV2 : fmtSDFV3;
 						firstMolVersionChecked = true;
 					}
-					else if((m_Buffer.DataFormat == fmtRDF) && (recordCount == 1))	// RDF has start tag unlike SDF ending tag $$$$
+					else if((m_Buffer.DataFormat == fmtRDFV2) && (recordCount == 1))	// RDF has start tag unlike SDF ending tag $$$$
 					{
 						m_Buffer.DataFormat = (FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4) == 1) 
-							? fmtRXNV2 : fmtRXNV3;
+							? fmtRDFV2 : fmtRDFV3;
 						firstMolVersionChecked = true;
 					}
 				}
@@ -242,9 +242,9 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	if(recordCount > 0)
 	{
 		// approximate the total number of records
-		if((m_Buffer.DataFormat == fmtSDF) || (m_Buffer.DataFormat == fmtCML) || (m_Buffer.DataFormat == fmtSMILES))
+		if((m_Buffer.DataFormat == fmtSDFV2)|| (m_Buffer.DataFormat == fmtSDFV3) || (m_Buffer.DataFormat == fmtCML) || (m_Buffer.DataFormat == fmtSMILES))
 			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / 4));
-		else if(m_Buffer.DataFormat == fmtRDF)
+		else if((m_Buffer.DataFormat == fmtRDFV2) || (m_Buffer.DataFormat == fmtRDFV3))
 			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / 3));
 
 		m_Buffer.pData = new char[recordsReadBytes];

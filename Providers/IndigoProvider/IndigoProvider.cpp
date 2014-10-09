@@ -21,6 +21,9 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 		int ptr = ReadBuffer(buffer, &retType);
 		if(ptr != -1)
 		{
+			bool isSDF = ((buffer->DataFormat == fmtSDFV2) || (buffer->DataFormat == fmtSDFV3));
+			bool isRDF = ((buffer->DataFormat == fmtRDFV2) || (buffer->DataFormat == fmtRDFV3));
+
 			SetIndigoOptions(options);
 			indigoSetOptionXY("render-image-size", rect.right - rect.left, rect.bottom - rect.top);
 
@@ -42,11 +45,11 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 
 				while((mol = indigoNext(ptr)) > 0)
 				{
-					// check if mol/reaction is valid
 					bool isValid = false;
-					if(buffer->DataFormat == fmtRDF) isValid = (indigoCountReactants(mol) > 0);
-					else if((buffer->DataFormat == fmtSDF) || (buffer->DataFormat == fmtCML))
-						isValid = (indigoCountAtoms(mol) > 0);
+
+					// check if mol/reaction is valid
+					if(isRDF) isValid = (indigoCountReactants(mol) > 0);
+					else isValid = (indigoCountAtoms(mol) > 0);
 
 					if(isValid)
 					{
@@ -56,9 +59,8 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 						indigoFree(mol);
 
 						// limit number of mol/reactions displayed depending on the file type
-						if((buffer->DataFormat == fmtRDF) && (index >= options->GridMaxReactions)) break;
-						if(((buffer->DataFormat == fmtSDF) || (buffer->DataFormat == fmtCML)) 
-							&& (index >= options->GridMaxMols)) break;
+						if(isRDF && (index >= options->GridMaxReactions)) break;
+						if((isSDF || (buffer->DataFormat == fmtCML)) && (index >= options->GridMaxMols)) break;
 					}
 				}
 
@@ -70,8 +72,7 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 					indigoSetOptionXY("render-grid-margins", 5, 5);
 					//indigoSetOptionXY("render-image-size", rect.right - rect.left + 10, rect.bottom - rect.top + 10);
 
-					int nCols = (buffer->DataFormat == fmtRDF) ? 1 : 2;
-					indigoRenderGrid(collection, NULL, nCols, dc);
+					indigoRenderGrid(collection, NULL, isRDF ? 1 : 2, dc);
 				}
 				else
 				{
@@ -446,8 +447,12 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 	char* folderPath = W2A(params->folderPath);	// folderPath contains {DIR}\{FILENAME}%d.{EXT}
 
 	int reader = -1;
-	if(params->sourceFormat == fmtSDF) reader = indigoIterateSDFile(sourceFile);
-	else if(params->sourceFormat == fmtRDF) reader = indigoIterateRDFile(sourceFile);
+
+	bool isSDF = ((params->sourceFormat == fmtSDFV2) || (params->sourceFormat == fmtSDFV3));
+	bool isRDF = ((params->sourceFormat == fmtRDFV2) || (params->sourceFormat == fmtRDFV3));
+
+	if(isSDF) reader = indigoIterateSDFile(sourceFile);
+	else if(isRDF) reader = indigoIterateRDFile(sourceFile);
 	else if(params->sourceFormat == fmtCML) reader = indigoIterateCMLFile(sourceFile);
 	else if(params->sourceFormat == fmtSMILES) reader = indigoIterateSmilesFile(sourceFile);
 	else
@@ -496,12 +501,12 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 			}
 		}
 
-		if((params->sourceFormat == fmtSDF) && ((params->exportFormat == fmtMOLV2) || (params->exportFormat == fmtMOLV3)))
+		if(isSDF && ((params->exportFormat == fmtMOLV2) || (params->exportFormat == fmtMOLV3)))
 		{			
 			indigoSetOption("molfile-saving-mode", (params->exportFormat == fmtMOLV2) ? "2000" : "3000");
 			if(indigoSaveMolfileToFile(mol, fullFilePath) < 1) writeFail++;
 		}
-		else if((params->sourceFormat == fmtRDF) && ((params->exportFormat == fmtRXNV2) || (params->exportFormat == fmtRXNV3)))
+		else if(isRDF && ((params->exportFormat == fmtRXNV2) || (params->exportFormat == fmtRXNV3)))
 		{
 			indigoSetOption("molfile-saving-mode", (params->exportFormat == fmtRXNV2) ? "2000" : "3000");
 			if(indigoSaveRxnfileToFile(mol, fullFilePath) < 1) writeFail++;
@@ -600,20 +605,22 @@ int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type)
 {
 	if((buffer == NULL) || (buffer->DataLength <= 0)) return -1;
 
+	bool isSDF = ((buffer->DataFormat == fmtSDFV2) || (buffer->DataFormat == fmtSDFV3));
+	bool isRDF = ((buffer->DataFormat == fmtRDFV2) || (buffer->DataFormat == fmtRDFV3));
+
 	if((buffer->DataFormat == fmtMOLV2) || (buffer->DataFormat == fmtMOLV3))
 		return indigoLoadMoleculeFromBuffer(buffer->pData, (int)buffer->DataLength);
 	else if((buffer->DataFormat == fmtRXNV2) || (buffer->DataFormat == fmtRXNV3))
 		return indigoLoadReactionFromBuffer(buffer->pData, (int)buffer->DataLength);
 	else if(buffer->DataFormat == fmtSMARTS)
 		return indigoLoadSmartsFromBuffer(buffer->pData, (int)buffer->DataLength);
-	else if((buffer->DataFormat == fmtSDF) || (buffer->DataFormat == fmtRDF) 
-		|| (buffer->DataFormat == fmtCML) || (buffer->DataFormat == fmtSMILES))
+	else if(isSDF || isRDF || (buffer->DataFormat == fmtCML) || (buffer->DataFormat == fmtSMILES))
 	{
 		*type = MultiMol;
 		int reader = indigoLoadBuffer(buffer->pData, (int)buffer->DataLength);
 
-		if(buffer->DataFormat == fmtSDF) return indigoIterateSDF(reader);
-		if(buffer->DataFormat == fmtRDF) return indigoIterateRDF(reader);
+		if(isSDF) return indigoIterateSDF(reader);
+		if(isRDF) return indigoIterateRDF(reader);
 		if(buffer->DataFormat == fmtCML) return indigoIterateCML(reader);
 		if(buffer->DataFormat == fmtSMILES) return indigoIterateSmiles(reader);
 	}

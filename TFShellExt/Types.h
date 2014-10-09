@@ -11,8 +11,8 @@
 					} if(outlen) *outlen = len; }
 
 // supported formats
-const enum ChemFormat { fmtUnknown, fmtMOLV2, fmtMOLV3, fmtRXNV2, fmtRXNV3, fmtSMILES, fmtSMARTS, 
-	fmtSDF, fmtRDF, fmtCML,	fmtCDXML, fmtINCHI, fmtINCHIKEY, fmtEMF, fmtPNG, fmtPDF, fmtSVG, fmtMDLCT };
+const enum ChemFormat { fmtUnknown, fmtMOLV2, fmtMOLV3, fmtRXNV2, fmtRXNV3, fmtSMILES, fmtSMARTS, fmtSDFV2, fmtSDFV3, 
+	fmtRDFV2, fmtRDFV3, fmtCML,	fmtCDXML, fmtINCHI, fmtINCHIKEY, fmtEMF, fmtPNG, fmtPDF, fmtSVG, fmtMDLCT };
 
 typedef std::basic_string<TCHAR> tstring;
 

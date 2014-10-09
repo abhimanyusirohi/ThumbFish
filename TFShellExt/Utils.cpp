@@ -294,8 +294,7 @@ void Utils::ConvertAndCopy(LPBUFFER buffer, ChemFormat convertTo, LPOPTIONS opti
 
 bool Utils::IsMultiMolFile(TCHAR* fileName)
 {
-	ChemFormat format = CommonUtils::GetFormatFromFileName(fileName);
-	return ((format == fmtSDF) || (format == fmtRDF) || (format == fmtCML) || (format == fmtSMILES));
+	return CommonUtils::IsMultiMolFormat(CommonUtils::GetFormatFromFileName(fileName));
 }
 
 HMENU Utils::CreateCopyMenu(ChemFormat srcFormat, UINT* idStart)

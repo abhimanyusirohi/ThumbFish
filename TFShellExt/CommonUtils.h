@@ -25,6 +25,7 @@ typedef struct
 	TCHAR formatTagLong[MAX_FORMAT_LONG];
 } FORMATINFO, *LPFORMATINFO;
 
+// FORMAT - EXTENSION - SHORT NAME - LONG NAME
 const FORMATINFO cFormatInfo[] = {
 	{ fmtMOLV2, _T(".mol"), _T("MOL V2000"), _T("MDL MOL V2000") },
 	{ fmtMOLV3, _T(".mol"), _T("MOL V3000"), _T("MDL MOL V3000") },
@@ -35,8 +36,10 @@ const FORMATINFO cFormatInfo[] = {
 	{ fmtSMILES, _T(".smiles"), _T("SMILES"), _T("SMILES") },
 	{ fmtSMARTS, _T(".sma"), _T("SMARTS"), _T("SMARTS") },
 	{ fmtSMARTS, _T(".smarts"), _T("SMARTS"), _T("SMARTS") },
-	{ fmtSDF, _T(".sdf"), _T("SDF"), _T("Structure Data File") },
-	{ fmtRDF, _T(".rdf"), _T("RDF"), _T("Reaction Data File") },
+	{ fmtSDFV2, _T(".sdf"), _T("SDF"), _T("Structure Data File") },
+	{ fmtSDFV3, _T(".sdf"), _T("SDF V3000"), _T("Structure Data File (V3000)") },
+	{ fmtRDFV2, _T(".rdf"), _T("RDF"), _T("Reaction Data File") },
+	{ fmtRDFV3, _T(".rdf"), _T("RDF V3000"), _T("Reaction Data File (V3000)") },
 	{ fmtEMF, _T(".emf"), _T("EMF"), _T("Enhanced Meta File") },
 	{ fmtCML, _T(".cml"), _T("CML"), _T("Chemical Markup Language") },
 	{ fmtPNG, _T(".png"), _T("PNG"), _T("Portable Network Graphics") },
@@ -76,12 +79,14 @@ public:
 
 	static bool IsMultiMolFormat(ChemFormat format)
 	{
-		return ((format == fmtSDF) || (format == fmtRDF) || (format == fmtCML) || (format == fmtSMILES));
+		return ((format == fmtSDFV2) || (format == fmtSDFV3) || (format == fmtRDFV2) || (format == fmtRDFV3) 
+			|| (format == fmtCML) || (format == fmtSMILES));
 	}
 
 	static bool IsReadableFormat(ChemFormat format)
 	{
 		return ((format == fmtMOLV2) || (format == fmtMOLV3) || (format == fmtRXNV2) || (format == fmtRXNV3) 
-			|| (format == fmtSDF) || (format == fmtRDF) || (format == fmtCML) || (format == fmtSMILES) || (format == fmtSMARTS));
+			|| (format == fmtSDFV2)|| (format == fmtSDFV3) || (format == fmtRDFV2) || (format == fmtRDFV3) 
+			|| (format == fmtCML) || (format == fmtSMILES) || (format == fmtSMARTS));
 	}
 };

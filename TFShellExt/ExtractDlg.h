@@ -28,8 +28,10 @@ public:
 		_tcscpy_s(m_params.sourceFile, MAX_PATH, sourceFile);
 
 		// set the default output format based on source file format
-		if(m_params.sourceFormat == fmtSDF) m_params.exportFormat = fmtMOLV2;
-		else if(m_params.sourceFormat == fmtRDF) m_params.exportFormat = fmtRXNV2;
+		if(m_params.sourceFormat == fmtSDFV2) m_params.exportFormat = fmtMOLV2;
+		else if(m_params.sourceFormat == fmtSDFV3) m_params.exportFormat = fmtMOLV3;
+		else if(m_params.sourceFormat == fmtRDFV2) m_params.exportFormat = fmtRXNV2;
+		else if(m_params.sourceFormat == fmtRDFV3) m_params.exportFormat = fmtRXNV3;
 		else if(m_params.sourceFormat == fmtCML) m_params.exportFormat = fmtCML;
 		else if(m_params.sourceFormat == fmtSMILES) m_params.exportFormat = fmtSMILES;
 
