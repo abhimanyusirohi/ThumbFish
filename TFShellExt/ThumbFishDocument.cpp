@@ -24,7 +24,7 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 	{
 		// initialize BUFFER
 		m_Buffer.DataLength = stat.cbSize.LowPart;
-		_tcscpy_s(m_Buffer.FileName, MAX_PATH, OLE2W(stat.pwcsName));
+		if(stat.pwcsName != NULL) _tcscpy_s(m_Buffer.FileName, MAX_PATH, OLE2W(stat.pwcsName));
 
 		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Name="), m_Buffer.FileName, 
 		_T(", Size="), pantheios::integer(m_Buffer.DataLength));
@@ -162,18 +162,13 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		{
 			m_Buffer.pData = new char[m_Buffer.DataLength];
 
-			HRESULT hr = stream->Read(m_Buffer.pData, (ULONG)m_Buffer.DataLength, (ULONG*)&m_Buffer.DataLength);
+			if(FAILED(stream->Read(m_Buffer.pData, (ULONG)m_Buffer.DataLength, (ULONG*)&m_Buffer.DataLength))) return false;
 
-			if(hr == S_OK)
-			{
-				// set data version (V2000, V3000) info for MOL and RXN files
-				if(m_Buffer.DataFormat == fmtMOLV2)
-					m_Buffer.DataFormat = (FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 4) == 1) ? fmtMOLV2 : fmtMOLV3;
-				else if(m_Buffer.DataFormat == fmtRXNV2)
-					m_Buffer.DataFormat = (FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 1) == 1) ? fmtRXNV2 : fmtRXNV3;
-			}
-
-			return hr;
+			// set data version (V2000, V3000) info for MOL and RXN files
+			if(m_Buffer.DataFormat == fmtMOLV2)
+				m_Buffer.DataFormat = (FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 4) == 1) ? fmtMOLV2 : fmtMOLV3;
+			else if(m_Buffer.DataFormat == fmtRXNV2)
+				m_Buffer.DataFormat = (FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 1) == 1) ? fmtRXNV2 : fmtRXNV3;
 		}
 		else
 		{
@@ -183,6 +178,8 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 			m_Buffer.DataLength = -1;	// file too large
 			return false;
 		}
+
+		return true;
 	}
 
 	/*	

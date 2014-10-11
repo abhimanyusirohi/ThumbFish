@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Notes.txt = Notes.txt
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ThumbFishTests", "ThumbFishTests\ThumbFishTests.vcxproj", "{37E087D9-1445-4F67-921F-86679CA451B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -64,6 +66,12 @@ Global
 		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Release|Win32.Build.0 = Release|Win32
 		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Release|x64.ActiveCfg = Release|x64
 		{9DC18603-8FFD-4A47-B96E-B09C84F2914E}.Release|x64.Build.0 = Release|x64
+		{37E087D9-1445-4F67-921F-86679CA451B6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{37E087D9-1445-4F67-921F-86679CA451B6}.Debug|Win32.Build.0 = Debug|Win32
+		{37E087D9-1445-4F67-921F-86679CA451B6}.Debug|x64.ActiveCfg = Debug|x64
+		{37E087D9-1445-4F67-921F-86679CA451B6}.Release|Win32.ActiveCfg = Release|Win32
+		{37E087D9-1445-4F67-921F-86679CA451B6}.Release|Win32.Build.0 = Release|Win32
+		{37E087D9-1445-4F67-921F-86679CA451B6}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
