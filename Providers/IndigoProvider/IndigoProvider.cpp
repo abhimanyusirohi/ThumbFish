@@ -438,6 +438,7 @@ INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, 
 		}
 	}
 
+	indigoFreeAllObjects();
 	return outbuf;
 }
 

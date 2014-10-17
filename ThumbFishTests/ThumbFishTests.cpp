@@ -2,6 +2,8 @@
 //
 
 #include "stdafx.h"
+
+#include "APITests.h"
 #include "CommonUtilsTests.h"
 #include "ThumbFishDocumentTests.h"
 

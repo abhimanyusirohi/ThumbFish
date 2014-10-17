@@ -16,13 +16,13 @@ public:
 /** Tests Go Here */
 TEST_F(CommonUtilsTests, CheckGetFormatFromFileName)
 {
-	ASSERT_EQ(CommonUtils::GetFormatFromFileName(_T("testfile.mol")), ChemFormat::fmtMOLV2) 
+	ASSERT_EQ(CommonUtils::GetFormatFromFileName(_T("testfile.mol")), fmtMOLV2) 
 		<< ".mol should default to MOLV2";
-	ASSERT_EQ(CommonUtils::GetFormatFromFileName(_T("testfile.rxn")), ChemFormat::fmtRXNV2) 
+	ASSERT_EQ(CommonUtils::GetFormatFromFileName(_T("testfile.rxn")), fmtRXNV2) 
 		<< ".rxn should default to RXNV2";
-	ASSERT_EQ(CommonUtils::GetFormatFromFileName(_T("testfile.sdf")), ChemFormat::fmtSDFV2) 
+	ASSERT_EQ(CommonUtils::GetFormatFromFileName(_T("testfile.sdf")), fmtSDFV2) 
 		<< ".sdf should default to SDFV2";
-	ASSERT_EQ(CommonUtils::GetFormatFromFileName(_T("testfile.rdf")), ChemFormat::fmtRDFV2) 
+	ASSERT_EQ(CommonUtils::GetFormatFromFileName(_T("testfile.rdf")), fmtRDFV2) 
 		<< ".rdf should default to RDFV2";
 }
 

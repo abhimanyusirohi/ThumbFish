@@ -195,6 +195,8 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	char largeTempBuffer[MAX_CACHE_SIZE];
 	size_t delimiterLen = strlen(recordDelimiter);
 	int matchIndex = 0, totalReadBytes = 0, recordCount = 0, recordsReadBytes = 0;
+	bool isSDForRDF = ((m_Buffer.DataFormat == fmtSDFV2) || (m_Buffer.DataFormat == fmtSDFV3) 
+		|| (m_Buffer.DataFormat == fmtRDFV2) || (m_Buffer.DataFormat == fmtRDFV3));
 
 	// read stream char by char, identify the record delimiters and cache 
 	// MAX_CACHE_RECORDS number of records
@@ -208,7 +210,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		{
 			if(matchIndex == delimiterLen) // whole delimiter string matches
 			{
-				if(!firstMolVersionChecked)
+				if(!firstMolVersionChecked && isSDForRDF)
 				{
 					if(m_Buffer.DataFormat == fmtSDFV2)
 					{
@@ -236,13 +238,18 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 		}
 	}
 
+	// a single SMILES string might not end with a \r\n so if there is data in 
+	// buffer, we will consider it as a SMILES record
+	if((m_Buffer.DataFormat == fmtSMILES) && (totalReadBytes > 0)) 
+	{
+		recordCount = 1;
+		recordsReadBytes = m_Buffer.DataLength;
+	}
+
 	if(recordCount > 0)
 	{
 		// approximate the total number of records
-		if((m_Buffer.DataFormat == fmtSDFV2)|| (m_Buffer.DataFormat == fmtSDFV3) || (m_Buffer.DataFormat == fmtCML) || (m_Buffer.DataFormat == fmtSMILES))
-			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / recordCount));
-		else if((m_Buffer.DataFormat == fmtRDFV2) || (m_Buffer.DataFormat == fmtRDFV3))
-			m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / recordCount));
+		m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / recordCount));
 
 		m_Buffer.pData = new char[recordsReadBytes];
 		m_Buffer.DataLength = recordsReadBytes;
