@@ -81,13 +81,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_6E3F6B2C3E0849B79FEC6706A6E21131"
-        "OwnerKey" = "8:_D5AFB5F5D37844A595106B093DE52398"
+        "MsmKey" = "8:_7524CA77508847FEBC9AD5AF6FCF94EF"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_7524CA77508847FEBC9AD5AF6FCF94EF"
+        "MsmKey" = "8:_7E7E32CDBE59476F931B09373700C83D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -137,18 +137,6 @@
         {
         "MsmKey" = "8:_C462338ACCAD1700DD8DBF882965B0BD"
         "OwnerKey" = "8:_3284516114FA4F1E8A825D13562C63C7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C9F54FD871424024B315F6025262DE6B"
-        "OwnerKey" = "8:_3284516114FA4F1E8A825D13562C63C7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C9F54FD871424024B315F6025262DE6B"
-        "OwnerKey" = "8:_D5AFB5F5D37844A595106B093DE52398"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -506,6 +494,26 @@
             {
             "SourcePath" = "8:..\\..\\SampleFiles\\Benzene.mol"
             "TargetName" = "8:Benzene.mol"
+            "Tag" = "8:"
+            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7E7E32CDBE59476F931B09373700C83D"
+            {
+            "SourcePath" = "8:..\\..\\SampleFiles\\ketcher.mol"
+            "TargetName" = "8:ketcher.mol"
             "Tag" = "8:"
             "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
             "Condition" = "8:"
@@ -1557,34 +1565,6 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_6E3F6B2C3E0849B79FEC6706A6E21131"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_ATL_x64.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_C9F54FD871424024B315F6025262DE6B"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_CRT_x64.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
         }
         "ProjectOutput"
         {
