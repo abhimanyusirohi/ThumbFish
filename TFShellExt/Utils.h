@@ -3,6 +3,9 @@
 #include "ThumbFishDocument.h"
 
 const TCHAR c_OnlineLink[] = _T("http://abhimanyusirohi.github.io/ThumbFish/");
+
+// Change ONEBASED_MOLV3FILTERINDEX and ONEBASED_RXNV3FILTERINDEX values when either
+// the content OR order of items changes in SaveTypes array
 const COMDLG_FILTERSPEC c_SaveTypes[] =
 {
 	{L"Chemical Markup Language (*.cml)", L"*.cml"},
@@ -19,6 +22,9 @@ const COMDLG_FILTERSPEC c_SaveTypes[] =
 	{L"SMILES (*.smi)", L"*.smi"},
 };
 
+#define	ONEBASED_MOLV3FILTERINDEX	6
+#define	ONEBASED_RXNV3FILTERINDEX	8
+
 class Utils
 {
 public:
@@ -29,17 +35,14 @@ public:
 
 	// 'DoXXX' functions interact with users by displaying a user interface
 	static HRESULT		DoFolderDialog(HWND owner, LPCTSTR title, LPTSTR startFolder, PWSTR folderPath);
-	static HRESULT		DoFileSaveDialog(HWND owner, PWSTR filePath);
+	static HRESULT		DoFileSaveDialog(HWND owner, PWSTR filePath, UINT* filterIndex);
 	static void			DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options);
 	static bool			CopyToClipboard(const char* data, size_t dataLength, int format);
 	static void			ConvertAndCopy(LPBUFFER buffer, ChemFormat convertTo, LPOPTIONS options);
 
 	static HRESULT		GetSystemFolder(const KNOWNFOLDERID folderID, TCHAR* outPath);
 	static bool			ShellExecuteLink(const TCHAR* link);
-	//static Extension	GetExtension(TCHAR* fileName);
 	static bool			IsMultiMolFile(TCHAR* fileName);
-	//static bool			GetDataFormat(Extension ext, TCHAR* outBuffer, int bufferLength);
-	//static bool			GetStrExtension(Extension ext, TCHAR* outBuffer, int bufferLength);
-	//static Extension	GetExtensionFromFormat(TCHAR* format);
 	static HMENU		CreateCopyMenu(ChemFormat srcFormat, UINT* idStart);
+	static YOURS PCHAR	PrettyMDLCT(PCHAR mdlct, int dataLen);
 };

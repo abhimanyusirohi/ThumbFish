@@ -30,6 +30,7 @@
 #include <atlctl.h>
 #include <atlconv.h>
 #include "comdef.h"
+#include <assert.h>
 
 #include <pantheios\pantheios.hpp>
 #include <pantheios\inserters\integer.hpp>

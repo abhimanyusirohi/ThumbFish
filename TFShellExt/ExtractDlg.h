@@ -93,7 +93,7 @@ END_MSG_MAP()
 		{
 			// set folder path to full export file template containing %d that will 
 			// be replaced during extract process
-			_snwprintf_s(m_params.folderPath, MAX_PATH, _T("%s\\%s.%s"), m_params.folderPath, 
+			_snwprintf_s(m_params.folderPath, MAX_PATH, _T("%s\\%s%s"), m_params.folderPath, 
 				m_params.fileFormat, ext);
 
 			// create a worker thread that will run the Extract operation

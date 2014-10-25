@@ -1,6 +1,10 @@
 #pragma once
 
 #define YOURS
+#define CR		'\r'
+#define LF		'\n'
+#define	CRLF	"\r\n"
+
 #define TEQUAL(a,b)	(_tcsicmp(a, b) == 0)
 #define ALLOC_AND_COPY(src, dest, outlen) if(src != NULL) {	\
 					size_t len = strlen(src) + 1;	\

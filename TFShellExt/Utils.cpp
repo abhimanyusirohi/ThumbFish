@@ -45,7 +45,7 @@ HRESULT Utils::DoFolderDialog(HWND owner, LPCTSTR title, LPTSTR startFolder, LPT
 // http://msdn.microsoft.com/en-us/library/windows/desktop/bb776913(v=vs.85).aspx
 // Opens up Save File Dialog. The PrevHost (Preview Handler executable) runs in Low integrity and can 
 // only write inside 'C:\Users\{USER}\AppData\LocalLow' folder (FOLDERID_LocalAppDataLow).
-HRESULT Utils::DoFileSaveDialog(HWND owner, PWSTR filePath)
+HRESULT Utils::DoFileSaveDialog(HWND owner, PWSTR filePath, UINT* filterIndex)
 {
     // CoCreate the File Open Dialog object.
     IFileDialog *pfd = NULL;
@@ -98,6 +98,9 @@ HRESULT Utils::DoFileSaveDialog(HWND owner, PWSTR filePath)
                             hr = pfd->Show(owner);
                             if (SUCCEEDED(hr))
                             {
+								// ONE based index
+								pfd->GetFileTypeIndex(filterIndex);
+
                                 // Obtain the result once the user clicks 
                                 // the 'Save' button.
                                 // The result is an IShellItem object.
@@ -105,8 +108,6 @@ HRESULT Utils::DoFileSaveDialog(HWND owner, PWSTR filePath)
                                 hr = pfd->GetResult(&psiResult);
                                 if (SUCCEEDED(hr))
                                 {
-                                    // We are just going to print out the 
-                                    // name of the file for sample sake.
                                     PWSTR pszFilePath = NULL;
                                     hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
                                     if (SUCCEEDED(hr))
@@ -175,14 +176,21 @@ bool Utils::ShellExecuteLink(const TCHAR* link)
 
 void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 {
+	UINT filterIndex;
 	WCHAR filePath[MAX_PATH];
 	LPOUTBUFFER oBuffer = NULL;
 
 	// TODO: for some reason, setting owner to our preview control handle suppresses the dialog
 	// passing NULL as owner handle has the side effect of showing the Save dialog in taskbar
-	if(Utils::DoFileSaveDialog(NULL, filePath) == S_OK)
+	if(Utils::DoFileSaveDialog(NULL, filePath, &filterIndex) == S_OK)
 	{
 		ChemFormat format = CommonUtils::GetFormatFromFileName(filePath);
+
+		// both mol/rxn v2/v3 have the same extension so we need to identify V3 filters
+		if(filterIndex == ONEBASED_MOLV3FILTERINDEX)
+			format = fmtMOLV3;
+		else if(filterIndex == ONEBASED_RXNV3FILTERINDEX)
+			format = fmtRXNV3;
 
 		// convert existing structure into bytes in specified format
 		oBuffer = pConvertFunc(buffer, format, options);
@@ -190,15 +198,23 @@ void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 		if(oBuffer != NULL)
 		{
 			HANDLE hFile; 
-			DWORD dwBytesToWrite = (DWORD)oBuffer->DataLength;
 			DWORD dwBytesWritten = 0;
 			BOOL bErrorFlag = FALSE;
+			PCHAR buffer = oBuffer->pData;
+			DWORD dwBytesToWrite = (DWORD)oBuffer->DataLength;
+
+			// write a more human readable form of MDLCT containing line breaks
+			if(format == fmtMDLCT) 
+			{
+				buffer = Utils::PrettyMDLCT(buffer, dwBytesToWrite);
+				dwBytesToWrite = strlen(buffer) + 1;
+			}
 
 			// create the file and then write data to it
 			hFile = CreateFile(filePath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL,	NULL);
 			if (hFile != INVALID_HANDLE_VALUE)
 			{
-				bErrorFlag = WriteFile(hFile, oBuffer->pData, dwBytesToWrite, &dwBytesWritten, NULL);
+				bErrorFlag = WriteFile(hFile, buffer, dwBytesToWrite, &dwBytesWritten, NULL);
 				if ((FALSE == bErrorFlag) || (dwBytesWritten != dwBytesToWrite))
 				{
 					::MessageBox(parentWnd, _T("Unable to write data to the file"), _T("File Write Error"), MB_OK | MB_ICONERROR);
@@ -306,10 +322,17 @@ HMENU Utils::CreateCopyMenu(ChemFormat srcFormat, UINT* idStart)
 	bool isMolRxn = (srcFormat == fmtCML) || (srcFormat == fmtSMILES) || (srcFormat == fmtSMARTS);
 	bool isAllExceptSDFRDF = isMol || isRxn ||isMolRxn;
 
-	InsertMenu(hCopyAsMenu, 0, MF_BYPOSITION | (isAllExceptSDFRDF ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("CDXML"));
-	InsertMenu(hCopyAsMenu, 1, MF_BYPOSITION | (isAllExceptSDFRDF ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("CML"));
+	// reaction cannot be saved as CDXML due to an issue with Indigo
+	// https://github.com/ggasoftware/indigo/issues/9
+	InsertMenu(hCopyAsMenu, 0, MF_BYPOSITION | ((isAllExceptSDFRDF && !isRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("CDXML"));
+
+	// reaction cannot be saved as CML (https://github.com/ggasoftware/indigo/issues/10)
+	InsertMenu(hCopyAsMenu, 1, MF_BYPOSITION | (isAllExceptSDFRDF && !isRxn ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("CML"));
 	InsertMenu(hCopyAsMenu, 2, MF_BYPOSITION | (isAllExceptSDFRDF ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("EMF"));
 	InsertMenu(hCopyAsMenu, 3, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("INCHI"));
+
+	// cannot convert to INCHIKEY due to an issue with provider
+	// https://github.com/ggasoftware/indigo/issues/11
 	InsertMenu(hCopyAsMenu, 4, MF_BYPOSITION | MF_DISABLED, (*idStart)++, _T("INCHI KEY"));
 	InsertMenu(hCopyAsMenu, 6, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("MOL V2000"));
 	InsertMenu(hCopyAsMenu, 7, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("MOL V3000"));
@@ -327,4 +350,37 @@ int CALLBACK Utils::BrowseFolderCallback(HWND hwnd, UINT uMsg, LPARAM lParam, LP
         ::SendMessage(hwnd, BFFM_SETSELECTION, true, (LPARAM) path);
     }
     return 0;
+}
+
+/**
+	PrettyMDLCT
+	Converts the real MDLCT format to a more human-readable one by adding CRLF
+	for line breaks and removing the DATALEN+DATA format that could include NULLs
+
+	Returns a null terminated string
+*/
+YOURS PCHAR	Utils::PrettyMDLCT(PCHAR mdlct, int dataLen)
+{
+	assert(mdlct != NULL);
+	assert(dataLen != 0);
+
+	// allocate memory for new data
+	int outlen = dataLen + 1 + 50;
+	PCHAR out = new char[outlen];
+	memset(out, 0, outlen);
+
+	int srcIndex = 1, destIndex = 0;
+	for(int i = 0; i < dataLen; i++)
+	{
+		int len = (int)mdlct[i];
+		memcpy_s(out + destIndex, dataLen, mdlct + srcIndex, len);
+		out[destIndex + len] = CR;
+		out[destIndex + len + 1] = LF;
+		i += len;
+
+		destIndex += len + 2;	// extra 1 for LF
+		srcIndex += len + 1;
+	}
+
+	return out;
 }
