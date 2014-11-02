@@ -1,217 +1,316 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description" content="ThumbFish is a Shell Extension Handler for Windows OS that generates thumbnails, 
-    provide molecule preview (with properties), molecule search and other useful features all integrated inside Windows Explorer.">
-    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
-    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+<head>
+<meta charset='utf-8'>
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="ThumbFish is a Shell Extension Handler for Windows OS that generates thumbnails,
+provide molecule preview (with properties), molecule search and other useful features all integrated inside Windows Explorer.">
+<link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
 
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
- 
-    <title>ThumbFish - Generate chemical structure thumbnails, preview and search molecules inside Windows Explorer (mol, rxn, sdf, rdf, cml)</title>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<link rel="stylesheet" href="javascripts/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+<script type="text/javascript" src="javascripts/fancybox/jquery.fancybox.pack.js"></script>
+
+<!--[if lt IE 9]>
+<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<title>ThumbFish - Generate chemical structure thumbnails, preview and search molecules inside Windows Explorer (mol, rxn, sdf, rdf, cml)</title>
 <script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create', 'UA-51329802-1', 'abhimanyusirohi.github.io');ga('send', 'pageview');
+(function (i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga'); ga('create', 'UA-51329802-1', 'abhimanyusirohi.github.io'); ga('send', 'pageview');
+
+$(document).ready(function () {
+$('.fancybox').fancybox();
+});
 </script>
 
-  </head>
+</head>
 
-  <body>
-    <header>
-      <div class="inner">
-        <h1>ThumbFish</h1>
-        <a href="https://github.com/abhimanyusirohi/ThumbFish" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
+<body>
+<header>
+<div class="inner">
+<h1>ThumbFish</h1>
+<a href="https://github.com/abhimanyusirohi/ThumbFish" class="button"><small>View project on</small>GitHub</a>
+</div>
+</header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
-        <section id="main-content">
-            <div style="float:right">
-                <img src="images/logo.png" width="130" height="69" alt="ThumbFish" title="ThumbFish" />
-                </div>
-            
-            <h1><a name="about-thumbfish" class="anchor" href="#about-thumbfish"><span class="octicon octicon-link"></span></a>What is ThumbFish</h1>
-&nbsp;<p>ThumbFish is a simple utility for chemists and people working with chemical files. It integrates with Windows and provides molecule Thumbnail, Preview, Search 
-    and other useful features. It is a set of Windows Shell Extension handlers developed to quickly identify and analyze structure files. ThumbFish currently supports 
-    the following chemical structure files:</p>
+<div id="content-wrapper">
+<div class="inner clearfix">
 
+<aside id="sidebar">
+<br />
+<ul style="font-size: medium; list-style-type: circle">
+<li><a href="#gettingstarted">Getting Started</a></li>
+<li><a>Components</a>
+<ul style="list-style-type: circle; margin-bottom: 0px">
+<li><a href="#thandler">Thumbnail Handler</a></li>
+<li><a href="#phandler">Preview Handler</a></li>
+<li><a href="#shandler">Search Handler</a></li>
+<li><a href="#chandler">Context-Menu Handler</a></li>
+</ul>
+<li><a href="#features">Features</a>
+<ul style="list-style-type: circle; margin-bottom: 0px">
+    <li><a href="#extract-feature">Extract Molecules</a></li>
+</ul>
+</li>
+<li><a href="#known-limitations">Known Limitations</a></li>
+</ul>
+
+<table style="border: none">
+<tr>
+<td style="border: none;">
+<img src="images/blogspot.png" />
+</td>
+<td style="border: none; text-align: left; vertical-align: middle; font-size: medium">
+<a href="https://thumbfish.blogspot.com" target="_blank">Product Updates Blog</a>
+</td>
+</tr>
+</table>
+<hr />
+
+<a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/neptune-beta3/ThumbFishSetupx64.msi" class="button">
+<small>ThumbFish Beta.3</small>64-bit
+</a>
+
+<a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/neptune-beta3/ThumbFishSetupx32.msi" class="button">
+<small>ThumbFish Beta.3</small>32-bit
+</a>
+
+<p>
+Please enter any bugs directly in GitHub <a href="https://github.com/abhimanyusirohi/ThumbFish/issues/new" target="_blank">here</a>.<br />
+Send your suggestions and feedback to <a href="mailto:abhimanyusirohi@gmail.com">abhimanyusirohi@gmail.com</a>
+</p>
+</aside>
+
+<section id="main-content">
+<div style="float: right">
+<img src="images/logo.png" width="104" height="56" alt="ThumbFish" title="ThumbFish" style="padding: 0px; border:none" />
+</div>
+
+<a href="#about-thumbfish">
+<h1>What is ThumbFish</h1>
+</a>
+<br />
+<p>
+ThumbFish is a simple and free utility for scientists and people working with chemical files to display and analyze common chemical formats. It integrates
+with Windows and provides molecule Thumbnail, Preview, Search and other useful features. ThumbFish can show you a preview of the structure contained in a
+particular chemical file (just like a thumbnail is generated for your JPEGs). Not just that, it can also calculate and show some common properties of that
+structure and all this without opening any third-party chemistry application. The best part about ThumbFish is that it sits inside Windows Explorer without
+interferring with other programs and is either involved automatically to generate thumbnails or manually by right-clicking on supported format file to perform
+some operations such as Save or Extract Molecules.
+</p>
+<a href="images/fullview.png" rel="gallery" class="fancybox" title="Thumbnails and Preview in Windows Explorer">
+<img src="images/fullview.png" width="250"/></a>
+<a href="images/fullview2.png" rel="gallery" class="fancybox" title="Context-menu commands on files and preview">
+<img src="images/fullview2.png" width="250"/></a>
+<a href="images/fullview3.png" rel="gallery" class="fancybox" title="CT version and record count information on thumbnails. Chemical Warnings in preview.">
+<img src="images/fullview3.png" width="250"/></a>
+<a href="images/fullview4.png" rel="gallery" class="fancybox" title="Reaction thumbnails and preview">
+<img src="images/fullview4.png" width="250"/></a>
+<a href="images/fullview5.png" rel="gallery" class="fancybox" title="Searching for molecules having a specific property">
+<img src="images/fullview5.png" width="250"/></a>
+<a href="images/fullview6.png" rel="gallery" class="fancybox" title="Extracting molecules from a multi-mol CML file">
+<img src="images/fullview6.png" width="250"/></a>
+<br />
+<br />
+ThumbFish can be used:
+<ul>
+<li>By scientists to quickly identify chemical files during experiments and analysis</li>
+<li>In classrooms to quickly view chemical structures and properties</li>
+<li>During demos to identify the input files used and to verify the output</li>
+<li>By developers working on chemical programs to verify the output generated by their programs</li>
+<li>By software testers to identify input files for their test cases</li>
+</ul>
+Currently ThumbFish can generate thumbnails and calculate chemical properties for the following chemical structure files.Structure in the following formats can be converted to other formats such as (INCHI, INCHIKEY, CDXML, EMF, PNG, PDF, SVG, MDLCT) using Copy or Save commands.
 <ul>
 <li><a href="http://en.wikipedia.org/wiki/Chemical_table_file#Molfile">MOL (MDL Molfile Format - V2000 and V3000)</a></li>
 <li>RXN (Reaction file - V2000 and V3000)
 </li>
-    <li><a href="http://en.wikipedia.org/wiki/Chemical_file_format#SMILES">SMILES (Simplified Molecular Input Line Entry Specification)</a>
+<li><a href="http://en.wikipedia.org/wiki/Chemical_file_format#SMILES">SMILES (Simplified Molecular Input Line Entry Specification)</a>
 </li>
 <li><a href="http://en.wikipedia.org/wiki/Smiles_arbitrary_target_specification">SMARTS (SMiles ARbitrary Target Specification)</a></li>
 <li><a href="http://en.wikipedia.org/wiki/Chemical_table_file#SDF">SDF (Structure Data File - V2000 and V3000)</a></li>
 <li>RDF (Reaction Data File - V2000 and V3000)</li>
 <li><a href="http://en.wikipedia.org/wiki/Chemical_Markup_Language">CML (Chemical Markup Language)</a></li>
-</ul><p>The handlers make it easy to identify and search these chemical files without opening the associated application. These handlers are NOT dependent 
-    on any specific commercially available Chemistry application. It uses the open source organic chemistry toolkit 
-    named <a href="http://www.ggasoftware.com/opensource/indigo">Indigo</a> by GGA Software. The other open source component used in ThumbFish is <a href="http://www.pantheios.org/">Pantheios
-    logging library</a>.
-     </p>
-    <p>ThumbFish contains the following Shell Extension Handlers for Windows OS:</p>
+</ul>
+<p>
+ThumbFish is NOT dependent
+on any specific commercially available Chemistry application. It uses the open source organic chemistry toolkit
+named <a href="http://www.ggasoftware.com/opensource/indigo">Indigo</a> by GGA Software. The other open source component used in ThumbFish is <a href="http://www.pantheios.org/">Pantheios
+logging library</a>.</p>
+ThumbFish contains the following Shell Extension Handlers for Windows OS:
 <ul>
 <li><b>Thumbnail Handler</b>: Displays thumbnails for supported formats to easily identify structure files</li>
-<li><b>Preview Handler</b>: Displays preview and properties for selected file</li>
+<li><b>Preview Handler</b>: Displays coloured preview and calculates properties for selected file</li>
 <li><b>Search Handler</b>: Searches for a structure based on its properties</li>
-<li><b>Context-Menu Handler</b>: Provides additional useful options on structure files</li>
+<li><b>Context-Menu Handler</b>: Provides additional useful options on supported structure files</li>
 </ul>
-<a id="gettingstarted"><h1>Getting Started</h1></a>
-            Here is how to quickly try out the main features in 3 easy steps using the included sample files. Double-click the sample files link on your desktop 
-            to open it in Windows Explorer.
-            <h3>1... View Thumbnails</h3>
-            <p>
-                The first thing that you will see after installing ThumbFish is the "ThumbFish Sample Files" shortcut link on your desktop. This is a shortcut to a folder 
-                containing some sample molecule and reaction files and is automatically installed by the setup program. When you open this folder, Windows
-                will call ThumbFish components to generate thumbnails for the files if the thumbnail view is currently active. You can switch to thumbnail view
-                by right clicking inside the folder and selecting a <i>View</i> or using the <i>View</i> item from the menu. Try View >> Large Icons.
-                
-            </p><img src="images/getting-started.png" alt="Getting Started" title="Getting Started" style="border:dotted;border-width:thin"/>
-            <h3>2... Preview</h3>
-            <p>
-                Preview Pane needs to be enabled to view molecule previews. To enable preview pane in Windows 7, click the preview pane button on the top right side 
-                in Windows Explorer (see screenshot above). In Windows 8, use the View tab and select <i>Preview Pane</i>. Once the preview pane is enabled, select any
-                file to view its image and properties.
-            </p>
-            <h3>3... Search for molecules</h3>
-            <p>To quickly search for molecules containing 13 atoms, type "na_13" in the search box (see screenshot above). This should filter the current view and show 
-                only 3 molecules (Adrenaline.mol. Adrenaline.smiles and Aspirin.mol). If its not working for you then you need to enable searching in "File Contents". 
-                In Windows 7, click "File Contents" in "Search Again In" section inside Windows Explorer where the thumbnails are displayed. In Windows 8, goto the "Search Tab" 
-                then "Advanced Options" and enable "File Contents". Check out <a href="#search">Search</a> section for more details.</p>
-<h1>Components</h1>
+ThumbFish is currently ONLY supported on Windows Vista and above:
+<table style="background-color: lightblue"><tr><td width="200px">Windows Vista SP2</td><td width="200px">Windows 7 SP1</td><td width="200px">Windows 8.1</td></tr></table>
+    <br />
+<a id="gettingstarted">
+<h1>Getting Started</h1>
+</a>
+Here is how to quickly try out the main features in 3 easy steps using the included sample files. The first thing that you will see after installing ThumbFish is the &quot;ThumbFish Sample Files&quot; shortcut link on your desktop. This is a shortcut to a folder containing some sample molecule and reaction files and is automatically installed by the setup program. Double-click the sample files link on your desktop
+to open it in Windows Explorer.<br />
+<br />
+<img src="images/getting-started.png" alt="Getting Started" title="Getting Started"/>
+<h3>1... View Thumbnails</h3>
 <p>
-    <h2>Thumbnail Handler</h2>Thumbnail handler displays thumbnail images in Windows Explorer for supported chemical 
-    formats. In case of multi-molecule files such as SDF or CML, the thumbnail shows first four structures to help 
-    users identify a particular file without opening the file in the associated program.<br />
-    
-            <br /><img src="images/thumbnail1.png" alt="Thumbnail" title="Thumbnail" style="border:dotted;border-width:thin"/><br />
-            <br /><img src="images/cml1.png" alt="CML File" title="CML File" style="border:dotted;border-width:thin"/><br />
-&nbsp;<br />
-    <h2>Preview Handler</h2>Preview handler can be used to view properties associated with a structure file. Preview shows properties such as 
-    Name, Formula, SMILES, InChI and many more. These properties can be copied to the clipboard using the &quot;Copy Properties&quot; option in the context-menu 
-    on the preview window. It copies all available properties to the clipboard in a Key:Value format. 
-            <br />
-            <u>Note that no properties are displayed for multi-molecule files such as SDF or CML</u>
-            <br />
-            <br />
-            If you do not see previews in Windows Explorer then try the following steps to enable previews: 
-            <ul>
-                <li>Enable Preview Handlers by checking the following option: 
-                    <br />[Windows Explorer Tools &gt;&gt; Folder Options &gt;&gt; View &gt;&gt;Show preview handlers in preview pane]
-                    <br /><br />
-                </li>
-                <li>Show/Hide preview pane:
-                    <br />[Windows Explorer &gt;&gt; Organize (Extreme Left on toolbar) &gt;&gt; Layout &gt;&gt;Preview Pane]</li>
-            </ul>
-            <img src="images/preview1.png" alt="Preview" title="Preview" style="border:dotted;border-width:thin"/><br /><br />
-            Preview window provides a context-menu that has different useful options to Save and Copy structures and properties. 
-    <ul>
-        <li><u>Save Structure</u>: Saves a structure to disk in different formats: PNG, PDF, SVG, EMF and CDXML. Note that the structures are 
-            saved in user's AppData\LocalLow directory e.g.<br />"C:\Users\[USER]\AppData\LocalLow". See <a href="#known-limitations">Known Limitations</a></li>
-        <li><u>Copy Properties</u>: Copies the currently displayed structure properties to clipboard in Key:Value format</li>
-        <li><u>Copy Structure As</u>: Copies the current structure to clipboard in different useful formats including MDL MOL and ChemDraw's CDXML format</li>
-    </ul>
-            
-            <img src="images/preview2.png" alt="Preview Menu" title="Preview Menu" style="border:dotted;border-width:thin"/>
-            <br />
-            <br />
-            <a id="search"><h2>Search Handler</h2></a>Search handlers are used by Windows Search Engine to index information inside proprietary files. ThumbFish search handler indexes 
-    properties such as formula, atom-count, bond-count, mass etc inside supported files and indexes them so that the user can search for structures with given 
-    properties. Normally, the search engine only searches for file names and not inside a file&#39;s contents but the search handler makes it possible to search by molecule properties. 
-    For example if there are 100 structure files inside a folder then typing benzene will search for file names containing the word &#39;benzene&#39; and matching files will be 
-    returned. With a Search handler such as this one, a user can search for structures having 13 atoms by typing na_13. <br /><br />
-    <img src="images/search1.png" alt="Search" title="Search" style="border:dotted;border-width:thin"/>
-
-    <h3>Setting Up Search</h3>
-    <ul>
-        <li>Make sure Windows Search is enabled in Control Panel
-            <br />[Control Panel &gt;&gt; Programs and Features &gt;&gt; Turn Windows Features on or off &gt;&gt; Windows Search]</li>
-        <li>Make sure that the folder in which you want to search is included for indexing
-            <br />[Control Panel &gt;&gt; Indexing Options] (your folder should be listed here)</li>
-    </ul>
-    
-    <h3>Troubleshooting Search</h3>
-    You can try the following steps if search is not working as expected.
-    <ul>
-        <li>Rebuild the search index in case it is corrupt or not built because of user activity
-            <br />[Control Panel &gt;&gt; Indexing Options &gt;&gt; Advanced &gt;&gt; Rebuild]<br />
-            Note that this can take some time based on the number of files to index
-        </li>
-        <li>Enable to always search a file&#39;s content
-            <br />[Explorer &gt;&gt; Folder Options &gt;&gt; Search &gt;&gt; What to Search &gt;&gt; Always search file name and contents]
-        </li>
-        <li>Finally to always re-index and search
-            <br />[Explorer >> Tools >> Options >> Search >> Don't use the index when searching in file folders...]
-        </li>
-        <li>Still not working, check the ThumbFish Log for error messages at the following location
-            <br /><u>C:\Users\[USER]\AppData\LocalLow\ThumbFish.log</u>
-        </li>
-    </ul>
-    <h3>Search Examples</h3>
-    The following property searches are possible. Note that an underscore &#39;_&#39; is used instead of an equals to &#39;=&#39; sign.<br />
-    <ul>
-        <li>Name: name_{x} [e.g. n_benzene] Note that name is the structure name not the file name</li>
-        <li>Formula: formula_{x} [e.g. formula_c6h6]</li>
-        <li>NumAtoms: na_{x} [e.g. na_12]</li>
-        <li>NumBonds: nb_{x} [e.g. nb_10]</li>
-        <li>Molecular Weight: mweight_{x} [e.g. mweight_207]</li>
-        <li>Implicit Hydrogens: impl_{x} [e.g. impl_4]</li>
-        <li>Heavy Atoms: heavya_{x} [e.g. heavya_2]</li>
-        <li>Most Abundant Mass: mamass_{x} [e.g. mamass_106]</li>
-        <li>Mono Isotopic Mass: mimass_{x} [e.g. mimass_210]</li>
-        <li>Chirality: chiral_{x} [e.g. chiral_yes]</li>
-        <li>Has Coordinates: hascoord_{x} [e.g. hascoord_yes]</li>
-        <li>Has Z Coordinates: haszcoord_{x} [e.g. haszcoord_no]</li>
-    </ul>
-
-    <h2>Context-Menu handler</h2>
-    ThumbFish context-menu is integrated into the Window Explorer context-menu and provides commands that work on single and multi molecule files. 
-    As of now the context-menu does not have any feature commands. It is there to let users know that the future versions of this product will add
-    commands to it.<br /><br />
-    <img src="images/contextmenu1.png" alt="Context Menu" title="Context Menu" style="border:dotted;border-width:thin"/>
+When you open the Sample Files folder, Windows
+will call ThumbFish components to generate thumbnails for the files if the thumbnail view is currently active. You can switch to thumbnail view
+by right clicking inside the folder and selecting a <i>View</i> or using the <i>View</i> item from the menu. Try View >> Large Icons.</p>
+<h3>2... Preview</h3>
+<p>Preview Pane needs to be enabled to view molecule previews. To enable preview pane in Windows 7, click the preview pane button on the top right side
+in Windows Explorer (see screenshot above). In Windows 8, use the View tab and select <i>Preview Pane</i>. Once the preview pane is enabled, select any
+file to view its image and properties.
 </p>
+<h3>3... Search for molecules</h3>
+<p>To quickly search for molecules containing 13 atoms, type "na_13" in the search box (see screenshot above). This should filter the current view and show
+only 3 molecules (Adrenaline.mol. Adrenaline.smiles and Aspirin.mol). If its not working for you then you need to enable searching in "File Contents".
+In Windows 7, click "File Contents" in "Search Again In" section inside Windows Explorer where the thumbnails are displayed. In Windows 8, goto the "Search Tab"
+then "Advanced Options" and enable "File Contents". Check out <a href="#shandler">Search Handler</a> section for more details.
+</p>
+<h1>Components</h1>
+<a id="thandler">
+<h2>Thumbnail Handler</h2>
+</a>Thumbnail handler displays thumbnail images in Windows Explorer for supported chemical
+formats. In case of multi-molecule files such as SDF or CML, the thumbnail shows first four structures (first two for RDF) to help
+users identify a particular file without opening the file in the associated program. Thumbnails also display the following information in corners:<br />
+<br />
+<ul>
+<li><u>Connection Table Version: </u>The connection table version is displayed on the top left as either <b>V2</b> or <b>V3</b> depending on whether its a V2000 or V3000 MOLFILE. Only displayed for MOL, RXN, SDF and RDF files.</li>
+<li><u>Approx Record Count: </u>Displayed on the top right side, this is the approximate number of records in a multi-molecule file such as SDF, RDF and CML. The approximation is based on the size of first four records in the file.</li>
+</ul>
 
-<h1>
-<a name="known-limitations" class="anchor" href="#known-limitations"><span class="octicon octicon-link"></span></a>Known Limitations</h1>
+<a href="images/thumbnail.png" class="fancybox" title="Thumbnails">
+<img src="images/thumbnail.png" width="800" /></a>
+<br />
+<br />
+<a id="phandler">
+<h2>Preview Handler</h2>
+</a>
+<div style="float:left; height:380px">
+<a href="images/preview.png" class="fancybox" title="Thumbnails">
+<img src="images/preview.png" width="300" style="float: left;" /></a>
+</div>
+<div style="float: right; width: 500px; height: 380px">
+<p>
+Preview window can be used to view properties associated with a structure file. Properties such as Name, Formula, SMILES, InChI etc are displayed in
+the property area. These properties can be copied to the clipboard by using the &quot;Copy Properties&quot; option in the context-menu on the preview
+window. It copies all available properties to the clipboard in a Key:Value format. Preview window can also display <i>Chemical Warnings</i> for a structure
+about incorrect valence and ambigious hydrogens.
+Chemical Warning icon is displayed on the top left side of preview window. It is only displayed if there are chemical warning for the selected structure.
+Moving your mouse over this icon will display the warnings in a tooltip window.
+</p>
+If you do not see previews in Windows Explorer then try the following steps to enable file previews:
+<ul>
+<li>[Windows Explorer Menu:: Tools &gt;&gt; Folder Options &gt;&gt; View &gt;&gt;Show preview handlers in preview pane]</li>
+<li>[Windows Explorer &gt;&gt; Organize (Extreme Left on toolbar) &gt;&gt; Layout &gt;&gt;Preview Pane]</li>
+</ul>
+</div>
+Preview window also provides a context-menu that has different useful options to Save and Copy structures and properties. The context-menu in preview window provides the following commands:
+<ul>
+<li><u>Save Structure</u>: Saves a structure to disk in different formats: PNG, PDF, SVG, EMF and CDXML. Note that the structures can only be saved in user's <i>AppData\LocalLow</i> directory e.g.<br />
+<u>C:\Users\[USER]\AppData\LocalLow</u>. See <a href="#known-limitations">Known Limitations</a> for details.</li>
+<li><u>Copy Properties</u>: Copies the currently displayed structure properties to clipboard in Key:Value format</li>
+<li><u>Copy Structure As</u>: Copies the current structure to clipboard in different useful formats including MDL MOL and ChemDraw's CDXML format</li>
+</ul>
+<a id="shandler">
+<h2>Search Handler</h2>
+</a>Search handlers are used by Windows Search Engine to index information inside proprietary files. ThumbFish search handler indexes
+properties such as formula, atom-count, bond-count, mass etc inside supported files and indexes them so that the user can search for structures with these
+properties. Normally, the search engine only searches for file names and not inside a file&#39;s contents but the search handler makes it possible to search by molecule properties.
+For example if there are 100 structure files inside a folder then typing benzene will search for file names containing the word <u>benzene</u> and matching files will be
+returned. With a Search handler such as this one, a user can search for structures having 13 atoms by typing na_13.
+<br />
+<br />
+<img src="images/search1.png" alt="Search" title="Search" />
+<h3>Setting Up Search</h3>
+<ul>
+<li>Make sure Windows Search is enabled in Control Panel
+<br />
+[Control Panel &gt;&gt; Programs and Features &gt;&gt; Turn Windows Features on or off &gt;&gt; Windows Search]</li>
+<li>Make sure that the folder in which you want to search is included for indexing
+<br />
+[Control Panel &gt;&gt; Indexing Options] (your folder should be listed here)</li>
+</ul>
 
+<h3>Troubleshooting Search</h3>
+You can try the following steps if search is not working as expected.
+<ul>
+<li>Rebuild the search index in case it is corrupt or not built because of user activity
+<br />
+[Control Panel &gt;&gt; Indexing Options &gt;&gt; Advanced &gt;&gt; Rebuild]<br />
+Note that this can take some time based on the number of files to index
+</li>
+<li>Enable to always search a file&#39;s content
+<br />
+[Explorer &gt;&gt; Folder Options &gt;&gt; Search &gt;&gt; What to Search &gt;&gt; Always search file name and contents]
+</li>
+<li>Finally to always re-index and search
+<br />
+[Explorer >> Tools >> Options >> Search >> Don't use the index when searching in file folders...]
+</li>
+<li>Still not working, check the ThumbFish Log for error messages at the following location
+<br />
+<u>C:\Users\[USER]\AppData\LocalLow\ThumbFish.log</u>
+</li>
+</ul>
+<h3>Search Examples</h3>
+The following property searches are possible. Note that an underscore &#39;_&#39; is used instead of an equals to &#39;=&#39; sign.<br />
+<ul>
+<li>Name: name_{x} [e.g. n_benzene] Note that name is the structure name not the file name</li>
+<li>Formula: formula_{x} [e.g. formula_c6h6]</li>
+<li>NumAtoms: na_{x} [e.g. na_12]</li>
+<li>NumBonds: nb_{x} [e.g. nb_10]</li>
+<li>Molecular Weight: mweight_{x} [e.g. mweight_207]</li>
+<li>Implicit Hydrogens: impl_{x} [e.g. impl_4]</li>
+<li>Heavy Atoms: heavya_{x} [e.g. heavya_2]</li>
+<li>Most Abundant Mass: mamass_{x} [e.g. mamass_106]</li>
+<li>Mono Isotopic Mass: mimass_{x} [e.g. mimass_210]</li>
+<li>Chirality: chiral_{x} [e.g. chiral_yes]</li>
+<li>Has Coordinates: hascoord_{x} [e.g. hascoord_yes]</li>
+<li>Has Z Coordinates: haszcoord_{x} [e.g. haszcoord_no]</li>
+<li>SSSR: sssr_{x} [e.g. sssr_1]</li>
+</ul>
+
+<a id="chandler">
+<h2>Context-Menu handler</h2>
+</a>
+ThumbFish context-menu is integrated into the Window Explorer context-menu and provides commands that work on single and multi molecule files. 
+    The context-menu provides the <i>Export Molecules</i> as an additional command other than Save and Copy which are also present in the preview content-menu. 
+    <i>Export Molecules</i> command works on multi-molecule files such as SDF and can be used to extract molecules in different formats as separate files.<br />
+<br />
+<img src="images/contextmenu.png" alt="Context Menu" title="Context Menu"/>
+<a id="features"><h1>Features</h1></a>
+<a id="extract-feature"><h2>Extract Molecules</h2></a>
+    <p>Extract Molecule feature is available in the ThumbFish Context-Menu when you right-click on a supported chemical file in Windows Explorer. This feature can be used to 
+        extract molecules from a multi-molecule file. The extracted molecules can be converted to different formats on the fly and saved as separate files. For example a number
+        of MOL files can be extracted from a SDF file. This feature is only enabled when a single multi-molecule file (SDF, RDF, CML, SMILES) is selected.
+    </p>
+<img src="images/extract.png" alt="Extract Molecules" title="Extract Molecules"/>
+    <p>The extract dialog follows the "Statement UI" format which is <a href="http://thumbfish.blogspot.in/2014/11/statement-user-interface-sui.html" target="_blank">described on the product blog</a>. Basically, Statement UI describes the operation using statements and 
+        parts of it are configurable. The above dialog has five configurable parts. You can click on any of the links and change the options. The configurable links can
+        display a menu, open a dialog or expand the extract dialog to display an area for additional input such as shown in the dialog above.
+    </p>
+<a id="known-limitations"><h1>Known Limitations</h1></a>
 <ol>
-    <li>Copying structure as Enhanced Metafile (EMF) Picture does not display atom labels.</li>
-    <li>When a structure is saved using the "Save Structure" command in Preview Handler then it can only be saved in user's AppData\LocalLow directory. 
-        This is because the Preview Handler runs in a low integrity mode under Windows and does not have access to other locations.</li>
-    <li>The Copy Structure As >> InChi Key command is NOT operational. The command has been intentionally disabled because of some problems associated with it.</li>
+<li>Copying structure as Enhanced Metafile (EMF) Picture does not display atom labels.</li>
+<li>When a structure is saved using the "Save Structure" command in Preview Handler then it can only be saved in user's AppData\LocalLow directory.
+This is because the Preview Handler runs in a low integrity mode under Windows and does not have access to other locations.</li>
+<li>The Copy Structure As >> InChi Key command is NOT operational. The command has been intentionally disabled due to
+<a href="https://github.com/ggasoftware/indigo/issues/11">an issue associated with the Indigo provider.</a></li>
+<li>The SaveAs >> Connection Table (.ct) command saves a <u>prettified</u> connection table and not the standard MDLCT one. The standard one saves a line length
+character and then the actual line so it may contain NULL characters. Prettified one is human readable as it contains simple data lines ending with a CRLF.</li>
+<li>Saving Reaction file as CDXML or CML is not supported due to issues in the provider.</li>
 </ol>
-            <h1>Supported OS</h1>
-            (Both 32 and 64 bit platforms are supported)
-            <ul>
-                <li>Windows Vista SP2</li>
-                <li>Windows 7 SP1</li>
-                <li>Windows 8.1</li>
-            </ul>
-        </section>
-
-        <aside id="sidebar">
-            <p>Use the links below to download the latest installers for Windows Vista and above. Installers are LESS than 3 MB in size and takes less than a minute to install.</p>
-          <a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/neptune-beta2/ThumbFishSetupx64.msi" class="button">
-            <small>Neptune BETA.2</small>
-            64-bit
-          </a>
-          <a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/neptune-beta2/ThumbFishSetupx32.msi" class="button">
-            <small>Neptune BETA.2</small>
-            32-bit
-          </a>
-
-          <p><a href="https://thumbfish.blogspot.com">ThumbFish Blog</a></p>
-
-          <p>We are constantly trying to improve this product and make it more useful for people. For Bugs, suggestions or feedback, please email <a href="mailto:abhimanyusirohi@gmail.com">abhimanyusirohi@gmail.com</a></p>
-        </aside>
-      </div>
-  </body>
+</section>
+</div>
+</div>
+</body>
 </html>
