@@ -14,6 +14,8 @@
 						strcpy_s(dest, len, src);	\
 					} if(outlen) *outlen = len; }
 
+#define DeleteAndNull(x) { delete x; x = NULL; }
+
 // supported formats
 const enum ChemFormat { fmtUnknown, fmtMOLV2, fmtMOLV3, fmtRXNV2, fmtRXNV3, fmtSMILES, fmtSMARTS, fmtSDFV2, fmtSDFV3, 
 	fmtRDFV2, fmtRDFV3, fmtCML,	fmtCDXML, fmtINCHI, fmtINCHIKEY, fmtEMF, fmtPNG, fmtPDF, fmtSVG, fmtMDLCT };

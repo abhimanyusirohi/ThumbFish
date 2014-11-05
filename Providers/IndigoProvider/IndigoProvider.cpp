@@ -445,6 +445,11 @@ INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, 
 	}
 
 	indigoFreeAllObjects();
+
+	// better delete an empty out buffer
+	if(outbuf && (outbuf->DataLength <= 0))
+		DeleteAndNull(outbuf);
+
 	return outbuf;
 }
 
