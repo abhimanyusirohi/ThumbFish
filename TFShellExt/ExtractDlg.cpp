@@ -35,7 +35,17 @@ LRESULT CExtractDlg::OnNMClickLinkMolCount(int idCtrl, LPNMHDR pNMHDR, BOOL& bHa
 			if(hMenu)
 			{
 				int subMenuId = (link->item.iLink == 2) ? 0 : 1;
-				TrackPopupMenuEx(GetSubMenu(hMenu, subMenuId), TPM_LEFTALIGN, point.x, point.y, m_hWnd, NULL);
+				HMENU hSubMenu = GetSubMenu(hMenu, subMenuId);
+
+				//WORKAROUND: To be removed when provider issues with RXN -> CML, CDXML are fixed
+				// disable CML,CDXML if source is reaction to avoid crash due to provider issue
+				if((m_params.exportFormat == fmtRXNV2) || (m_params.exportFormat == fmtRXNV3))
+				{
+					EnableMenuItem(hSubMenu, ID_EXTRACTFORMAT_CML, MF_DISABLED);
+					EnableMenuItem(hSubMenu, ID_EXTRACTFORMAT_CDXML, MF_DISABLED);
+				}
+
+				TrackPopupMenuEx(hSubMenu, TPM_LEFTALIGN, point.x, point.y, m_hWnd, NULL);
 				DestroyMenu(hMenu);
 			}
 		}

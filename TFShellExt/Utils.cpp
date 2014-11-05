@@ -229,7 +229,12 @@ void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 		}
 		else
 		{
-			pantheios::log_ERROR(_T("Utils::DoSaveStructure> No data returned from Convert method."));
+			pantheios::log_ERROR(_T("Utils::DoSaveStructure> No data returned from Convert method. \
+				This could be due to a failure or the conversion is not currently supported."));
+
+			// display message to the user that the operation failed
+			::MessageBox(NULL, _T("The selected file could not be saved in requested format."), 
+				_T("Save Failed"), MB_OK | MB_ICONERROR);
 		}
 	}
 
@@ -303,7 +308,7 @@ void Utils::ConvertAndCopy(LPBUFFER buffer, ChemFormat convertTo, LPOPTIONS opti
 			pantheios::integer(buffer->DataFormat), _T(", To="), pantheios::integer(convertTo));
 
 		// display message to the user that the operation failed
-		::MessageBox(NULL, _T("The selected file cannot be copied in specified format."), 
+		::MessageBox(NULL, _T("The selected file could not be copied in requested format."), 
 			_T("Copy Failed"), MB_OK | MB_ICONERROR);
 	}
 }

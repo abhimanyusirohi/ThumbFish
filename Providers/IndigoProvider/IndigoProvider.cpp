@@ -296,15 +296,21 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, LPOPTIONS options)
 {
 	USES_CONVERSION;
-
-	LPOUTBUFFER outbuf = new OUTBUFFER();
-
 	pantheios::log_NOTICE(_T("API-ConvertTo> Called. File="), buffer->FileName, 
 			_T(", Length="), pantheios::integer(buffer->DataLength),
 			_T(", OutFormat="), pantheios::integer(outFormat));
 
+	//WORKAROUND: To be removed when provider issues with RXN -> CML, CDXML are fixed
+	// avoid converting to CML,CDXML if source is reaction to avoid crash
+	if(((buffer->DataFormat == fmtRXNV2) || (buffer->DataFormat == fmtRXNV3)) 
+		&& ((outFormat == fmtCML) || (outFormat == fmtCDXML)))
+	{
+		return NULL;
+	}
+
 	char* retBuffer = NULL;
 	ReturnObjectType retType = SingleMol;
+	LPOUTBUFFER outbuf = new OUTBUFFER();
 
 	if(buffer->DataLength > 0)
 	{
