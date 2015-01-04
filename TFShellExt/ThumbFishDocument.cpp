@@ -60,7 +60,7 @@ void ThumbFishDocument::InitializeSearchContent()
 		COMMANDPARAMS params(cmdGetProperties, &m_Buffer, (LPVOID)true);
 		std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
 		props = (TCHAR**)outBuffer->pData;
-		int propCount = outBuffer->DataLength;
+		int propCount = (int)outBuffer->DataLength;
 		
 		bool m_propsGenerated = ((props != NULL) && (propCount > 0));
 
@@ -266,7 +266,7 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	if(recordCount > 0)
 	{
 		// approximate the total number of records
-		m_Buffer.recordCount = (m_Buffer.DataLength / (recordsReadBytes / recordCount));
+		m_Buffer.recordCount = ((int)m_Buffer.DataLength / (recordsReadBytes / recordCount));
 
 		m_Buffer.pData = new char[recordsReadBytes];
 		m_Buffer.DataLength = recordsReadBytes;

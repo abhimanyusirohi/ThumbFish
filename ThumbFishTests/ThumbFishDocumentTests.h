@@ -33,7 +33,7 @@ TEST_F(ThumbFishDocumentTests, CheckLoadFromStream)
 		size_t dataLen = strlen(InputMols[c].mol) + 1;
 
 		// create a memory stream
-		IStream* stream = ::SHCreateMemStream((BYTE*)InputMols[c].mol, dataLen);
+		IStream* stream = ::SHCreateMemStream((BYTE*)InputMols[c].mol, (UINT)dataLen);
 		ASSERT_TRUE(stream != NULL) << "Memory stream could not be created";
 		ASSERT_HRESULT_SUCCEEDED(m_doc.LoadFromStream(stream, 0)) << "ThumbFishDocument::LoadFromStream() failed";
 	
@@ -55,13 +55,13 @@ TEST_F(ThumbFishDocumentTests, CheckLoadStream)
 		size_t len = strlen(InputMols[c].mol) + 1;
 
 		// create a memory stream
-		IStream* stream = ::SHCreateMemStream((BYTE*)InputMols[c].mol, len);
+		IStream* stream = ::SHCreateMemStream((BYTE*)InputMols[c].mol, (UINT)len);
 		ASSERT_TRUE(stream != NULL) << "Memory stream could not be created";
 
 		m_doc.m_Buffer.DataLength = len;
 		m_doc.m_Buffer.DataFormat = InputMols[c].molFormat;
 
-		ASSERT_TRUE(m_doc.LoadStream(stream)) << "ThumbFishDocument::LoadStream() failed for MolIndex=" << c;
+		ASSERT_TRUE(m_doc.LoadStream(stream) == TRUE) << "ThumbFishDocument::LoadStream() failed for MolIndex=" << c;
 		ASSERT_EQ(InputMols[c].molFormat, m_doc.m_Buffer.DataFormat) << "Buffer DataFormat is incorrect";
 	
 		stream->Release();

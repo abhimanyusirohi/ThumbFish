@@ -13,8 +13,12 @@ typedef struct Buffer
 	ChemFormat	DataFormat;			// format of data in pData
 	int			recordCount;		// approximate number of records in pData
 
-	Buffer() : pData(NULL), DataLength(0), DataFormat(fmtUnknown), recordCount(1) {}
-	~Buffer() { DeleteAndNull(pData); }
+	Buffer(bool releaseData = true) : pData(NULL), DataLength(0), DataFormat(fmtUnknown), 
+		recordCount(1), m_releaseData(releaseData) {}
+	~Buffer() { if(m_releaseData) DeleteAndNull(pData); }
+
+private:
+	bool		m_releaseData;		// Default: True. Set to False in ctor to avoid releasing pData
 } BUFFER, *LPBUFFER;
 
 //-----------------------------------------------------------------------------

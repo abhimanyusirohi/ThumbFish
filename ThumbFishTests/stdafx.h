@@ -18,6 +18,7 @@
 #include <atlctl.h>
 #include <atlconv.h>
 #include "comdef.h"
+#include <memory>
 
 #include <pantheios\pantheios.hpp>
 #include <pantheios\inserters\integer.hpp>
