@@ -25,6 +25,8 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 	{
 		// initialize BUFFER
 		m_Buffer.DataLength = stat.cbSize.LowPart;
+
+		// pwcsName contains file name without path
 		if(stat.pwcsName != NULL) _tcscpy_s(file, MAX_PATH, OLE2W(stat.pwcsName));
 
 		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Name="), file, 
@@ -139,6 +141,11 @@ void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 	}
 }
 
+/// <summary>
+/// Loads the specified IStream into BUFFER object.
+/// Loading data from IStream is required because the IStream does not provide full path to
+/// the target file when IStream::Stat(...) is called.
+/// </summary>
 BOOL ThumbFishDocument::LoadStream(IStream* stream)
 {
 	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> Called"));
