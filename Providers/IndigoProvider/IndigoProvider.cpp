@@ -9,11 +9,63 @@
 #include "api\plugins\inchi\indigo-inchi.h"
 #include "plugins\renderer\indigo-renderer.h"
 
-INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options)
+//-----------------------------------------------------------------------------
+// <Execute>
+// The one and only API method that can execute all supported commands.
+//-----------------------------------------------------------------------------
+INDIGOPROVIDER_API LPOUTBUFFER Execute(LPCOMMANDPARAMS params, LPOPTIONS options)
 {
-	pantheios::log_NOTICE(_T("API-Draw> Called. File="), buffer->FileName, 
-			_T(", Length="), pantheios::integer(buffer->DataLength));
-	
+	LPOUTBUFFER outBuffer = new OUTBUFFER();
+	Command cmdId = (Command)params->CommandID;
+
+	switch(cmdId)
+	{
+		case cmdVersion:
+			outBuffer->DataLength = strlen(VersionString) + 1;
+			outBuffer->pData = new char[outBuffer->DataLength];
+			strcpy_s((PCHAR)outBuffer->pData, outBuffer->DataLength, VersionString);
+			break;
+
+		case cmdDraw:
+			outBuffer->pData = (PVOID)Draw(params, options);
+			break;
+
+		case cmdGetProperties:
+			{
+				TCHAR** properties = NULL;
+				outBuffer->DataLength = GetProperties(params, options, &properties);
+				outBuffer->pData = properties;
+			}
+			break;
+
+		case cmdConvert:
+			delete outBuffer;
+			outBuffer = ConvertTo(params, options);
+			break;
+
+		case cmdExtract:
+			Extract(params, options);
+			break;
+	}
+
+	return outBuffer;
+}
+
+#pragma region Command Methods
+
+//-----------------------------------------------------------------------------
+// <Draw>
+// Draws single and multiple molecules on specified Device Context. This method
+// is responsible for drawing both thumbnails and previews.
+//-----------------------------------------------------------------------------
+bool Draw(LPCOMMANDPARAMS params, LPOPTIONS options)
+{
+	LPBUFFER buffer = params->Buffer;
+	LPDRAWPARAMS drawParams = (LPDRAWPARAMS)params->Param;
+
+	pantheios::log_NOTICE(_T("API-Draw> Called. Format="), buffer->DataFormat, 
+			_T(", DataLength="), pantheios::integer(buffer->DataLength));
+
 	ReturnObjectType retType = SingleMol;
 
 	if(buffer->DataLength > 0)
@@ -25,12 +77,13 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 			bool isRDF = ((buffer->DataFormat == fmtRDFV2) || (buffer->DataFormat == fmtRDFV3));
 
 			SetIndigoOptions(options);
-			indigoSetOptionXY("render-image-size", rect.right - rect.left, rect.bottom - rect.top);
+			indigoSetOptionXY("render-image-size", drawParams->targetRect.right - drawParams->targetRect.left, 
+				drawParams->targetRect.bottom - drawParams->targetRect.top);
 
 			// required because the render-backgroundcolor options fails
-			::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
+			::FillRect(drawParams->hDC, &drawParams->targetRect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
 
-			int dc = indigoRenderWriteHDC((void*)hDC, 0);
+			int dc = indigoRenderWriteHDC((void*)drawParams->hDC, 0);
 
 			int renderErr = 0;
 			if(retType == SingleMol)
@@ -77,7 +130,7 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 				else
 				{
 					// draw error bitmap (could be a different one for collection files)
-					DrawErrorBitmap(hDC, &rect);
+					Utils::DrawErrorBitmap(drawParams->hDC, &drawParams->targetRect);
 					return false;
 				}
 
@@ -88,12 +141,13 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 			{
 				// draw a MOL version indicator on thumbnails for MOL, RXN, SDF and RDF
 				if(CommonUtils::IsMOLV2000Format(buffer->DataFormat))
-					DrawMOLVersionIndicator(hDC, true);
+					Utils::DrawMOLVersionIndicator(drawParams->hDC, true);
 				else if(CommonUtils::IsMOLV3000Format(buffer->DataFormat))
-					DrawMOLVersionIndicator(hDC, false);
+					Utils::DrawMOLVersionIndicator(drawParams->hDC, false);
 
 				// draw approx record count value
-				if((int)buffer->Extra > 0) DrawRecordCount(hDC, rect, (int)buffer->Extra);
+				if(buffer->recordCount > 1) 
+					Utils::DrawRecordCount(drawParams->hDC, drawParams->targetRect, buffer->recordCount);
 			}
 			else
 			{
@@ -121,15 +175,24 @@ INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS opti
 	}
 
 	// zero length, too large or invalid file format
-	DrawErrorBitmap(hDC, &rect);
+	Utils::DrawErrorBitmap(drawParams->hDC, &drawParams->targetRect);
 
 	return false;
 }
 
-INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options, bool searchNames)
+//-----------------------------------------------------------------------------
+// <GetProperties>
+// Compiles a name-value array of molecule properties.
+//-----------------------------------------------------------------------------
+int GetProperties(LPCOMMANDPARAMS params, LPOPTIONS options, TCHAR*** properties)
 {
-	pantheios::log_NOTICE(_T("API-GetProperties> Called. File="), buffer->FileName, 
-			_T(", Length="), pantheios::integer(buffer->DataLength));
+	LPBUFFER buffer = params->Buffer;
+
+	// specifies whether to return property names to use in search
+	bool returnSearchNames = (BOOL)params->Param;
+
+	pantheios::log_NOTICE(_T("API-GetProperties> Called. File Format="), buffer->DataFormat, 
+			_T(", DataLength="), pantheios::integer(buffer->DataLength));
 
 	int propCount = 0;
 
@@ -153,7 +216,7 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 			if(flags & propName)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoName(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("name") : _T("Name"), temp);
+				SetNameValue(returnSearchNames ? _T("name") : _T("Name"), temp, properties, index+=2);
 			}
 
 			if(flags & propDataVersion)
@@ -161,91 +224,91 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 				_snwprintf_s(temp, 500, 500, L"%s", 
 					((buffer->DataFormat == fmtMOLV2) || (buffer->DataFormat == fmtRXNV2)) ? _T("V2000") 
 						: (((buffer->DataFormat == fmtMOLV3) || (buffer->DataFormat == fmtRXNV3)) ? _T("V3000") : _T("NA")));
-				AddProperty(properties, index+=2, searchNames ? _T("version") : _T("Version"), temp);
+				SetNameValue(returnSearchNames ? _T("version") : _T("Version"), temp, properties, index+=2);
 			}
 
 			if(flags & propNumAtoms)
 			{
 				_snwprintf_s(temp, 500, 500, L"%d", indigoCountAtoms(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("na") : _T("Num Atoms"), temp);
+				SetNameValue(returnSearchNames ? _T("na") : _T("Num Atoms"), temp, properties, index+=2);
 			}
 
 			if(flags & propNumBonds)
 			{
 				_snwprintf_s(temp, 500, 500, L"%d", indigoCountBonds(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("nb") : _T("Num Bonds"), temp);
+				SetNameValue(returnSearchNames ? _T("nb") : _T("Num Bonds"), temp, properties, index+=2);
 			}
 
 			if(flags & propImplH)
 			{
 				_snwprintf_s(temp, 500, 500, L"%d", indigoCountImplicitHydrogens(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("imph") : _T("Implicit Hydrogens"), temp);
+				SetNameValue(returnSearchNames ? _T("imph") : _T("Implicit Hydrogens"), temp, properties, index+=2);
 			}
 
 			if(flags & propHeavyAtoms)
 			{
 				_snwprintf_s(temp, 500, 500, L"%d", indigoCountHeavyAtoms(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("heavya") : _T("Heavy Atoms"), temp);
+				SetNameValue(returnSearchNames ? _T("heavya") : _T("Heavy Atoms"), temp, properties, index+=2);
 			}
 
 			if(flags & propGrossFormula)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoToString(indigoGrossFormula(mol)));
-				AddProperty(properties, index+=2, searchNames ? _T("formula") : _T("Gross Formula"), temp);
+				SetNameValue(returnSearchNames ? _T("formula") : _T("Gross Formula"), temp, properties, index+=2);
 			}
 
 			if(flags & propMolWeight)
 			{
 				_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMolecularWeight(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("mweight") : _T("Molecular Weight"), temp);
+				SetNameValue(returnSearchNames ? _T("mweight") : _T("Molecular Weight"), temp, properties, index+=2);
 			}
 
 			if(flags & propMostAbundantMass)
 			{
 				_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMostAbundantMass(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("mamass") : _T("Most Abundant Mass"), temp);
+				SetNameValue(returnSearchNames ? _T("mamass") : _T("Most Abundant Mass"), temp, properties, index+=2);
 			}
 
 			if(flags & propMonoIsotopicMass)
 			{
 				_snwprintf_s(temp, 500, 500, L"%f g/mol", indigoMonoisotopicMass(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("mimass") : _T("Mono Isotopic Mass"), temp);
+				SetNameValue(returnSearchNames ? _T("mimass") : _T("Mono Isotopic Mass"), temp, properties, index+=2);
 			}
 
 			if(flags & propIsChiral)
 			{
 				_snwprintf_s(temp, 500, 500, L"%s", (indigoIsChiral(mol) == 0) ? _T("No") : _T("Yes"));
-				AddProperty(properties, index+=2, searchNames ? _T("chiral") : _T("Is Chiral"), temp);
+				SetNameValue(returnSearchNames ? _T("chiral") : _T("Is Chiral"), temp, properties, index+=2);
 			}
 
 			if(flags & propHasCoord)
 			{
 				_snwprintf_s(temp, 500, 500, L"%s", (indigoHasCoord(mol) == 0) ? _T("No") : _T("Yes"));
-				AddProperty(properties, index+=2, searchNames ? _T("hascoord") : _T("Has Coordinates"), temp);
+				SetNameValue(returnSearchNames ? _T("hascoord") : _T("Has Coordinates"), temp, properties, index+=2);
 			}
 
 			if(flags & propHasZCoord)
 			{
 				_snwprintf_s(temp, 500, 500, L"%s", (indigoHasZCoord(mol) == 0) ? _T("No") : _T("Yes"));
-				AddProperty(properties, index+=2, searchNames ? _T("haszcoord") : _T("Has Z Coordinates"), temp);
+				SetNameValue(returnSearchNames ? _T("haszcoord") : _T("Has Z Coordinates"), temp, properties, index+=2);
 			}
 
 			if(flags & propSmiles)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoSmiles(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("-") : _T("SMILES"), temp);
+				SetNameValue(returnSearchNames ? _T("-") : _T("SMILES"), temp, properties, index+=2);
 			}
 
 			if(flags & propCanonicalSmiles)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoCanonicalSmiles(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("-") : _T("Canonical SMILES"), temp);
+				SetNameValue(returnSearchNames ? _T("-") : _T("Canonical SMILES"), temp, properties, index+=2);
 			}
 
 			if(flags & propLayeredCode)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", indigoLayeredCode(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("-") : _T("Layered Code"), temp);
+				SetNameValue(returnSearchNames ? _T("-") : _T("Layered Code"), temp, properties, index+=2);
 			}
 
 			//TODO: INCHI CALCULATION FAILS - malloc_dbg fails
@@ -253,16 +316,16 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 			if(flags & propInChI)
 			{
 				_snwprintf_s(temp, 500, 500, L"%hs", inchi);
-				AddProperty(properties, index+=2, searchNames ? _T("-") : _T("InChi"), temp);
+				SetNameValue(returnSearchNames ? _T("-") : _T("InChi"), temp, properties, index+=2);
 			}
 
 			//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));
-			//AddProperty(properties, 24, _T("InChi Key"), temp);
+			//SetNameValue(properties, 24, _T("InChi Key"), temp);
 
 			if(flags & propSSSR)
 			{
 				_snwprintf_s(temp, 500, 500, L"%d", indigoCountSSSR(mol));
-				AddProperty(properties, index+=2, searchNames ? _T("sssr") : _T("SSSR"), temp);
+				SetNameValue(returnSearchNames ? _T("sssr") : _T("SSSR"), temp, properties, index+=2);
 			}
 		}
 		else
@@ -280,23 +343,23 @@ INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPT
 	return propCount;
 }
 
-/**
-	Converts the molecule specified through BUFFER to format specified in outFormat. 
-	The method supports	the following formats:
-	Input: MOL, RXN, SMILES, SMARTS, SDF, RDF, CML, SMILES
-	Output: MOLV2000, MOLV3000, RXNV2000, RXNV3000, SMILES, INCHI, INCHIKEY, MDLCT, CML,
-			CDXML, EMF, PDF, PNG, SVG
-	In case of multimol files as input, it converts the first record in the file.
-	@param buffer Input buffer specifies the file to convert
-	@param outFormat Specified the output format
-	@param options Specified the program options to use during convert
-	@return Returns an instance of OUTBUFFER containing converted data and datalength values. The caller
-			is responsible to delete the OUTBUFFER reference.
-*/
-INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, LPOPTIONS options)
+
+//-----------------------------------------------------------------------------
+// <ConvertTo>
+// Converts a specified molecule to format specified in outFormat (Param). 
+// The method supports	the following formats:
+// Input: MOL, RXN, SMILES, SMARTS, SDF, RDF, CML, SMILES
+// Output:	MOLV2000, MOLV3000, RXNV2000, RXNV3000, SMILES, INCHI, INCHIKEY, 
+//			MDLCT, CML, CDXML, EMF, PDF, PNG, SVG
+// In case of multimol files as input, it converts the first record in the file.
+//-----------------------------------------------------------------------------
+LPOUTBUFFER ConvertTo(LPCOMMANDPARAMS params, LPOPTIONS options)
 {
+	LPBUFFER buffer = params->Buffer;
+	ChemFormat outFormat = (ChemFormat)(int)params->Param;
+
 	USES_CONVERSION;
-	pantheios::log_NOTICE(_T("API-ConvertTo> Called. File="), buffer->FileName, 
+	pantheios::log_NOTICE(_T("API-ConvertTo> Called. FileFormat="), buffer->DataFormat, 
 			_T(", Length="), pantheios::integer(buffer->DataLength),
 			_T(", OutFormat="), pantheios::integer(outFormat));
 
@@ -453,26 +516,33 @@ INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, 
 	return outbuf;
 }
 
-INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
+//-----------------------------------------------------------------------------
+// <Extract>
+// Extracts molecules from a multimol files.
+//-----------------------------------------------------------------------------
+void Extract(LPCOMMANDPARAMS params, LPOPTIONS options)
 {
+	LPBUFFER buffer = params->Buffer;
+	LPEXTRACTPARAMS exParams = (LPEXTRACTPARAMS)params->Param;
+
 	USES_CONVERSION;
 
-	char* sourceFile = W2A(params->sourceFile);
-	char* fileFormat = W2A(params->fileFormat);
-	char* folderPath = W2A(params->folderPath);	// folderPath contains {DIR}\{FILENAME}%d.{EXT}
+	char* sourceFile = W2A(exParams->sourceFile);
+	char* fileFormat = W2A(exParams->fileFormat);
+	char* folderPath = W2A(exParams->folderPath);	// folderPath contains {DIR}\{FILENAME}%d.{EXT}
 
 	int reader = -1;
 
-	bool isSDF = ((params->sourceFormat == fmtSDFV2) || (params->sourceFormat == fmtSDFV3));
-	bool isRDF = ((params->sourceFormat == fmtRDFV2) || (params->sourceFormat == fmtRDFV3));
+	bool isSDF = ((exParams->sourceFormat == fmtSDFV2) || (exParams->sourceFormat == fmtSDFV3));
+	bool isRDF = ((exParams->sourceFormat == fmtRDFV2) || (exParams->sourceFormat == fmtRDFV3));
 
 	if(isSDF) reader = indigoIterateSDFile(sourceFile);
 	else if(isRDF) reader = indigoIterateRDFile(sourceFile);
-	else if(params->sourceFormat == fmtCML) reader = indigoIterateCMLFile(sourceFile);
-	else if(params->sourceFormat == fmtSMILES) reader = indigoIterateSmilesFile(sourceFile);
+	else if(exParams->sourceFormat == fmtCML) reader = indigoIterateCMLFile(sourceFile);
+	else if(exParams->sourceFormat == fmtSMILES) reader = indigoIterateSmilesFile(sourceFile);
 	else
 	{
-		pantheios::log_ERROR(_T("API-Extract> Source file format is NOT supported. Src File="), params->sourceFile);
+		pantheios::log_ERROR(_T("API-Extract> Source file format is NOT supported. Src File="), exParams->sourceFile);
 		return;
 	}
 
@@ -496,7 +566,7 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 		
 		if(fileExists)
 		{
-			if(params->overwriteFiles)
+			if(exParams->overwriteFiles)
 			{
 				// check if we have write permissions on this file
 				if((st.st_mode & S_IWRITE) == 0)
@@ -516,29 +586,29 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 			}
 		}
 
-		if(isSDF && ((params->exportFormat == fmtMOLV2) || (params->exportFormat == fmtMOLV3)))
+		if(isSDF && ((exParams->exportFormat == fmtMOLV2) || (exParams->exportFormat == fmtMOLV3)))
 		{			
-			indigoSetOption("molfile-saving-mode", (params->exportFormat == fmtMOLV2) ? "2000" : "3000");
+			indigoSetOption("molfile-saving-mode", (exParams->exportFormat == fmtMOLV2) ? "2000" : "3000");
 			if(indigoSaveMolfileToFile(mol, fullFilePath) < 1) writeFail++;
 		}
-		else if(isRDF && ((params->exportFormat == fmtRXNV2) || (params->exportFormat == fmtRXNV3)))
+		else if(isRDF && ((exParams->exportFormat == fmtRXNV2) || (exParams->exportFormat == fmtRXNV3)))
 		{
-			indigoSetOption("molfile-saving-mode", (params->exportFormat == fmtRXNV2) ? "2000" : "3000");
+			indigoSetOption("molfile-saving-mode", (exParams->exportFormat == fmtRXNV2) ? "2000" : "3000");
 			if(indigoSaveRxnfileToFile(mol, fullFilePath) < 1) writeFail++;
 		}
-		else if((params->sourceFormat == fmtCML) && (params->exportFormat == fmtCML))
+		else if((exParams->sourceFormat == fmtCML) && (exParams->exportFormat == fmtCML))
 		{
 			if(indigoSaveCmlToFile(mol, fullFilePath) < 1) writeFail++;
 		}
-		else if((params->sourceFormat == fmtSMILES) && (params->exportFormat == fmtSMILES))
+		else if((exParams->sourceFormat == fmtSMILES) && (exParams->exportFormat == fmtSMILES))
 		{
 			int smiFile = indigoWriteFile(fullFilePath);
 			if(indigoSmilesAppend(smiFile, mol) < 1) writeFail++;
 		}
-		else if((params->exportFormat == fmtCDXML) || (params->exportFormat == fmtEMF))
+		else if((exParams->exportFormat == fmtCDXML) || (exParams->exportFormat == fmtEMF))
 		{
 			TCHAR format[MAX_FORMAT];
-			CommonUtils::GetFormatString(params->exportFormat, format, MAX_FORMAT);
+			CommonUtils::GetFormatString(exParams->exportFormat, format, MAX_FORMAT);
 			indigoSetOption("render-output-format", W2A(format));
 			indigoSetOptionXY("render-image-size", options->RenderImageWidth, options->RenderImageHeight);
 
@@ -549,19 +619,19 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 		else
 		{
 			pantheios::log_WARNING(_T("API-Extract> Unsupported export formats. DataFormat="), 
-				pantheios::integer(params->exportFormat));
+				pantheios::integer(exParams->exportFormat));
 		}
 
 		indigoFree(mol);
 
 		// break if limit is reached
-		if(goodIndex++ == params->extractMolCount) break;
+		if(goodIndex++ == exParams->extractMolCount) break;
 
 		// callback to notify parent
-		if(params->callback != NULL)
+		if(exParams->callback != NULL)
 		{
 			args.processed = index;
-			cancel = params->callback(params->caller, &args);
+			cancel = exParams->callback(exParams->caller, &args);
 		}
 
 		// check if user cancelled
@@ -575,20 +645,24 @@ INDIGOPROVIDER_API void Extract(LPEXTRACTPARAMS params, LPOPTIONS options)
 	LoadString(hInstance, IDS_EXTRACT_SUMMARY, summaryTemplate, 256);
 
 	// construct a summary for extract operation and sedn it to the caller using callback method
-	if(_sntprintf_s(summary, 512, summaryTemplate, PathFindFileName(params->sourceFile),
+	if(_sntprintf_s(summary, 512, summaryTemplate, PathFindFileName(exParams->sourceFile),
 		index, goodIndex - 1, skipped, noPerm, writeFail) > 0)
 	{
-		if(params->callback != NULL) 
+		if(exParams->callback != NULL) 
 		{
 			args.type = progressDone;
 			args.message = summary;
 			args.total = args.processed = index;
-			params->callback(params->caller, &args);
+			exParams->callback(exParams->caller, &args);
 		}
 	}
 
 	indigoFree(reader);
 }
+
+#pragma endregion
+
+#pragma region Installer Methods
 
 /** Refresh the icon cache to rebuilt the thumbnails */
 extern "C" UINT __stdcall RefreshIcons(MSIHANDLE hInstall)
@@ -605,48 +679,69 @@ extern "C" UINT __stdcall LaunchGettingStarted(MSIHANDLE hInstall)
 	return ERROR_SUCCESS;
 }
 
-void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value)
+#pragma endregion
+
+#pragma region Helper Methods
+
+//-----------------------------------------------------------------------------
+// <SetNameValue>
+// Sets the specified [name] and [value] strings in the specified double 
+// dimension array of strings at the specified index.
+//-----------------------------------------------------------------------------
+void SetNameValue(TCHAR* name, TCHAR* value, TCHAR*** arr, int index)
 {
 	size_t len = _tcslen(name) + 1;
-	(*properties)[startIndex] = new TCHAR[len];
-	_tcscpy_s((*properties)[startIndex], len, name);
+	(*arr)[index] = new TCHAR[len];
+	_tcscpy_s((*arr)[index], len, name);
 
 	len = _tcslen(value) + 1;
-	(*properties)[startIndex + 1] = new TCHAR[len];
-	_tcscpy_s((*properties)[startIndex + 1], len, value);
+	(*arr)[index + 1] = new TCHAR[len];
+	_tcscpy_s((*arr)[index + 1], len, value);
 }
 
+//-----------------------------------------------------------------------------
+// <ReadBuffer>
+// Reads the data in specified BUFFER object and returns an Indigo specific 
+// object pointer.
+//-----------------------------------------------------------------------------
 int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type)
 {
 	if((buffer == NULL) || (buffer->DataLength <= 0)) return -1;
 
-	bool isSDF = ((buffer->DataFormat == fmtSDFV2) || (buffer->DataFormat == fmtSDFV3));
-	bool isRDF = ((buffer->DataFormat == fmtRDFV2) || (buffer->DataFormat == fmtRDFV3));
+	ChemFormat format = buffer->DataFormat;
+	const PCHAR data = (PCHAR)buffer->pData;
 
-	if((buffer->DataFormat == fmtMOLV2) || (buffer->DataFormat == fmtMOLV3))
-		return indigoLoadMoleculeFromBuffer(buffer->pData, (int)buffer->DataLength);
-	else if((buffer->DataFormat == fmtRXNV2) || (buffer->DataFormat == fmtRXNV3))
-		return indigoLoadReactionFromBuffer(buffer->pData, (int)buffer->DataLength);
-	else if(buffer->DataFormat == fmtSMARTS)
-		return indigoLoadSmartsFromBuffer(buffer->pData, (int)buffer->DataLength);
-	else if(isSDF || isRDF || (buffer->DataFormat == fmtCML) || (buffer->DataFormat == fmtSMILES))
+	bool isSDF = ((format == fmtSDFV2) || (format == fmtSDFV3));
+	bool isRDF = ((format == fmtRDFV2) || (format == fmtRDFV3));
+
+	if((format == fmtMOLV2) || (format == fmtMOLV3))
+		return indigoLoadMoleculeFromBuffer(data, (int)buffer->DataLength);
+	else if((format == fmtRXNV2) || (format == fmtRXNV3))
+		return indigoLoadReactionFromBuffer(data, (int)buffer->DataLength);
+	else if(format == fmtSMARTS)
+		return indigoLoadSmartsFromBuffer(data, (int)buffer->DataLength);
+	else if(isSDF || isRDF || (format == fmtCML) || (format == fmtSMILES))
 	{
 		*type = MultiMol;
-		int reader = indigoLoadBuffer(buffer->pData, (int)buffer->DataLength);
+		int reader = indigoLoadBuffer(data, (int)buffer->DataLength);
 
 		if(isSDF) return indigoIterateSDF(reader);
 		if(isRDF) return indigoIterateRDF(reader);
-		if(buffer->DataFormat == fmtCML) return indigoIterateCML(reader);
-		if(buffer->DataFormat == fmtSMILES) return indigoIterateSmiles(reader);
+		if(format == fmtCML) return indigoIterateCML(reader);
+		if(format == fmtSMILES) return indigoIterateSmiles(reader);
 	}
 	else
 	{
-		pantheios::log_ERROR(_T("ReadBuffer> Invalid file type="), buffer->FileName);
+		pantheios::log_ERROR(_T("ReadBuffer> Invalid File Format="), format);
 	}
 
 	return -1;
 }
 
+//-----------------------------------------------------------------------------
+// <SetIndigoOptions>
+// Sets Indigo options using the OPTIONS instance.
+//-----------------------------------------------------------------------------
 void SetIndigoOptions(LPOPTIONS options)
 {
 	if(options == NULL || !options->Changed) return;
@@ -674,105 +769,4 @@ void SetIndigoOptions(LPOPTIONS options)
 		: ((options->RenderStereoStyle == 1) ? "ext" : "none"));
 }
 
-void DrawErrorBitmap(HDC hDC, LPRECT lpRect)
-{
-	if(hInstance == NULL) return;
-
-	// load bitmap from resource
-	HBITMAP hBitmap = LoadBitmap(hInstance, MAKEINTRESOURCE(IDB_FISH));
-	if(hBitmap != NULL)
-	{
-		BITMAP bm = {0};
-		GetObject(hBitmap, sizeof(bm), &bm);
-		LONG bmcx = bm.bmWidth;
-		LONG bmcy = bm.bmHeight;
-
-		HDC hdcMem = CreateCompatibleDC(hDC);
-		HGDIOBJ oldBitmap = SelectObject(hdcMem, hBitmap);
-
-		::FillRect(hDC, lpRect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
-
-		// center the error bitmap in area
-		if(!BitBlt(hDC, lpRect->left + ((lpRect->right - lpRect->left) - bmcx)/2, 
-			lpRect->top + ((lpRect->bottom - lpRect->top) - bmcy)/2, lpRect->right,
-			lpRect->bottom, hdcMem, 0, 0, SRCCOPY))
-		{
-			pantheios::log_WARNING(_T("DrawErrorBitmap> BitBlt API FAILED. GetLastError="), 
-				pantheios::integer(::GetLastError()));
-		}
-
-		SelectObject(hdcMem, oldBitmap);
-		DeleteDC(hdcMem);
-		DeleteObject(hBitmap);
-	}
-	else
-	{
-		pantheios::log_WARNING(_T("DrawErrorBitmap> LoadBitmap FAILED."));
-	}
-}
-
-/**
-	Draws a small mark on specified HDC to identify MOLFILE version.
-*/
-void DrawMOLVersionIndicator(HDC hDC, bool v2000)
-{
-	HBRUSH bgBrush = ::CreateSolidBrush(RGB(224, 224, 224));
-	HPEN oldPen = (HPEN)SelectObject(hDC, GetStockObject(NULL_PEN));
-	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, bgBrush);
-	HFONT oldFont = (HFONT)SelectObject(hDC, GetStockObject(DEFAULT_GUI_FONT));
-
-	// draw empty rectangle
-	::Ellipse(hDC, 8, 8, 30, 30);
-	::SetBkMode(hDC, TRANSPARENT);
-	::TextOut(hDC, 12, 12, v2000 ? _T("V2") : _T("V3"), 2);
-
-	// revert to old pens and brushes
-	SelectObject(hDC, oldFont);
-	SelectObject(hDC, oldPen);
-	SelectObject(hDC, oldBrush);
-
-	// delete the newly created pen
-	DeleteObject(bgBrush);
-}
-
-void DrawRecordCount(HDC hDC, RECT rect, int recordCount)
-{
-	SIZE szText;
-	wchar_t text[10];
-	int len = _snwprintf_s(text, 10, 10, L"%d±", recordCount);
-
-	// create a large font to display molecule count
-	//HFONT font = CreateFont(20, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS, CLIP_DEFAULT_PRECIS, 
-	//	ANTIALIASED_QUALITY, FF_DONTCARE, NULL);
-	HFONT oldFont = (HFONT)SelectObject(hDC, GetStockObject(DEFAULT_GUI_FONT));
-
-	// get width of text with currently selected font
-	GetTextExtentPoint(hDC, text, len, &szText);
-
-	// add margins to text
-	szText.cx += 10;
-	szText.cy += 5;
-
-	int destWidth = (rect.right - rect.left);
-	int destHeight = (rect.bottom - rect.top);
-	
-	HBRUSH bgBrush = ::CreateSolidBrush(RGB(224, 224, 224));
-	HBRUSH oldBrush = (HBRUSH)SelectObject(hDC, bgBrush);
-
-	//HPEN pen = CreatePen(PS_SOLID, 1, RGB(7, 203, 75));	// little darker green than the fill colour
-	HPEN oldPen = (HPEN)SelectObject(hDC, GetStockObject(NULL_PEN));
-
-	Rectangle(hDC, destWidth - szText.cx - 5, 8, destWidth - 5, szText.cy + 8);
-
-	SetBkMode(hDC, TRANSPARENT);
-	//SetTextColor(hDC, RGB(3, 82, 31));
-	TextOut(hDC, destWidth-szText.cx, 10, text, len);
-
-	SelectObject(hDC, oldFont);
-	SelectObject(hDC, oldBrush);
-	SelectObject(hDC, oldPen);
-
-	//DeleteObject(pen);
-	DeleteObject(bgBrush);
-	//DeleteObject(font);
-}
+#pragma endregion

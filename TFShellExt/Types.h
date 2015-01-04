@@ -6,12 +6,13 @@
 #define	CRLF	"\r\n"
 
 #define TEQUAL(a,b)	(_tcsicmp(a, b) == 0)
-#define ALLOC_AND_COPY(src, dest, outlen) if(src != NULL) {	\
-					size_t len = strlen(src) + 1;	\
-					if(len > 1)	{					\
-						dest = new char[len];		\
-						dest[len - 1] = NULL;		\
-						strcpy_s(dest, len, src);	\
+#define ALLOC_AND_COPY(src, dest, outlen) if(src != NULL) {		\
+					size_t len = strlen(src) + 1;				\
+					if(len > 1)	{								\
+						PCHAR pDest = new char[len];			\
+						pDest[len - 1] = NULL;					\
+						strcpy_s(pDest, len, src);				\
+						dest = pDest;							\
 					} if(outlen) *outlen = len; }
 
 #define DeleteAndNull(x) { delete x; x = NULL; }
@@ -41,12 +42,26 @@ typedef bool (*ProgressCallback)(LPVOID sender, CallbackEventArgs* e);
 #include "CommonUtils.h"
 #include "ExtractParam.h"
 
-#pragma region API Function Pointers
+// Parameters required to execute a command
+typedef struct CommandParams
+{
+	int			CommandID;				// command id of operation
+	LPBUFFER	Buffer;					// buffer containing data to work on
+	PVOID		Param;					// additional parameter required to execute this command
 
-// APIs
-typedef bool (__cdecl *DrawFuncType)(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options);
-typedef int	 (__cdecl *GetPropertiesFuncType)(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options, bool searchNames);
-typedef YOURS LPOUTBUFFER (__cdecl *ConvertToFuncType)(LPBUFFER buffer, ChemFormat outFormat, LPOPTIONS options);
-typedef void (__cdecl *ExtractFuncType)(LPEXTRACTPARAMS params, LPOPTIONS options);
+	CommandParams(int id, LPBUFFER buffer = NULL, LPVOID param = NULL) :
+		CommandID(id), Buffer(buffer), Param(param) {}
+} COMMANDPARAMS, *LPCOMMANDPARAMS;
 
-#pragma endregion
+typedef struct DrawParams
+{
+	HDC hDC;
+	RECT targetRect;
+
+	DrawParams(HDC hdc, RECT rect) : hDC(hdc), targetRect(rect) {}
+} DRAWPARAMS, *LPDRAWPARAMS;
+
+// API
+const enum Command { cmdVersion, cmdDraw, cmdGetProperties, cmdConvert, cmdExtract, cmdAromatize, 
+	cmdDearomatize, cmdCleanup, cmdValidate, cmdNormalize, cmdFoldHydrogens, cmdUnfoldHydrogens, cmdGetWarnings };
+typedef YOURS LPOUTBUFFER (__cdecl *ExecuteFuncType)(LPCOMMANDPARAMS command, LPOPTIONS options);

@@ -21,7 +21,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 
 	if(pDoc)
 	{
-		if(pDrawFunc)
+		if(pExecuteFunc)
 		{
 			if(pDoc->m_Buffer.DataLength <= 0)
 			{
@@ -38,7 +38,10 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 				::GetClientRect(hPict, &rect);
 
 				// draw thumbnail in client area and get molecule properties
-				m_previewDrawn = pDrawFunc(::GetDC(hPict), rect, &pDoc->m_Buffer, &options);
+				DRAWPARAMS drawParams(::GetDC(hPict), rect);
+				COMMANDPARAMS params((int)cmdDraw, &pDoc->m_Buffer, &drawParams);				
+				std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
+				m_previewDrawn = (BOOL)outBuffer->pData;
 
 				if(m_previewDrawn)
 					SetChemicalWarnings(&options);
@@ -51,9 +54,7 @@ void CPreviewCtrl::DoPaint(HDC hdc)
 	}
 	else
 	{
-		pantheios::log_ERROR(_T("CPreviewCtrl::DoPaint> Unable to draw Preview"), 
-			_T("pDrawThumbnailFunc IsNULL="), pantheios::integer(pDrawFunc == NULL),
-				_T("pDoc IsNULL="), pantheios::integer(pDoc == NULL));
+		pantheios::log_ERROR(_T("CPreviewCtrl::DoPaint> Unable to draw Preview"));
 	}
 }
 
@@ -128,8 +129,8 @@ LRESULT CPreviewCtrl::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOO
 	HWND targetWnd = (HWND) wParam;
 	ThumbFishDocument *pDoc = (ThumbFishDocument*)m_pDocument;
 	
-	bool multiMolFile = Utils::IsMultiMolFile(pDoc->m_Buffer.FileName);
-	ChemFormat format = CommonUtils::GetFormatFromFileName(pDoc->m_Buffer.FileName);
+	ChemFormat format = pDoc->m_Buffer.DataFormat;
+	bool multiMolFile = CommonUtils::IsMultiMolFormat(format);
 
 	HMENU hPopupMenu = LoadMenu(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDR_PROPLISTMENU));
 	hPopupMenu = GetSubMenu(hPopupMenu, 0);
@@ -236,7 +237,11 @@ void CPreviewCtrl::FillProperties(LPBUFFER buffer)
 	if(ListView_GetItemCount(hWndList) == 0)
 	{
 		TCHAR** props = NULL;
-		int propCount = pGetPropsFunc(buffer, &props, &options, false);
+		COMMANDPARAMS params(cmdGetProperties, buffer, (LPVOID)false);
+		std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
+
+		props = (TCHAR**)outBuffer->pData;
+		int propCount = outBuffer->DataLength;
 		m_propsGenerated = ((props != NULL) && (propCount > 0));
 
 		if(m_propsGenerated)

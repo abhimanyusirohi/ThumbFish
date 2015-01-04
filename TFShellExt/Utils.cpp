@@ -193,14 +193,15 @@ void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 			format = fmtRXNV3;
 
 		// convert existing structure into bytes in specified format
-		oBuffer = pConvertFunc(buffer, format, options);
+		COMMANDPARAMS params(cmdConvert, buffer, (LPVOID)format);
+		std::auto_ptr<OUTBUFFER> oBuffer(pExecuteFunc(&params, options));
 
-		if(oBuffer != NULL)
+		if(oBuffer.get() != NULL)
 		{
 			HANDLE hFile; 
 			DWORD dwBytesWritten = 0;
 			BOOL bErrorFlag = FALSE;
-			PCHAR buffer = oBuffer->pData;
+			PCHAR buffer = (PCHAR)oBuffer->pData;
 			DWORD dwBytesToWrite = (DWORD)oBuffer->DataLength;
 
 			// write a more human readable form of MDLCT containing line breaks
@@ -237,11 +238,9 @@ void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 				_T("Save Failed"), MB_OK | MB_ICONERROR);
 		}
 	}
-
-	if(oBuffer) delete oBuffer;
 }
 
-bool Utils::CopyToClipboard(const char* data, size_t dataLength, int format)
+bool Utils::CopyToClipboard(PVOID data, size_t dataLength, int format)
 {
 	HANDLE handle = NULL;
 	if(format == CF_ENHMETAFILE)
@@ -295,12 +294,12 @@ bool Utils::CopyToClipboard(const char* data, size_t dataLength, int format)
 
 void Utils::ConvertAndCopy(LPBUFFER buffer, ChemFormat convertTo, LPOPTIONS options)
 {
-	LPOUTBUFFER oBuffer = pConvertFunc(buffer, convertTo, options);
-	if(oBuffer != NULL)
+	COMMANDPARAMS params(cmdConvert, buffer, (LPVOID)convertTo);
+	std::auto_ptr<OUTBUFFER> oBuffer(pExecuteFunc(&params, options));
+	if(oBuffer.get() != NULL)
 	{
 		Utils::CopyToClipboard(oBuffer->pData, oBuffer->DataLength, 
 			(convertTo == fmtEMF) ? CF_ENHMETAFILE : CF_TEXT);
-		delete oBuffer;
 	}
 	else
 	{

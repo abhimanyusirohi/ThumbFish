@@ -246,9 +246,10 @@ bool CExtractDlg::OnProgressChanged(LPVOID sender, CallbackEventArgs* e)
 DWORD WINAPI CExtractDlg::ThreadProc(LPVOID lpParameter)
 {
 	OPTIONS options;
-	ExtractParams* params = (ExtractParams*)lpParameter;
+	ExtractParams* exParams = (ExtractParams*)lpParameter;
 
-	pExtractFunc(params, &options);
+	COMMANDPARAMS params(cmdExtract, NULL, exParams);
+	std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
 
 	return 0;
 }

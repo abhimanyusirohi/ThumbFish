@@ -31,6 +31,7 @@
 #include <atlconv.h>
 #include "comdef.h"
 #include <assert.h>
+#include <memory>
 
 #include <pantheios\pantheios.hpp>
 #include <pantheios\inserters\integer.hpp>
@@ -50,7 +51,4 @@
 extern HINSTANCE dllHandle;
 extern HINSTANCE ThisInstance;
 
-extern DrawFuncType pDrawFunc;
-extern GetPropertiesFuncType pGetPropsFunc;
-extern ConvertToFuncType pConvertFunc;
-extern ExtractFuncType pExtractFunc;
+extern ExecuteFuncType pExecuteFunc;

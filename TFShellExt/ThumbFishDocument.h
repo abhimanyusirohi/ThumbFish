@@ -14,21 +14,9 @@ public:
 	BUFFER		m_Buffer;
 
 public:
-	ThumbFishDocument(void):m_preLoad(FALSE)
-	{
-		m_Buffer.pData = NULL;
-		m_Buffer.DataLength = 0;
-	}
+	ThumbFishDocument(void):m_preLoad(FALSE) {}
 
-	virtual ~ThumbFishDocument(void)
-	{
-		if(m_Buffer.DataLength > 0) 
-		{
-			// do not delete IStream pointer
-			if(m_Buffer.pData != NULL) 
-				delete[] m_Buffer.pData;
-		}
-	}
+	virtual ~ThumbFishDocument(void) {}
 
 	virtual HRESULT LoadFromStream(IStream* pStream, DWORD grfMode);
 	virtual void InitializeSearchContent();
@@ -39,5 +27,5 @@ protected:
 	void SetSearchContent(CString& value);
 	virtual BOOL GetThumbnail(UINT, HBITMAP*, WTS_ALPHATYPE*);
 	virtual void OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds);
-	int FindMolVersion(char* data, size_t dataLength, int lineNum);
+	int FindMolVersion(PCHAR data, size_t dataLength, int lineNum);
 };

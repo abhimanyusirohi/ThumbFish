@@ -1,21 +1,10 @@
 
 #pragma once
 
-#include <map>
-
 #define MAX_FORMAT 10
 #define MAX_EXTENSION 10
 #define MAX_FORMAT_LONG 255
 #define FOREACH_FORMATINFO(x) for(int index = 0; index < (sizeof(cFormatInfo)/sizeof(cFormatInfo[0])); index++) { x }
-
-// Parameters required to execute a command on a new thread
-typedef struct CommandParams
-{
-	int		CommandID;	// command id of operation
-	LPVOID	Data;		// data required to execute this command
-
-	CommandParams(int id, LPVOID data) : CommandID(id), Data(data) {}
-} COMMANDPARAMS, *LPCOMMANDPARAMS;
 
 typedef struct
 {
@@ -98,5 +87,37 @@ public:
 	static bool IsMOLV3000Format(ChemFormat format)
 	{
 		return ((format == fmtMOLV3) || (format == fmtRXNV3) || (format == fmtSDFV3) || (format == fmtRDFV3));
+	}
+
+	//-------------------------------------------------------------------------
+	// Identifies the connection table version in a MOL or RXN file
+	// Returns: 1=V2000, 2=V3000
+	//-------------------------------------------------------------------------
+	static int IdentifyCTVersion(PCHAR data, size_t dataLength, int lineNum)
+	{
+		int line = 0;
+		for(int index = 0; index < dataLength; index++)
+		{
+			if(data[index] == '\n')
+			{
+				line++;
+
+				// when we are at the end of desired line, check if the last few 
+				// chars corresponds to some version number
+				if(line == lineNum)
+				{
+					// if the LF char is preceded by a CR then we have to shift our compare index
+					int shiftIndex = (data[index - 1] == '\r') ? 6 : 5;
+
+					// compare the last 5/6 characters to get the version number
+					// For V3000 format, the text 'V3000' will always be there. This is not true
+					// for V2000 which could be missing in a RXN file
+					if (_strnicmp(&(data[index - shiftIndex]), "V3000", 5) == 0) return 2;
+					else return 1;	// default to V2000
+				}
+			}
+		}
+
+		return 1;	// v2000
 	}
 };

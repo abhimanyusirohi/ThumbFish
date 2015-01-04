@@ -95,9 +95,9 @@ DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
 	{
 		case 12:
 			{
-				CExtractDlg dlg((PTSTR)params->Data);
+				CExtractDlg dlg((PTSTR)params->Param);
 				dlg.DoModal(NULL);
-				delete[] ((TCHAR*)params->Data);
+				delete[] ((TCHAR*)params->Param);
 			}
 			break;
 
@@ -128,7 +128,7 @@ void CContextMenuHandler::OnAboutThumbFish()
 
 void CContextMenuHandler::OnExtract()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(12, m_Files[0]))
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(12, NULL, m_Files[0]))
 	m_Files.clear();	// clear so that its not freed
 }
 

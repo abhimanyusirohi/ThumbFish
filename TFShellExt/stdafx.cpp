@@ -8,10 +8,7 @@
 HINSTANCE dllHandle;
 HINSTANCE ThisInstance;
 
-DrawFuncType pDrawFunc;
-GetPropertiesFuncType pGetPropsFunc;
-ConvertToFuncType pConvertFunc;
-ExtractFuncType pExtractFunc;
+ExecuteFuncType pExecuteFunc;
 
 // Custom Pantheios FrontEnd implementation to filter messages
 PANTHEIOS_CALL(int) pantheios_fe_init(void* /* reserved */, void** ptoken)

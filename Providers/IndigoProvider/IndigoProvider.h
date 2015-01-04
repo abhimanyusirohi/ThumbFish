@@ -44,19 +44,21 @@ const INT64 FormatPropInfo[18][2] = {
 	{ 0, 0 }	// extMDLCT - no properties
 };
 
-INDIGOPROVIDER_API bool Draw(HDC hDC, RECT rect, LPBUFFER buffer, LPOPTIONS options);
-INDIGOPROVIDER_API int GetProperties(LPBUFFER buffer, TCHAR*** properties, LPOPTIONS options, bool searchNames);
-INDIGOPROVIDER_API LPOUTBUFFER ConvertTo(LPBUFFER buffer, ChemFormat outFormat, LPOPTIONS options);
-INDIGOPROVIDER_API void		Extract(LPEXTRACTPARAMS params, LPOPTIONS options);
+const char VersionString[] = "Indigo Provider v1.11";
 
-// called by installer
+INDIGOPROVIDER_API LPOUTBUFFER Execute(LPCOMMANDPARAMS command, LPOPTIONS options);
+
+// main command methods called by Execute
+bool		Draw(LPCOMMANDPARAMS params, LPOPTIONS options);
+int			GetProperties(LPCOMMANDPARAMS params, LPOPTIONS options, TCHAR*** properties);
+LPOUTBUFFER ConvertTo(LPCOMMANDPARAMS params, LPOPTIONS options);
+void		Extract(LPCOMMANDPARAMS params, LPOPTIONS options);
+
+// called by installer. These should ideally be in the main dll.
 extern "C" __declspec(dllexport) UINT __stdcall RefreshIcons(MSIHANDLE hInstall);
 extern "C" __declspec(dllexport) UINT __stdcall LaunchGettingStarted(MSIHANDLE hInstall);
 
-void AddProperty(TCHAR*** properties, int startIndex, TCHAR* name, TCHAR* value);
-std::string GetData(LPBUFFER buffer);
+// private helper methods
+void SetNameValue(TCHAR* name, TCHAR* value, TCHAR*** arr, int index);
 int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type);
 void SetIndigoOptions(LPOPTIONS options);
-void DrawErrorBitmap(HDC hDC, LPRECT lpRect);
-void DrawMOLVersionIndicator(HDC hDC, bool v2000);
-void DrawRecordCount(HDC hDC, RECT rect, int recordCount);

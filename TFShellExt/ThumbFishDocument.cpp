@@ -15,6 +15,7 @@
 HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 {
 	STATSTG stat;
+	TCHAR file[MAX_PATH];
 
 	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Called"));
 
@@ -24,19 +25,19 @@ HRESULT ThumbFishDocument::LoadFromStream(IStream* pStream, DWORD grfMode)
 	{
 		// initialize BUFFER
 		m_Buffer.DataLength = stat.cbSize.LowPart;
-		if(stat.pwcsName != NULL) _tcscpy_s(m_Buffer.FileName, MAX_PATH, OLE2W(stat.pwcsName));
+		if(stat.pwcsName != NULL) _tcscpy_s(file, MAX_PATH, OLE2W(stat.pwcsName));
 
-		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Name="), m_Buffer.FileName, 
+		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Name="), file, 
 		_T(", Size="), pantheios::integer(m_Buffer.DataLength));
 
-		m_Buffer.DataFormat = CommonUtils::GetFormatFromFileName(m_Buffer.FileName);
+		m_Buffer.DataFormat = CommonUtils::GetFormatFromFileName(file);
 
 		pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> Loading Stream..."));
 
 		// load stream into BUFFER only when it contains data
 		if((m_Buffer.DataLength > 0) && !LoadStream(pStream))
 			pantheios::log_ERROR(_T("ThumbFishDocument::LoadFromStream> Could not load data."),
-				m_Buffer.FileName, _T(", DataLength"), pantheios::integer(m_Buffer.DataLength));
+				file, _T(", DataLength"), pantheios::integer(m_Buffer.DataLength));
 	}
 
 	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadFromStream> HRESULT="), pantheios::integer(hr));
@@ -49,17 +50,22 @@ void ThumbFishDocument::InitializeSearchContent()
 	pantheios::log_NOTICE(_T("ThumbFishDocument::InitializeSearchContent> Called"));
 
 	CString value;
-	if(pGetPropsFunc != NULL)
+	if(pExecuteFunc != NULL)
 	{
 		OPTIONS options;
 		TCHAR** props = NULL;
-		int propCount = pGetPropsFunc(&m_Buffer, &props, &options, true);
+
+		COMMANDPARAMS params(cmdGetProperties, &m_Buffer, (LPVOID)true);
+		std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
+		props = (TCHAR**)outBuffer->pData;
+		int propCount = outBuffer->DataLength;
+		
 		bool m_propsGenerated = ((props != NULL) && (propCount > 0));
 
 		if(m_propsGenerated)
 		{
 			pantheios::log_NOTICE(_T("ThumbFishDocument::InitializeSearchContent> Properties generated="), 
-				pantheios::integer(propCount), _T(", for: "), m_Buffer.FileName);
+				pantheios::integer(propCount));
 
 			// insert property values into list view control
 			for(int i = 0; i < propCount; i++)
@@ -114,14 +120,17 @@ void ThumbFishDocument::OnDrawThumbnail(HDC hDrawDC, LPRECT lprcBounds)
 {
 	pantheios::log_NOTICE(_T("ThumbFishDocument::OnDrawThumbnail> Called"));
 
-	if(pDrawFunc != NULL)
+	if(pExecuteFunc != NULL)
 	{
 		OPTIONS options;
 		options.IsThumbnail = true;
-		if(!pDrawFunc(hDrawDC, *lprcBounds, &m_Buffer, &options))
+
+		DRAWPARAMS drawParams(hDrawDC, *lprcBounds);
+		COMMANDPARAMS params(cmdDraw, &m_Buffer, &drawParams);
+		std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
+		if(!((BOOL)outBuffer->pData))
 		{
-			pantheios::log_NOTICE(_T("ThumbFishDocument::OnDrawThumbnail> Draw returned FALSE. Thumbnail NOT drawn."),
-				_T("File="), m_Buffer.FileName);
+			pantheios::log_NOTICE(_T("ThumbFishDocument::OnDrawThumbnail> Draw returned FALSE. Thumbnail NOT drawn."));
 		}
 	}
 	else
@@ -164,11 +173,12 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 
 			if(FAILED(stream->Read(m_Buffer.pData, (ULONG)m_Buffer.DataLength, (ULONG*)&m_Buffer.DataLength))) return false;
 
-			// set data version (V2000, V3000) info for MOL and RXN files
+			// set the exact connection table version (V2000, V3000) info for MOL and RXN files
+			// the extension (mol, rxn) could not identify the exact CT version inside file
 			if(m_Buffer.DataFormat == fmtMOLV2)
-				m_Buffer.DataFormat = (FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 4) == 1) ? fmtMOLV2 : fmtMOLV3;
+				m_Buffer.DataFormat = (CommonUtils::IdentifyCTVersion((PCHAR)m_Buffer.pData, m_Buffer.DataLength, 4) == 1) ? fmtMOLV2 : fmtMOLV3;
 			else if(m_Buffer.DataFormat == fmtRXNV2)
-				m_Buffer.DataFormat = (FindMolVersion(m_Buffer.pData, m_Buffer.DataLength, 1) == 1) ? fmtRXNV2 : fmtRXNV3;
+				m_Buffer.DataFormat = (CommonUtils::IdentifyCTVersion((PCHAR)m_Buffer.pData, m_Buffer.DataLength, 1) == 1) ? fmtRXNV2 : fmtRXNV3;
 		}
 		else
 		{
@@ -214,14 +224,14 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 				{
 					if(m_Buffer.DataFormat == fmtSDFV2)
 					{
-						m_Buffer.DataFormat = (FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4) == 1) 
-							? fmtSDFV2 : fmtSDFV3;
+						m_Buffer.DataFormat = (CommonUtils::IdentifyCTVersion(largeTempBuffer, 
+							(totalReadBytes - recordsReadBytes), 4) == 1) ? fmtSDFV2 : fmtSDFV3;
 						firstMolVersionChecked = true;
 					}
 					else if((m_Buffer.DataFormat == fmtRDFV2) && (recordCount == 1))	// RDF has start tag unlike SDF ending tag $$$$
 					{
-						m_Buffer.DataFormat = (FindMolVersion(largeTempBuffer, (totalReadBytes - recordsReadBytes), 4) == 1) 
-							? fmtRDFV2 : fmtRDFV3;
+						m_Buffer.DataFormat = (CommonUtils::IdentifyCTVersion(largeTempBuffer, 
+							(totalReadBytes - recordsReadBytes), 4) == 1) ? fmtRDFV2 : fmtRDFV3;
 						firstMolVersionChecked = true;
 					}
 				}
@@ -243,13 +253,13 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	if((m_Buffer.DataFormat == fmtSMILES) && (totalReadBytes > 0)) 
 	{
 		recordCount = 1;
-		recordsReadBytes = m_Buffer.DataLength;
+		recordsReadBytes = (int)m_Buffer.DataLength;
 	}
 
 	if(recordCount > 0)
 	{
 		// approximate the total number of records
-		m_Buffer.Extra = (PVOID)(m_Buffer.DataLength / (recordsReadBytes / recordCount));
+		m_Buffer.recordCount = (m_Buffer.DataLength / (recordsReadBytes / recordCount));
 
 		m_Buffer.pData = new char[recordsReadBytes];
 		m_Buffer.DataLength = recordsReadBytes;
@@ -262,38 +272,10 @@ BOOL ThumbFishDocument::LoadStream(IStream* stream)
 	}
 
 	pantheios::log_NOTICE(_T("ThumbFishDocument::LoadStream> Records Read="), pantheios::integer(recordCount), 
-		_T(", Bytes Read="), pantheios::integer(recordsReadBytes),
-		_T(", Approx Records="), pantheios::integer((int)m_Buffer.Extra));
+		_T(", Bytes Read="), pantheios::integer(recordsReadBytes)/*,
+		_T(", Approx Records="), pantheios::integer((int)m_Buffer.Extra)*/);
 
 	return FALSE;
-}
-
-int ThumbFishDocument::FindMolVersion(char* data, size_t dataLength, int lineNum)
-{
-	int line = 0;
-	for(int index = 0; index < dataLength; index++)
-	{
-		if(data[index] == '\n')
-		{
-			line++;
-
-			// when we are at the end of desired line, check if the last few 
-			// chars corresponds to some version number
-			if(line == lineNum)
-			{
-				// if the LF char is preceded by a CR then we have to shift our compare index
-				int shiftIndex = (data[index - 1] == '\r') ? 6 : 5;
-
-				// compare the last 5/6 characters to get the version number
-				// For V3000 format, the text 'V3000' will always be there. This is not true
-				// for V2000 which could be missing in a RXN file
-				if (_strnicmp(&(data[index - shiftIndex]), "V3000", 5) == 0) return 2;
-				else return 1;	// default to V2000
-			}
-		}
-	}
-
-	return 1;
 }
 
 /// <summary>
