@@ -59,6 +59,7 @@ INDIGOPROVIDER_API LPOUTBUFFER Execute(LPCOMMANDPARAMS params, LPOPTIONS options
 			break;
 	}
 
+	indigoFreeAllObjects();
 	return outBuffer;
 }
 
@@ -517,8 +518,6 @@ LPOUTBUFFER ConvertTo(LPCOMMANDPARAMS params, LPOPTIONS options)
 		}
 	}
 
-	indigoFreeAllObjects();
-
 	// better delete an empty out buffer
 	if(outbuf && (outbuf->DataLength <= 0))
 		DeleteAndNull(outbuf);
@@ -677,7 +676,7 @@ void Extract(LPCOMMANDPARAMS params, LPOPTIONS options)
 //-----------------------------------------------------------------------------
 LPOUTBUFFER Perform(LPCOMMANDPARAMS params, LPOPTIONS options)
 {
-	bool succeeded = false;
+	bool succeeded = true;
 	LPOUTBUFFER outBuffer = new OUTBUFFER;
 	LPBUFFER buffer = params->Buffer;
 	ReturnObjectType retType = SingleMol;
@@ -774,7 +773,6 @@ LPOUTBUFFER Perform(LPCOMMANDPARAMS params, LPOPTIONS options)
 		pantheios::log_WARNING(_T("Perform> ReadBuffer FAILED."));
 	}
 
-	indigoFreeAllObjects();
 	return outBuffer;
 }
 
