@@ -53,6 +53,7 @@ bool		Draw(LPCOMMANDPARAMS params, LPOPTIONS options);
 int			GetProperties(LPCOMMANDPARAMS params, LPOPTIONS options, TCHAR*** properties);
 LPOUTBUFFER ConvertTo(LPCOMMANDPARAMS params, LPOPTIONS options);
 void		Extract(LPCOMMANDPARAMS params, LPOPTIONS options);
+LPOUTBUFFER Perform(LPCOMMANDPARAMS params, LPOPTIONS options);
 
 // called by installer. These should ideally be in the main dll.
 extern "C" __declspec(dllexport) UINT __stdcall RefreshIcons(MSIHANDLE hInstall);

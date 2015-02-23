@@ -67,6 +67,7 @@ protected:
 	void OnThumbFishOnline();
 	void OnAboutThumbFish();
 	void OnExtract();
+	void OnQuickFix();
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(ContextMenuHandler), CContextMenuHandler)

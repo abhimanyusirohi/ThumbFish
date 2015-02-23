@@ -15,7 +15,7 @@
 //-----------------------------------------------------------------------------
 INDIGOPROVIDER_API LPOUTBUFFER Execute(LPCOMMANDPARAMS params, LPOPTIONS options)
 {
-	LPOUTBUFFER outBuffer = new OUTBUFFER();
+	LPOUTBUFFER outBuffer = new OUTBUFFER();	// is always returned
 	Command cmdId = (Command)params->CommandID;
 
 	switch(cmdId)
@@ -46,12 +46,21 @@ INDIGOPROVIDER_API LPOUTBUFFER Execute(LPCOMMANDPARAMS params, LPOPTIONS options
 		case cmdExtract:
 			Extract(params, options);
 			break;
+
+		case cmdAromatize:
+		case cmdDearomatize:
+		case cmdCleanup:
+		case cmdNormalize:
+		case cmdFoldHydrogens:
+		case cmdUnfoldHydrogens:
+		case cmdValidate:
+			DeleteAndNull(outBuffer);
+			outBuffer = Perform(params, options);
+			break;
 	}
 
 	return outBuffer;
 }
-
-#pragma region Command Methods
 
 //-----------------------------------------------------------------------------
 // <Draw>
@@ -151,12 +160,14 @@ bool Draw(LPCOMMANDPARAMS params, LPOPTIONS options)
 			}
 			else
 			{
-				size_t outlen;
+				size_t outlen = 0;
 
+				//TODO: Call Perform for indigoCheckBadValence
 				// return warnings only for previews
 				const char* warning = indigoCheckBadValence(ptr);
 				ALLOC_AND_COPY(warning, options->OutWarning1, &outlen);
 
+				//TODO: Call Perform for indigoCheckAmbiguousH
 				warning = indigoCheckAmbiguousH(ptr);
 				ALLOC_AND_COPY(warning, options->OutWarning2, &outlen);
 			}
@@ -343,7 +354,6 @@ int GetProperties(LPCOMMANDPARAMS params, LPOPTIONS options, TCHAR*** properties
 	return propCount;
 }
 
-
 //-----------------------------------------------------------------------------
 // <ConvertTo>
 // Converts a specified molecule to format specified in outFormat (Param). 
@@ -518,7 +528,7 @@ LPOUTBUFFER ConvertTo(LPCOMMANDPARAMS params, LPOPTIONS options)
 
 //-----------------------------------------------------------------------------
 // <Extract>
-// Extracts molecules from a multimol files.
+// Extracts molecules from a multimol file such as SDF, RDF, CML or SMI.
 //-----------------------------------------------------------------------------
 void Extract(LPCOMMANDPARAMS params, LPOPTIONS options)
 {
@@ -660,7 +670,113 @@ void Extract(LPCOMMANDPARAMS params, LPOPTIONS options)
 	indigoFree(reader);
 }
 
-#pragma endregion
+//-----------------------------------------------------------------------------
+// <Perform>
+// Performs quick fix tasks such as aromatization/dearomatization, fold/unfold
+// hydrogens, cleanup, normalization and validation of a structure.
+//-----------------------------------------------------------------------------
+LPOUTBUFFER Perform(LPCOMMANDPARAMS params, LPOPTIONS options)
+{
+	bool succeeded = false;
+	LPOUTBUFFER outBuffer = new OUTBUFFER;
+	LPBUFFER buffer = params->Buffer;
+	ReturnObjectType retType = SingleMol;
+
+	int mol = ReadBuffer(buffer, &retType);
+	if(mol != -1)
+	{
+		switch(params->CommandID)
+		{
+			case cmdAromatize:
+				succeeded = indigoAromatize(mol);
+				break;
+
+			case cmdDearomatize:
+				succeeded = indigoDearomatize(mol);
+				break;
+
+			case cmdCleanup:
+				succeeded = (indigoLayout(mol) == 0);
+				break;
+
+			case cmdNormalize:
+				succeeded = (indigoNormalize(mol, "") == 1);
+				break;
+
+			case cmdFoldHydrogens:
+				succeeded = (indigoFoldHydrogens(mol) == 1);
+				break;
+
+			case cmdUnfoldHydrogens:
+				succeeded = (indigoUnfoldHydrogens(mol) == 1);
+				break;
+
+			case cmdValidate:
+				{
+					const char* warning1 = indigoCheckBadValence(mol);
+					const char* warning2 = indigoCheckAmbiguousH(mol);
+
+					// warnings can be NULL for some mols such as SMARTS and empty "" 
+					// for valid mols without problems
+					int warningSize = ((warning1 == NULL) ? 0 : strlen(warning1)) 
+						+ ((warning2 == NULL) ? 0 : strlen(warning2)) + 1;
+
+					if(warningSize > 1)
+					{
+						warningSize += 2; // add extra for CRLF
+						outBuffer->pData = new char[warningSize];
+						outBuffer->DataLength = warningSize;
+
+						// join the warnings one after another with aline break
+						int len = sprintf_s((PCHAR)outBuffer->pData, outBuffer->DataLength, "%s\r\n", warning1);
+						sprintf_s((PCHAR)outBuffer->pData + len - 1, outBuffer->DataLength, "%s", warning2);
+					}
+				}
+				break;
+		}
+
+		if(!succeeded)
+		{
+			pantheios::log_WARNING(_T("Perform> FAILED for Command: "), pantheios::integer(params->CommandID));
+		}
+		else if(params->CommandID != cmdValidate) // cmdValidate sets up its own out buffer
+		{
+			int bufHandle = indigoWriteBuffer();
+			if((buffer->DataFormat == fmtMOLV2) || (buffer->DataFormat == fmtMOLV3) || (buffer->DataFormat == fmtSMARTS))
+			{
+				indigoSetOption("molfile-saving-mode", (buffer->DataFormat == fmtMOLV2) ? "2000" : "3000");
+				if(indigoSaveMolfile(mol, bufHandle) < 1) 
+					pantheios::log_WARNING(_T("Perform> indigoSaveMolfile FAILED."));
+			}
+			else if((buffer->DataFormat == fmtRXNV2) || (buffer->DataFormat == fmtRXNV3))
+			{
+				indigoSetOption("molfile-saving-mode", (buffer->DataFormat == fmtMOLV2) ? "2000" : "3000");
+				if(indigoSaveRxnfile(mol, bufHandle) < 1)
+					pantheios::log_WARNING(_T("Perform> indigoSaveRxnfile FAILED."));
+			}
+
+			if(bufHandle != NULL)
+			{
+				// get raw data from buffer and return it to the caller
+				int outSize = 0;
+				char* tempBuffer;
+				if((indigoToBuffer(bufHandle, &tempBuffer, &outSize) > 0) && (outSize > 0))
+				{
+					outBuffer->pData = new char[outSize];
+					memcpy_s(outBuffer->pData, outSize, tempBuffer, outSize);
+					outBuffer->DataLength = outSize;
+				}
+			}
+		}
+	}
+	else
+	{
+		pantheios::log_WARNING(_T("Perform> ReadBuffer FAILED."));
+	}
+
+	indigoFreeAllObjects();
+	return outBuffer;
+}
 
 #pragma region Installer Methods
 

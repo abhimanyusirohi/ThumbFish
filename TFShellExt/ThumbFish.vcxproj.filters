@@ -76,6 +76,12 @@
     <ClCompile Include="ContextMenuHandler.cpp">
       <Filter>Source Files\ContextMenu</Filter>
     </ClCompile>
+    <ClCompile Include="ExtractDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="QuickFixDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -135,6 +141,15 @@
     <ClInclude Include="CommonUtils.h">
       <Filter>Header Files\Shared</Filter>
     </ClInclude>
+    <ClInclude Include="ExtractDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtractParam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="QuickFixDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ThumbFish.rc">
@@ -188,6 +203,15 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="warning.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Extract.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="tick.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="quickfix.bmp">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

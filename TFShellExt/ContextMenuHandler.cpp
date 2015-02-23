@@ -3,6 +3,7 @@
 #include <strsafe.h>
 #include "AboutDlg.h"
 #include "ExtractDlg.h"
+#include "QuickFixDlg.h"
 
 typedef struct
 {
@@ -12,6 +13,7 @@ typedef struct
 
 const HELPTEXT c_HelpStrings[] = 
 {
+	{"Apply quick fixes to a structure such as Aromatize, Cleanup etc", L"Apply quick fixes to a structure such as Aromatize, Cleanup etc"},
 	{"Save selected structure to disk in different formats", L"Save selected structure to disk in different formats"},
 	{"Copy structure in CDXML format", L"Copy structure in CDXML format"},
 	{"Copy structure in CML format", L"Copy structure in CML format"},
@@ -93,7 +95,22 @@ DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
 
 	switch(params->CommandID)
 	{
-		case 12:
+		//TODO: Improve menu ID handling
+		case 0:
+			{
+				ThumbFishDocument doc;
+				PTSTR file = (PTSTR)params->Param;
+
+				if(SUCCEEDED(doc.LoadFromFile(file)))
+				{
+					CQuickFixDlg dlg(&doc.m_Buffer, file);
+					dlg.DoModal(NULL);
+				}
+				delete[] file;
+			}
+			break;
+
+		case 13:
 			{
 				CExtractDlg dlg((PTSTR)params->Param);
 				dlg.DoModal(NULL);
@@ -101,7 +118,7 @@ DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
 			}
 			break;
 
-		case 14:
+		case 15:
 			{
 				AboutDlg dlg;
 				dlg.DoModal(NULL);
@@ -123,13 +140,19 @@ void CContextMenuHandler::OnThumbFishOnline()
 
 void CContextMenuHandler::OnAboutThumbFish()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(14, NULL))
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(15, NULL))
 }
 
 void CContextMenuHandler::OnExtract()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(12, NULL, m_Files[0]))
-	m_Files.clear();	// clear so that its not freed
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(13, NULL, m_Files[0]))
+	m_Files.clear();	// clear so that it is not freed
+}
+
+void CContextMenuHandler::OnQuickFix()
+{
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(0, NULL, m_Files[0]))
+	m_Files.clear();	// clear so that it is not freed
 }
 
 #pragma endregion
@@ -167,8 +190,14 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 	int menuPos = 0;
 	UINT id = idCmdFirst;
 
+	// -- QuickFix
+	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | ((!m_bMultiSelection && !multiMolFile) ? MF_ENABLED : MF_DISABLED), 
+		id++, _T("&QuickFix..."));
+	HBITMAP hbmQF = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_QUICKFIX));
+	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmQF, hbmQF);
+
 	// -- Save Structure
-	InsertMenu(hSubmenu, 0, MF_BYPOSITION | ((!m_bMultiSelection && !multiMolFile) ? MF_ENABLED : MF_DISABLED), 
+	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | ((!m_bMultiSelection && !multiMolFile) ? MF_ENABLED : MF_DISABLED), 
 		id++, _T("&Save Structure..."));
 	HBITMAP hbmSave = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_SAVE));
 	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmSave, hbmSave);
@@ -276,15 +305,20 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
     }
 
 	int commandID = LOWORD(lpcmi->lpVerb);
-	if(commandID == 12)			// Extract Molecules
+
+	if(commandID == 0)
+	{
+		OnQuickFix();
+	}
+	else if(commandID == 13)	// Extract Molecules
 	{
 		OnExtract();
 	}
-	else if(commandID == 13)	// Open ThumbFish Online webpage
+	else if(commandID == 14)	// Open ThumbFish Online webpage
 	{
 		OnThumbFishOnline();
 	}
-	else if(commandID == 14)	// About ThumbFish dialog
+	else if(commandID == 15)	// About ThumbFish dialog
 	{
 		OnAboutThumbFish();
 	}
@@ -292,38 +326,35 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 	{
 		ThumbFishDocument doc;
 		IStream* dataStream = NULL;
-		if(SUCCEEDED(SHCreateStreamOnFileEx(m_Files[0], STGM_READ | STGM_SHARE_DENY_NONE, FILE_ATTRIBUTE_NORMAL, FALSE, NULL, &dataStream)))
+		if(SUCCEEDED(doc.LoadFromFile(m_Files[0])))
 		{
-			if(SUCCEEDED(doc.LoadFromStream(dataStream, STGM_READ | STGM_SHARE_DENY_NONE)) && (doc.m_Buffer.DataLength > 0))
-			{
-				OPTIONS options;
-				ChemFormat format = fmtUnknown;
+			OPTIONS options;
+			ChemFormat format = fmtUnknown;
 
-				switch(commandID)
-				{
-				case 0:	// Save Structure
+			switch(commandID)
+			{
+				case 1:	// Save Structure
 					Utils::DoSaveStructure(NULL, &doc.m_Buffer, &options);
 					break;
-
-				case 1:
-					if(format == fmtUnknown) format = fmtCDXML;
 				case 2:
-					if(format == fmtUnknown) format = fmtCML;
+					if(format == fmtUnknown) format = fmtCDXML;
 				case 3:
-					if(format == fmtUnknown) format = fmtEMF;
+					if(format == fmtUnknown) format = fmtCML;
 				case 4:
-					if(format == fmtUnknown) format = fmtINCHI;
+					if(format == fmtUnknown) format = fmtEMF;
 				case 5:
-					if(format == fmtUnknown) format = fmtINCHIKEY;
+					if(format == fmtUnknown) format = fmtINCHI;
 				case 6:
-					if(format == fmtUnknown) format = fmtMOLV2;
+					if(format == fmtUnknown) format = fmtINCHIKEY;
 				case 7:
-					if(format == fmtUnknown) format = fmtMOLV3;
+					if(format == fmtUnknown) format = fmtMOLV2;
 				case 8:
-					if(format == fmtUnknown) format = fmtRXNV2;
+					if(format == fmtUnknown) format = fmtMOLV3;
 				case 9:
-					if(format == fmtUnknown) format = fmtRXNV3;
+					if(format == fmtUnknown) format = fmtRXNV2;
 				case 10:
+					if(format == fmtUnknown) format = fmtRXNV3;
+				case 11:
 					if(format == fmtUnknown) format = fmtSMILES;
 
 					if(format != fmtUnknown)
@@ -339,13 +370,7 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 
 				default:
 					return E_FAIL;
-				}
 			}
-		}
-		else
-		{
-			pantheios::log_ERROR(_T("CContextMenuHandler::InvokeCommand> SHCreateStreamOnFileEx() method FAILED. File= "),
-				m_Files[0]);
 		}
 	}
 

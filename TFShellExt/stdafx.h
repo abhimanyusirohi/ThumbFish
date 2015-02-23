@@ -48,6 +48,9 @@
 #include <ShlObj.h>
 #include "Utils.h"
 
+#define ONE_KB	1024
+#define FOUR_KB	4*ONE_KB
+
 extern HINSTANCE dllHandle;
 extern HINSTANCE ThisInstance;
 

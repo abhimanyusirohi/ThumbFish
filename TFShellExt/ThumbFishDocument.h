@@ -22,6 +22,7 @@ public:
 	virtual void InitializeSearchContent();
 
 	BOOL LoadStream(IStream* stream);
+	HRESULT LoadFromFile(TCHAR* file);
 
 protected:
 	void SetSearchContent(CString& value);

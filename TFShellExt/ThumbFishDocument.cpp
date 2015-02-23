@@ -327,3 +327,25 @@ BOOL ThumbFishDocument::GetThumbnail(_In_ UINT cx, _Out_ HBITMAP* phbmp, _In_opt
     ReleaseDC(NULL, hdc);
     return br;
 }
+
+/// <summary>
+/// Loads the specified file into BUFFER object by first creating an IStream on the 
+/// file then reading data from it.
+/// </summary>
+HRESULT ThumbFishDocument::LoadFromFile(TCHAR* file)
+{
+	HRESULT retVal = S_FALSE;
+	IStream* dataStream = NULL;
+
+	// create a stream from file and load it in specified ThumbFishDocument object
+	if(SUCCEEDED(SHCreateStreamOnFileEx(file, STGM_READ | STGM_SHARE_DENY_NONE, FILE_ATTRIBUTE_NORMAL, FALSE, NULL, &dataStream)))
+		if(SUCCEEDED(LoadFromStream(dataStream, STGM_READ | STGM_SHARE_DENY_NONE)) && (m_Buffer.DataLength > 0))
+			retVal = S_OK;
+		else
+			pantheios::log_ERROR(_T("CContextMenuHandler::LoadDocFromFile> LoadFromStream() method FAILED. File= "), file);
+	else
+		pantheios::log_ERROR(_T("CContextMenuHandler::LoadDocFromFile> SHCreateStreamOnFileEx() method FAILED. File= "), file);
+
+	if(dataStream != NULL) dataStream->Release();
+	return retVal;
+}

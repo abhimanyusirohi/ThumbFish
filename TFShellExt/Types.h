@@ -13,7 +13,8 @@
 						pDest[len - 1] = NULL;					\
 						strcpy_s(pDest, len, src);				\
 						dest = pDest;							\
-					} if(outlen) *outlen = len; }
+						if(outlen) *outlen = len;				\
+					}}
 
 #define DeleteAndNull(x) { delete x; x = NULL; }
 
@@ -62,6 +63,6 @@ typedef struct DrawParams
 } DRAWPARAMS, *LPDRAWPARAMS;
 
 // API
-const enum Command { cmdVersion, cmdDraw, cmdGetProperties, cmdConvert, cmdExtract, cmdAromatize, 
-	cmdDearomatize, cmdCleanup, cmdValidate, cmdNormalize, cmdFoldHydrogens, cmdUnfoldHydrogens, cmdGetWarnings };
+const enum Command { cmdVersion, cmdDraw, cmdGetProperties, cmdConvert, cmdExtract, cmdAromatize, cmdDearomatize, 
+					 cmdCleanup, cmdValidate, cmdNormalize, cmdFoldHydrogens, cmdUnfoldHydrogens };
 typedef YOURS LPOUTBUFFER (__cdecl *ExecuteFuncType)(LPCOMMANDPARAMS command, LPOPTIONS options);

@@ -277,6 +277,7 @@
     </ClCompile>
     <ClCompile Include="ExtractDlg.cpp" />
     <ClCompile Include="PreviewCtrl.cpp" />
+    <ClCompile Include="QuickFixDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -330,6 +331,7 @@
     <ClInclude Include="PreviewHandler.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="QuickFixDlg.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -355,6 +357,7 @@
     <None Include="FishG.bmp" />
     <None Include="Help.bmp" />
     <None Include="PreviewHandler.rgs" />
+    <None Include="quickfix.bmp" />
     <None Include="ResTempl.rct" />
     <None Include="Save.bmp" />
     <None Include="thumbfish.bmp" />
