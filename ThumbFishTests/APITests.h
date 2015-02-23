@@ -96,6 +96,72 @@ public:
 	}
 };
 
+TEST_F(APITests, CheckQuickOperationsWithMOLV2)
+{
+	OPTIONS options;
+
+	BUFFER buffer(false);
+	buffer.pData = const_cast<PCHAR>(MOLV2_Benzene);
+	buffer.DataFormat = fmtMOLV2;
+	buffer.DataLength = strlen((PCHAR)buffer.pData) + 1;
+	
+	ASSERT_TRUE(pExecuteFunc != NULL);
+
+	// -- Aromatize and Dearomatize ------------------------------------------------------------
+	COMMANDPARAMS params(cmdAromatize, &buffer, NULL);
+	std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
+	ASSERT_TRUE(outBuffer->DataLength > 0);
+	
+	buffer.pData = outBuffer->pData;	// dearomatize will work on a aromatized molecule
+	buffer.DataLength = outBuffer->DataLength;
+	params.CommandID = cmdDearomatize;
+	outBuffer.reset(pExecuteFunc(&params, &options));
+	ASSERT_TRUE(outBuffer->DataLength > 0);
+	// -----------------------------------------------------------------------------------------
+
+	// Reset Buffer for next operation
+	buffer.pData = const_cast<PCHAR>(MOLV2_Benzene);
+	buffer.DataLength = strlen((PCHAR)buffer.pData) + 1;
+
+	// -- Cleanup ------------------------------------------
+	params.CommandID = cmdCleanup;
+	outBuffer.reset(pExecuteFunc(&params, &options));
+	ASSERT_TRUE(outBuffer->DataLength > 0);
+	// -----------------------------------------------------
+
+	// -- Normalize ----------------------------------------
+	params.CommandID = cmdNormalize;
+	outBuffer.reset(pExecuteFunc(&params, &options));
+	ASSERT_TRUE(outBuffer->DataLength == 0);	// fails on a normal molecule
+	// -----------------------------------------------------
+
+	// -- Fold/Unfold Hydrogens ----------------------------------------------------------------
+	params.CommandID = cmdUnfoldHydrogens;
+	outBuffer.reset(pExecuteFunc(&params, &options));
+	ASSERT_TRUE(outBuffer->DataLength > 0);
+
+	buffer.pData = outBuffer->pData;	// fold will work on a unfolded structure
+	buffer.DataLength = outBuffer->DataLength;
+	params.CommandID = cmdFoldHydrogens;
+	outBuffer.reset(pExecuteFunc(&params, &options));
+	ASSERT_TRUE(outBuffer->DataLength > 0);
+	// -----------------------------------------------------------------------------------------
+
+	// -- Validate (aka) Get Validation Warnings -------------------------
+	params.CommandID = cmdValidate;
+	outBuffer.reset(pExecuteFunc(&params, &options));
+	ASSERT_TRUE(outBuffer->DataLength == 0);
+
+	// FOR SOME REASON, the following code throws an exception while freeing memory in IndigoFreeAllObjects
+	//// we should get warnings for ketcher molecule
+	//buffer.pData = const_cast<PCHAR>(MOLV2_Ketcher);
+	//buffer.DataLength = strlen((PCHAR)buffer.pData) + 1;
+	//params.CommandID = cmdValidate;
+	//outBuffer.reset(pExecuteFunc(&params, &options));
+	//ASSERT_TRUE(outBuffer->DataLength > 0);
+	//// -------------------------------------------------------------------
+}
+
 TEST_F(APITests, CheckGetProperties)
 {
 	BUFFER buffer(false);
@@ -139,7 +205,7 @@ TEST_F(APITests, CheckGetProperties)
 	}
 }
 
-//TODO: Makr Draw API fully testable
+//TODO: Make Draw API fully testable
 //TEST_F(APITests, CheckDraw)
 //{
 //	BUFFER buffer;

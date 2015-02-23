@@ -48,11 +48,12 @@ struct VERIFYDATA
 	const char data[1024];
 };
 
-extern INPUT_MOLECULES InputMols[12];
-extern VERIFYDATA VerifyData[12];
+extern INPUT_MOLECULES InputMols[13];
+extern VERIFYDATA VerifyData[13];
 
 static const char* MOLV2_Benzene = InputMols[0].mol;
 static const char* MOLV2_Glucose = InputMols[1].mol;
 static const char* MOLV3_NoNose = InputMols[2].mol;
 static const char* RXNV2_Diels = InputMols[3].mol;
 static const char* RXNV3_Amide = InputMols[4].mol;
+static const char* MOLV2_Ketcher = InputMols[12].mol;
