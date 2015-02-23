@@ -2,9 +2,6 @@
 #include "PreviewCtrl.h"
 #include "AboutDlg.h"
 
-#define ONE_KB	1024
-#define FOUR_KB	4*ONE_KB
-
 CPreviewCtrl::CPreviewCtrl() : m_previewDrawn(false), m_propsGenerated(false), 
 	m_ttipWarning(NULL), m_staticWarning(NULL)
 {
@@ -284,7 +281,7 @@ void CPreviewCtrl::SetChemicalWarnings(LPOPTIONS options)
 	// corresponds to AmbiguousH warning
 	if(options->OutWarning2)
 	{
-		swprintf(largeText, ONE_KB, _T("%s\r\nWarning: %hs"), options->OutWarning2);
+		swprintf(largeText, ONE_KB, _T("%hs\r\nWarning: %hs"), options->OutWarning1, options->OutWarning2);
 		hasWarnings = true;
 	}
 

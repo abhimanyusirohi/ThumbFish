@@ -220,13 +220,13 @@ void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 				{
 					::MessageBox(parentWnd, _T("Unable to write data to the file"), _T("File Write Error"), MB_OK | MB_ICONERROR);
 				}
+
+				CloseHandle(hFile);
 			}
 			else
 			{
 				::MessageBox(parentWnd, _T("Unable to create file"), _T("File Write Error"), MB_OK | MB_ICONERROR);
 			}
-
-			CloseHandle(hFile);
 		}
 		else
 		{
