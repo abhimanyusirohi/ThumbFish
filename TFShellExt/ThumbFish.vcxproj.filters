@@ -82,6 +82,9 @@
     <ClCompile Include="QuickFixDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GenerateDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -150,6 +153,9 @@
     <ClInclude Include="QuickFixDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GenerateDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ThumbFish.rc">
@@ -212,6 +218,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="quickfix.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="generate.bmp">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

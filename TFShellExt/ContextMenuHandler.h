@@ -21,7 +21,7 @@ public:
 	~CContextMenuHandler()
 	{
 		// delete the file name strings stored in vector
-		for(std::vector<TCHAR*>::iterator iter = m_Files.begin(); iter != m_Files.end(); iter++)
+		for(std::vector<TCHAR*>::iterator iter = m_Items.begin(); iter != m_Items.end(); iter++)
 			delete[] *iter;
 	}
 
@@ -57,8 +57,7 @@ public:
 
 protected:
 
-	bool m_bMultiSelection;			// specifies if multiple files are selected
-	std::vector<TCHAR*> m_Files;	// keeps a list of file to work on
+	std::vector<TCHAR*> m_Items;	// keeps a list of items to work on
 
 	static DWORD WINAPI ThreadProc(LPVOID lpParameter);
 
@@ -68,6 +67,7 @@ protected:
 	void OnAboutThumbFish();
 	void OnExtract();
 	void OnQuickFix();
+	void OnGenerate();
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(ContextMenuHandler), CContextMenuHandler)

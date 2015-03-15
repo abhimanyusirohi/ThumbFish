@@ -4,6 +4,7 @@
 #include "AboutDlg.h"
 #include "ExtractDlg.h"
 #include "QuickFixDlg.h"
+#include "GenerateDlg.h"
 
 typedef struct
 {
@@ -14,6 +15,7 @@ typedef struct
 const HELPTEXT c_HelpStrings[] = 
 {
 	{"Apply quick fixes to a structure such as Aromatize, Cleanup etc", L"Apply quick fixes to a structure such as Aromatize, Cleanup etc"},
+	{"Generate new molecule from SMILES, InChI string", L"Generate new molecule from SMILES, InChI string"},
 	{"Save selected structure to disk in different formats", L"Save selected structure to disk in different formats"},
 	{"Copy structure in CDXML format", L"Copy structure in CDXML format"},
 	{"Copy structure in CML format", L"Copy structure in CML format"},
@@ -43,7 +45,7 @@ IFACEMETHODIMP CContextMenuHandler::Initialize(
     LPCITEMIDLIST pidlFolder, LPDATAOBJECT pDataObj, HKEY hProgID)
 {
     HRESULT hr = E_INVALIDARG;
-    if (NULL == pDataObj) return hr;
+    if (NULL == pDataObj) return S_OK;	// when right-clicked inside a folder (not on any item)
 
     FORMATETC fe = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
     STGMEDIUM stm;
@@ -65,7 +67,7 @@ IFACEMETHODIMP CContextMenuHandler::Initialize(
                 {
 					TCHAR* szFileName = new TCHAR[MAX_PATH];
                     if (DragQueryFile(hDrop, i, szFileName, MAX_PATH) != 0)
-						m_Files.push_back(szFileName);
+						m_Items.push_back(szFileName);
                 }
 
                 hr = S_OK;
@@ -76,8 +78,6 @@ IFACEMETHODIMP CContextMenuHandler::Initialize(
 
         ReleaseStgMedium(&stm);
     }
-
-	m_bMultiSelection = (m_Files.size() > 1);
 
     // If any value other than S_OK is returned from the method, the context 
     // menu is not displayed.
@@ -110,7 +110,14 @@ DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
 			}
 			break;
 
-		case 13:
+		case 1:
+			{
+				CGenerateDlg dlg;
+				dlg.DoModal(NULL);
+			}
+			break;
+
+		case 14:
 			{
 				CExtractDlg dlg((PTSTR)params->Param);
 				dlg.DoModal(NULL);
@@ -118,7 +125,7 @@ DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
 			}
 			break;
 
-		case 15:
+		case 16:
 			{
 				AboutDlg dlg;
 				dlg.DoModal(NULL);
@@ -140,19 +147,24 @@ void CContextMenuHandler::OnThumbFishOnline()
 
 void CContextMenuHandler::OnAboutThumbFish()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(15, NULL))
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(16, NULL))
 }
 
 void CContextMenuHandler::OnExtract()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(13, NULL, m_Files[0]))
-	m_Files.clear();	// clear so that it is not freed
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(14, NULL, m_Items[0]))
+	m_Items.clear();	// clear so that it is not freed
 }
 
 void CContextMenuHandler::OnQuickFix()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(0, NULL, m_Files[0]))
-	m_Files.clear();	// clear so that it is not freed
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(0, NULL, m_Items[0]))
+	m_Items.clear();	// clear so that it is not freed
+}
+
+void CContextMenuHandler::OnGenerate()
+{
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(1, NULL, NULL))
 }
 
 #pragma endregion
@@ -171,17 +183,26 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
         return MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(0));
     }
 
+	bool isFolder = false;
 	bool multiMolFile = false;
+	bool multipleFiles = (m_Items.size() > 1);		// multiple files selected and right-clicked
+	bool emptyAreaClicked = (m_Items.size() == 0);	// right-clicked empty area inside folder, no items selected
 	ChemFormat format = fmtUnknown;
-	if(m_Files.size() == 1)
+
+	if(!multipleFiles && !emptyAreaClicked)	// one file or folder right-clicked
 	{
-		format = CommonUtils::GetFormatFromFileName(m_Files[0]);
+		isFolder = PathIsDirectory(m_Items[0]);
+		if(!isFolder)
+		{
+			// one file right-clicked, identify file format
+			format = CommonUtils::GetFormatFromFileName(m_Items[0]);
 
-		// a single file must be of readable format that we can process
-		if(!CommonUtils::IsReadableFormat(format))
-			return MAKE_HRESULT(SEVERITY_ERROR, FACILITY_NULL, 0);
+			// a single file must be of readable format that we can process
+			if(!CommonUtils::IsReadableFormat(format))
+				return MAKE_HRESULT(SEVERITY_ERROR, FACILITY_NULL, 0);
 
-		multiMolFile = Utils::IsMultiMolFile(m_Files[0]);
+			multiMolFile = Utils::IsMultiMolFile(m_Items[0]);
+		}
 	}
 
 	// First, create and populate a submenu.
@@ -189,15 +210,22 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 
 	int menuPos = 0;
 	UINT id = idCmdFirst;
+	bool isOneSingleFile = !multipleFiles && !multiMolFile && !isFolder && !emptyAreaClicked;
 
 	// -- QuickFix
-	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | ((!m_bMultiSelection && !multiMolFile) ? MF_ENABLED : MF_DISABLED), 
+	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (isOneSingleFile ? MF_ENABLED : MF_DISABLED), 
 		id++, _T("&QuickFix..."));
 	HBITMAP hbmQF = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_QUICKFIX));
 	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmQF, hbmQF);
 
+	// -- Generate
+	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (emptyAreaClicked ? MF_ENABLED : MF_DISABLED), 
+		id++, _T("&Generate..."));
+	hbmQF = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_GENERATE));
+	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmQF, hbmQF);
+
 	// -- Save Structure
-	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | ((!m_bMultiSelection && !multiMolFile) ? MF_ENABLED : MF_DISABLED), 
+	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (isOneSingleFile ? MF_ENABLED : MF_DISABLED), 
 		id++, _T("&Save Structure..."));
 	HBITMAP hbmSave = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_SAVE));
 	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmSave, hbmSave);
@@ -213,13 +241,13 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
     miiCopyAs.hSubMenu = hCopyAsMenu;
     miiCopyAs.dwTypeData = _T("&Copy Structure As");
 	miiCopyAs.hbmpItem = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_COPY));
-	miiCopyAs.fState = (!m_bMultiSelection && !multiMolFile) ? MFS_ENABLED : MFS_DISABLED;
+	miiCopyAs.fState = isOneSingleFile ? MFS_ENABLED : MFS_DISABLED;
     InsertMenuItem (hSubmenu, menuPos++, TRUE, &miiCopyAs);
 
 	#pragma endregion
 
 	// Extract Molecules - only enabled when a SINGLE MULTIMOL file is selected
-	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | ((!m_bMultiSelection && multiMolFile) ? MF_ENABLED : MF_DISABLED), id++, _T("&Extract Molecules..."));
+	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (isOneSingleFile ? MF_ENABLED : MF_DISABLED), id++, _T("&Extract Molecules..."));
 	HBITMAP hbmExtract = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_EXTRACT));
 	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmExtract, hbmExtract);
 
@@ -310,15 +338,19 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 	{
 		OnQuickFix();
 	}
-	else if(commandID == 13)	// Extract Molecules
+	else if(commandID == 1)
+	{
+		OnGenerate();
+	}
+	else if(commandID == 14)	// Extract Molecules
 	{
 		OnExtract();
 	}
-	else if(commandID == 14)	// Open ThumbFish Online webpage
+	else if(commandID == 15)	// Open ThumbFish Online webpage
 	{
 		OnThumbFishOnline();
 	}
-	else if(commandID == 15)	// About ThumbFish dialog
+	else if(commandID == 16)	// About ThumbFish dialog
 	{
 		OnAboutThumbFish();
 	}
@@ -326,35 +358,35 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 	{
 		ThumbFishDocument doc;
 		IStream* dataStream = NULL;
-		if(SUCCEEDED(doc.LoadFromFile(m_Files[0])))
+		if(SUCCEEDED(doc.LoadFromFile(m_Items[0])))
 		{
 			OPTIONS options;
 			ChemFormat format = fmtUnknown;
 
 			switch(commandID)
 			{
-				case 1:	// Save Structure
+				case 2:	// Save Structure
 					Utils::DoSaveStructure(NULL, &doc.m_Buffer, &options);
 					break;
-				case 2:
-					if(format == fmtUnknown) format = fmtCDXML;
 				case 3:
-					if(format == fmtUnknown) format = fmtCML;
+					if(format == fmtUnknown) format = fmtCDXML;
 				case 4:
-					if(format == fmtUnknown) format = fmtEMF;
+					if(format == fmtUnknown) format = fmtCML;
 				case 5:
-					if(format == fmtUnknown) format = fmtINCHI;
+					if(format == fmtUnknown) format = fmtEMF;
 				case 6:
-					if(format == fmtUnknown) format = fmtINCHIKEY;
+					if(format == fmtUnknown) format = fmtINCHI;
 				case 7:
-					if(format == fmtUnknown) format = fmtMOLV2;
+					if(format == fmtUnknown) format = fmtINCHIKEY;
 				case 8:
-					if(format == fmtUnknown) format = fmtMOLV3;
+					if(format == fmtUnknown) format = fmtMOLV2;
 				case 9:
-					if(format == fmtUnknown) format = fmtRXNV2;
+					if(format == fmtUnknown) format = fmtMOLV3;
 				case 10:
-					if(format == fmtUnknown) format = fmtRXNV3;
+					if(format == fmtUnknown) format = fmtRXNV2;
 				case 11:
+					if(format == fmtUnknown) format = fmtRXNV3;
+				case 12:
 					if(format == fmtUnknown) format = fmtSMILES;
 
 					if(format != fmtUnknown)

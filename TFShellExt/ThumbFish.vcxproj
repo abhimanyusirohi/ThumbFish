@@ -276,6 +276,7 @@
       </PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ExtractDlg.cpp" />
+    <ClCompile Include="GenerateDlg.cpp" />
     <ClCompile Include="PreviewCtrl.cpp" />
     <ClCompile Include="QuickFixDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -326,6 +327,7 @@
     <ClInclude Include="ExtractDlg.h" />
     <ClInclude Include="ExtractParam.h" />
     <ClInclude Include="FilterHandler.h" />
+    <ClInclude Include="GenerateDlg.h" />
     <ClInclude Include="Options.h" />
     <ClInclude Include="PreviewCtrl.h" />
     <ClInclude Include="PreviewHandler.h">
@@ -355,6 +357,7 @@
     <None Include="Extract.bmp" />
     <None Include="FilterHandler.rgs" />
     <None Include="FishG.bmp" />
+    <None Include="generate.bmp" />
     <None Include="Help.bmp" />
     <None Include="PreviewHandler.rgs" />
     <None Include="quickfix.bmp" />

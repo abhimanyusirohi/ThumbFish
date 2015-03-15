@@ -103,48 +103,59 @@ bool Draw(LPCOMMANDPARAMS params, LPOPTIONS options)
 			}
 			else
 			{
-				int mol = 0, index = 0;
-				int collection = indigoCreateArray();
-
-				while((mol = indigoNext(ptr)) > 0)
+				// if there is only one molecule in the multimol file then treat it as single
+				// molecule file otherwise a single molecule will be drawn in a grid, aligned left
+				if(buffer->recordCount == 1)
 				{
-					bool isValid = false;
-
-					// check if mol/reaction is valid
-					if(isRDF) isValid = (indigoCountReactants(mol) > 0);
-					else isValid = (indigoCountAtoms(mol) > 0);
-
-					if(isValid)
-					{
-						index++;	// number of valid molecules in collection
-
-						indigoArrayAdd(collection, mol);
-						indigoFree(mol);
-
-						// limit number of mol/reactions displayed depending on the file type
-						if(isRDF && (index >= options->GridMaxReactions)) break;
-						if((isSDF || (buffer->DataFormat == fmtCML)) && (index >= options->GridMaxMols)) break;
-					}
-				}
-
-				if(index > 0)
-				{
-					indigoSetOptionInt("render-grid-title-font-size", 14);
-					indigoSetOption("render-grid-title-property", "NAME");	// will display the 'name' property for mol, if it exists
-
-					indigoSetOptionXY("render-grid-margins", 5, 5);
-					//indigoSetOptionXY("render-image-size", rect.right - rect.left + 10, rect.bottom - rect.top + 10);
-
-					indigoRenderGrid(collection, NULL, isRDF ? 1 : 2, dc);
+					int mol = indigoNext(ptr);
+					if(mol > 0)
+						renderErr = indigoRender(mol, dc);
 				}
 				else
 				{
-					// draw error bitmap (could be a different one for collection files)
-					Utils::DrawErrorBitmap(drawParams->hDC, &drawParams->targetRect);
-					return false;
-				}
+					int mol = 0, index = 0;
+					int collection = indigoCreateArray();
 
-				indigoFree(collection);
+					while((mol = indigoNext(ptr)) > 0)
+					{
+						bool isValid = false;
+
+						// check if mol/reaction is valid
+						if(isRDF) isValid = (indigoCountReactants(mol) > 0);
+						else isValid = (indigoCountAtoms(mol) > 0);
+
+						if(isValid)
+						{
+							index++;	// number of valid molecules in collection
+
+							indigoArrayAdd(collection, mol);
+							indigoFree(mol);
+
+							// limit number of mol/reactions displayed depending on the file type
+							if(isRDF && (index >= options->GridMaxReactions)) break;
+							if((isSDF || (buffer->DataFormat == fmtCML)) && (index >= options->GridMaxMols)) break;
+						}
+					}
+
+					if(index > 0)
+					{
+						indigoSetOptionInt("render-grid-title-font-size", 14);
+						indigoSetOption("render-grid-title-property", "NAME");	// will display the 'name' property for mol, if it exists
+
+						indigoSetOptionXY("render-grid-margins", 5, 5);
+						//indigoSetOptionXY("render-image-size", rect.right - rect.left + 10, rect.bottom - rect.top + 10);
+
+						indigoRenderGrid(collection, NULL, isRDF ? 1 : 2, dc);
+					}
+					else
+					{
+						// draw error bitmap (could be a different one for collection files)
+						Utils::DrawErrorBitmap(drawParams->hDC, &drawParams->targetRect);
+						return false;
+					}
+
+					indigoFree(collection);
+				}
 			}
 
 			if(options->IsThumbnail)
@@ -834,6 +845,8 @@ int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type)
 		return indigoLoadReactionFromBuffer(data, (int)buffer->DataLength);
 	else if(format == fmtSMARTS)
 		return indigoLoadSmartsFromBuffer(data, (int)buffer->DataLength);
+	else if(format == fmtINCHI)
+		return indigoInchiLoadMolecule(data);
 	else if(isSDF || isRDF || (format == fmtCML) || (format == fmtSMILES))
 	{
 		*type = MultiMol;

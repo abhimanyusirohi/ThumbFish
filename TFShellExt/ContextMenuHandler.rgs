@@ -10,13 +10,26 @@ HKCR
 			}
 		}
 	}
-	NoRemove *
+	NoRemove AllFileSystemObjects
 	{
 		NoRemove shellex
 		{
 			NoRemove ContextMenuHandlers
 			{
-				{D2DE2A6B-8D18-4B08-BD80-64B207964A53}
+				ForceRemove {D2DE2A6B-8D18-4B08-BD80-64B207964A53}
+			}
+		}
+	}
+	NoRemove Directory
+	{
+		NoRemove Background
+		{
+			NoRemove shellex
+			{
+				NoRemove ContextMenuHandlers
+				{
+					ForceRemove {D2DE2A6B-8D18-4B08-BD80-64B207964A53}
+				}
 			}
 		}
 	}
