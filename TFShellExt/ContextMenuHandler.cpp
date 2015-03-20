@@ -12,6 +12,14 @@ typedef struct
 	wchar_t* helpTextW;
 } HELPTEXT;
 
+// When adding new commands to the following enum, make sure to add corresponding 
+// help text in c_HelpStrings at correct index position. The order of commands here
+// should exactly match the order in which the commands are inserted in shell menu.
+// See menuPos variable inside QueryContextMenu()
+enum CtxCommands { IDM_QUICKFIX, IDM_GENERATE, IDM_SAVE, IDM_COPY_CDXML, IDM_COPY_CML, IDM_COPY_EMF, IDM_COPY_INCHI, 
+	IDM_COPY_INCHIKEY, IDM_COPY_MOLV2000, IDM_COPY_MOLV3000, IDM_COPY_RXNV2000, IDM_COPY_RXNV3000, IDM_COPY_SMILES,
+	IDM_COPY, IDM_EXTRACT, IDM_ONLINEHELP, IDM_ABOUT };
+
 const HELPTEXT c_HelpStrings[] = 
 {
 	{"Apply quick fixes to a structure such as Aromatize, Cleanup etc", L"Apply quick fixes to a structure such as Aromatize, Cleanup etc"},
@@ -95,8 +103,7 @@ DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
 
 	switch(params->CommandID)
 	{
-		//TODO: Improve menu ID handling
-		case 0:
+		case CtxCommands::IDM_QUICKFIX:
 			{
 				ThumbFishDocument doc;
 				PTSTR file = (PTSTR)params->Param;
@@ -110,14 +117,14 @@ DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
 			}
 			break;
 
-		case 1:
+		case CtxCommands::IDM_GENERATE:
 			{
 				CGenerateDlg dlg;
 				dlg.DoModal(NULL);
 			}
 			break;
 
-		case 14:
+		case CtxCommands::IDM_EXTRACT:
 			{
 				CExtractDlg dlg((PTSTR)params->Param);
 				dlg.DoModal(NULL);
@@ -125,7 +132,7 @@ DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
 			}
 			break;
 
-		case 16:
+		case CtxCommands::IDM_ABOUT:
 			{
 				AboutDlg dlg;
 				dlg.DoModal(NULL);
@@ -147,24 +154,24 @@ void CContextMenuHandler::OnThumbFishOnline()
 
 void CContextMenuHandler::OnAboutThumbFish()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(16, NULL))
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(CtxCommands::IDM_ABOUT, NULL))
 }
 
 void CContextMenuHandler::OnExtract()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(14, NULL, m_Items[0]))
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(CtxCommands::IDM_EXTRACT, NULL, m_Items[0]))
 	m_Items.clear();	// clear so that it is not freed
 }
 
 void CContextMenuHandler::OnQuickFix()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(0, NULL, m_Items[0]))
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(CtxCommands::IDM_QUICKFIX, NULL, m_Items[0]))
 	m_Items.clear();	// clear so that it is not freed
 }
 
 void CContextMenuHandler::OnGenerate()
 {
-	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(1, NULL, NULL))
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(CtxCommands::IDM_GENERATE, NULL, NULL))
 }
 
 #pragma endregion
@@ -332,78 +339,78 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
         }
     }
 
+	// this commandID is actually the order index of command added to shell context-menu
+	// it is NOT the command id that was assigned to the menu in InsertMenu
 	int commandID = LOWORD(lpcmi->lpVerb);
+	
+	OPTIONS options;
+	ThumbFishDocument doc;
+	IStream* dataStream = NULL;
+	ChemFormat format = fmtUnknown;
+	switch(commandID)
+	{
+		case CtxCommands::IDM_QUICKFIX:
+			OnQuickFix();
+			break;
 
-	if(commandID == 0)
-	{
-		OnQuickFix();
-	}
-	else if(commandID == 1)
-	{
-		OnGenerate();
-	}
-	else if(commandID == 14)	// Extract Molecules
-	{
-		OnExtract();
-	}
-	else if(commandID == 15)	// Open ThumbFish Online webpage
-	{
-		OnThumbFishOnline();
-	}
-	else if(commandID == 16)	// About ThumbFish dialog
-	{
-		OnAboutThumbFish();
-	}
-	else
-	{
-		ThumbFishDocument doc;
-		IStream* dataStream = NULL;
-		if(SUCCEEDED(doc.LoadFromFile(m_Items[0])))
-		{
-			OPTIONS options;
-			ChemFormat format = fmtUnknown;
+		case CtxCommands::IDM_GENERATE:
+			OnGenerate();
+			break;
 
-			switch(commandID)
+		case CtxCommands::IDM_EXTRACT:
+			OnExtract();
+			break;
+
+		case CtxCommands::IDM_ONLINEHELP:
+			OnThumbFishOnline();
+			break;
+
+		case CtxCommands::IDM_ABOUT:
+			OnAboutThumbFish();
+			break;
+
+		case CtxCommands::IDM_SAVE:
+			if(SUCCEEDED(doc.LoadFromFile(m_Items[0])))
+				Utils::DoSaveStructure(NULL, &doc.m_Buffer, &options);
+			break;
+
+		case CtxCommands::IDM_COPY_CDXML:
+			if(format == fmtUnknown) format = fmtCDXML;
+		case CtxCommands::IDM_COPY_CML:
+			if(format == fmtUnknown) format = fmtCML;
+		case CtxCommands::IDM_COPY_EMF:
+			if(format == fmtUnknown) format = fmtEMF;
+		case CtxCommands::IDM_COPY_INCHI:
+			if(format == fmtUnknown) format = fmtINCHI;
+		case CtxCommands::IDM_COPY_INCHIKEY:
+			if(format == fmtUnknown) format = fmtINCHIKEY;
+		case CtxCommands::IDM_COPY_MOLV2000:
+			if(format == fmtUnknown) format = fmtMOLV2;
+		case CtxCommands::IDM_COPY_MOLV3000:
+			if(format == fmtUnknown) format = fmtMOLV3;
+		case CtxCommands::IDM_COPY_RXNV2000:
+			if(format == fmtUnknown) format = fmtRXNV2;
+		case CtxCommands::IDM_COPY_RXNV3000:
+			if(format == fmtUnknown) format = fmtRXNV3;
+		case CtxCommands::IDM_COPY_SMILES:
+			if(format == fmtUnknown) format = fmtSMILES;
+
+			if(SUCCEEDED(doc.LoadFromFile(m_Items[0])))
 			{
-				case 2:	// Save Structure
-					Utils::DoSaveStructure(NULL, &doc.m_Buffer, &options);
-					break;
-				case 3:
-					if(format == fmtUnknown) format = fmtCDXML;
-				case 4:
-					if(format == fmtUnknown) format = fmtCML;
-				case 5:
-					if(format == fmtUnknown) format = fmtEMF;
-				case 6:
-					if(format == fmtUnknown) format = fmtINCHI;
-				case 7:
-					if(format == fmtUnknown) format = fmtINCHIKEY;
-				case 8:
-					if(format == fmtUnknown) format = fmtMOLV2;
-				case 9:
-					if(format == fmtUnknown) format = fmtMOLV3;
-				case 10:
-					if(format == fmtUnknown) format = fmtRXNV2;
-				case 11:
-					if(format == fmtUnknown) format = fmtRXNV3;
-				case 12:
-					if(format == fmtUnknown) format = fmtSMILES;
-
-					if(format != fmtUnknown)
-					{
-						// convert the structure in document buffer to required format
-						Utils::ConvertAndCopy(&doc.m_Buffer, format, &options);
-					}
-					else
-					{
-						pantheios::log_ERROR(_T("CContextMenuHandler::InvokeCommand> Called for Unknown format."));
-					}
-					break;
-
-				default:
-					return E_FAIL;
+				if(format != fmtUnknown)
+					Utils::ConvertAndCopy(&doc.m_Buffer, format, &options);
+				else
+					pantheios::log_ERROR(_T("CContextMenuHandler::InvokeCommand> Called for Unknown format."));
 			}
-		}
+			break;
+
+		case CtxCommands::IDM_COPY:
+			// Id of popup - ideally should never reach here
+			_ASSERT(false);
+			break;
+
+		default:	// Not our command
+			return E_FAIL;
 	}
 
     return S_OK;
