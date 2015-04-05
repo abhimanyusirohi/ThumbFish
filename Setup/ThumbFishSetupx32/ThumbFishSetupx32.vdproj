@@ -63,12 +63,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_39B279FD0E5D3A314D71B996ABA6B208"
-        "OwnerKey" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_439EE357064D4A82BA7B615A8E288963"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -213,17 +207,22 @@
         "InstallerBootstrapper" = "3:2"
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
-            "Enabled" = "11:FALSE"
+            "Enabled" = "11:TRUE"
             "PromptEnabled" = "11:TRUE"
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Visual.C++.12.0.x86"
                     {
-                    "Name" = "8:Windows Installer 3.1"
-                    "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
+                    "Name" = "8:Visual C++ 2013 Runtime Libraries (x86)"
+                    "ProductCode" = "8:Microsoft.Visual.C++.12.0.x86"
+                    }
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.4.5"
+                    {
+                    "Name" = "8:Windows Installer 4.5"
+                    "ProductCode" = "8:Microsoft.Windows.Installer.4.5"
                     }
                 }
             }
@@ -448,26 +447,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39B279FD0E5D3A314D71B996ABA6B208"
-            {
-            "SourcePath" = "8:MSIMG32.dll"
-            "TargetName" = "8:MSIMG32.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_439EE357064D4A82BA7B615A8E288963"
@@ -1570,7 +1549,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_90BD6F7B50C24EA1B4A40B3C890C6E11"
             {
-            "SourcePath" = "8:..\\..\\Providers\\IndigoProvider\\Win32\\Release\\Provider.dll"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
@@ -1598,7 +1577,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_EDA54E2EF11E40AEAE5ABAD46D784150"
             {
-            "SourcePath" = "8:..\\..\\build\\Win32\\Release\\ThumbFish.dll"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"

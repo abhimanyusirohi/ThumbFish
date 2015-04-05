@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "resource.h"       // main symbols
 
-#define AFX_PREVIEW_STANDALONE
 #include <atlhandler.h>
 #include <atlhandlerimpl.h>
 #include "ThumbFishDocument.h"

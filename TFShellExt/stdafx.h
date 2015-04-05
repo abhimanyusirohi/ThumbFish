@@ -25,6 +25,8 @@
 #define SOURCE _T("ThumbFish")
 #define MODULE _T("ThumbFish.dll")
 
+#define AFX_PREVIEW_STANDALONE
+
 #include <atlbase.h>
 #include <atlcom.h>
 #include <atlctl.h>
