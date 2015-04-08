@@ -91,11 +91,13 @@ bool Draw(LPCOMMANDPARAMS params, LPOPTIONS options)
 			bool isRDF = ((buffer->DataFormat == fmtRDFV2) || (buffer->DataFormat == fmtRDFV3));
 
 			SetIndigoOptions(options);
-			indigoSetOptionXY("render-image-size", drawParams->targetRect.right - drawParams->targetRect.left, 
+			indigoSetOptionXY("render-image-size", drawParams->targetRect.right - drawParams->targetRect.left,
 				drawParams->targetRect.bottom - drawParams->targetRect.top);
 
 			// required because the render-backgroundcolor options fails
-			::FillRect(drawParams->hDC, &drawParams->targetRect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
+			HBRUSH bgBrush = ::CreateSolidBrush(options->RenderBackgroundColor);
+			::FillRect(drawParams->hDC, &drawParams->targetRect, bgBrush);
+			DeleteObject(bgBrush);
 
 			int dc = indigoRenderWriteHDC((void*)drawParams->hDC, 0);
 
