@@ -22,7 +22,7 @@ PANTHEIOS_CALL(PAN_CHAR_T const*) pantheios_fe_getProcessIdentity(void* /* token
 
 PANTHEIOS_CALL(int) pantheios_fe_isSeverityLogged(void* /* token */, int severity, int /* backEndId */)
 {
-	// define DETAILEDLOG in final release so that only WARNING and above messages are logged
+	// undefine DETAILEDLOG in final release so that only WARNING and above messages are logged
 	// for other releases such as beta, all informational messages should be logged
 	#if DETAILEDLOG
 		return 1;	// log all messages

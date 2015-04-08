@@ -38,8 +38,8 @@ public:
 	char* OutWarning2;							// Chemical Warning 2
 	char* OutWarning3;							// Chemical Warning 3
 
-	short		HDC_offset_X;
-	short		HDC_offset_Y;
+	long		HDC_offset_X;
+	long		HDC_offset_Y;
 
 public:
 	Options() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(true), RenderImplicitH(true),

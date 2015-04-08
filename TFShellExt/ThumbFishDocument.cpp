@@ -57,7 +57,7 @@ void ThumbFishDocument::InitializeSearchContent()
 		OPTIONS options;
 		TCHAR** props = NULL;
 
-		COMMANDPARAMS params(cmdGetProperties, &m_Buffer, (LPVOID)true);
+		COMMANDPARAMS params(cmdGetProperties, &m_Buffer, (LPVOID)1);
 		std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
 		props = (TCHAR**)outBuffer->pData;
 		int propCount = (int)outBuffer->DataLength;

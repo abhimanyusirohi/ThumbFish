@@ -208,7 +208,7 @@ void Utils::DoSaveStructure(HWND parentWnd, LPBUFFER buffer, LPOPTIONS options)
 			if(format == fmtMDLCT) 
 			{
 				buffer = Utils::PrettyMDLCT(buffer, dwBytesToWrite);
-				dwBytesToWrite = strlen(buffer) + 1;
+				dwBytesToWrite = (DWORD)strlen(buffer) + 1;
 			}
 
 			// create the file and then write data to it

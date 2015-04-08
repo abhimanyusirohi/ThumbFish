@@ -49,7 +49,7 @@ DWORD WINAPI CBrowseDlg::ThreadProc(LPVOID lpParameter)
 	HWND hWndListView = pDlg->GetDlgItem(IDC_MOLLIST);
 
 	// add colums using the record with max number of properties/columns
-	int numColumns = pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties.size();
+	size_t numColumns = pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties.size();
 
 	int iCol = 0;
 	LVCOLUMN lvc;
@@ -95,9 +95,9 @@ bool CBrowseDlg::OnRecord(LPVOID instance, BrowseEventArgs* e)
 	pDlg->m_mols.push_back(new MOLRECORD(*e));
 
 	// compare last item property count with saved item one and updated saved
-	int lastIndex = pDlg->m_mols.size() - 1;
+	size_t lastIndex = pDlg->m_mols.size() - 1;
 	if(pDlg->m_mols[lastIndex]->Properties.size() > pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties.size())
-		pDlg->m_recordWithMaxProps = lastIndex;
+		pDlg->m_recordWithMaxProps = (int)lastIndex;
 
 	//TODO: Test this
 	// periodically update the virtual list view count after every 100 records
@@ -116,7 +116,7 @@ LRESULT CBrowseDlg::OnListGetDispInfo(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 		if (plvdi->item.mask & LVIF_TEXT)
 		{
 			MAP_WSWS propMap = m_mols[plvdi->item.iItem]->Properties;
-			int numColums = propMap.size();
+			size_t numColums = propMap.size();
 
 			// find the header text for this subitem
 			std::map<int, WCHAR*>::iterator itHeader = m_ColIndexHeaderTextMap.find(plvdi->item.iSubItem);

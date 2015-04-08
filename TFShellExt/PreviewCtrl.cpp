@@ -234,11 +234,11 @@ void CPreviewCtrl::FillProperties(LPBUFFER buffer)
 	if(ListView_GetItemCount(hWndList) == 0)
 	{
 		TCHAR** props = NULL;
-		COMMANDPARAMS params(cmdGetProperties, buffer, (LPVOID)false);
+		COMMANDPARAMS params(cmdGetProperties, buffer, (LPVOID)0);
 		std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
 
 		props = (TCHAR**)outBuffer->pData;
-		int propCount = outBuffer->DataLength;
+		size_t propCount = outBuffer->DataLength;
 		m_propsGenerated = ((props != NULL) && (propCount > 0));
 
 		if(m_propsGenerated)

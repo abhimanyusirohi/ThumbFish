@@ -218,7 +218,7 @@ int GetProperties(LPCOMMANDPARAMS params, LPOPTIONS options, TCHAR*** properties
 	LPBUFFER buffer = params->Buffer;
 
 	// specifies whether to return property names to use in search
-	bool returnSearchNames = (BOOL)params->Param;
+	bool returnSearchNames = ((int)params->Param == 1);
 
 	pantheios::log_NOTICE(_T("API-GetProperties> Called. File Format="), buffer->DataFormat, 
 			_T(", DataLength="), pantheios::integer(buffer->DataLength));
@@ -350,7 +350,7 @@ int GetProperties(LPCOMMANDPARAMS params, LPOPTIONS options, TCHAR*** properties
 
 			if (flags & propInChIKey)
 			{
-				_snwprintf(temp, 500, L"%hs", (inchi.length() == 0) ? "" : indigoInchiGetInchiKey(inchi.c_str()));
+				_snwprintf_s(temp, 500, 500, L"%hs", (inchi.length() == 0) ? "" : indigoInchiGetInchiKey(inchi.c_str()));
 				SetNameValue(returnSearchNames ? _T("-") : _T("InChiKey"), temp, properties, index += 2);
 			}
 
@@ -708,11 +708,11 @@ LPOUTBUFFER Perform(LPCOMMANDPARAMS params, LPOPTIONS options)
 		switch(params->CommandID)
 		{
 			case cmdAromatize:
-				succeeded = indigoAromatize(mol);
+				succeeded = (indigoAromatize(mol) == 1);
 				break;
 
 			case cmdDearomatize:
-				succeeded = indigoDearomatize(mol);
+				succeeded = (indigoDearomatize(mol) == 1);
 				break;
 
 			case cmdCleanup:
@@ -738,7 +738,7 @@ LPOUTBUFFER Perform(LPCOMMANDPARAMS params, LPOPTIONS options)
 
 					// warnings can be NULL for some mols such as SMARTS and empty "" 
 					// for valid mols without problems
-					int warningSize = ((warning1 == NULL) ? 0 : strlen(warning1)) 
+					size_t warningSize = ((warning1 == NULL) ? 0 : strlen(warning1)) 
 						+ ((warning2 == NULL) ? 0 : strlen(warning2)) + 1;
 
 					if(warningSize > 1)

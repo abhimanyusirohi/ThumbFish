@@ -206,7 +206,7 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
         return MAKE_HRESULT(SEVERITY_SUCCESS, 0, USHORT(0));
     }
 
-	bool isFolder = false;
+	BOOL isFolder = false;
 	bool multiMolFile = false;
 	bool multipleFiles = (m_Items.size() > 1);		// multiple files selected and right-clicked
 	bool emptyAreaClicked = (m_Items.size() == 0);	// right-clicked empty area inside folder, no items selected
