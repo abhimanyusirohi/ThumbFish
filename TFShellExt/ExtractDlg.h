@@ -138,7 +138,7 @@ END_MSG_MAP()
 
 	void UpdateLinkText();
 	void DisplayGroup(int groupId);
-	static bool OnProgressChanged(LPVOID sender, CallbackEventArgs* e);
+	static bool OnProgressChanged(LPVOID instance, CallbackEventArgs* e);
 	static DWORD WINAPI ThreadProc(LPVOID lpParameter);
 
 	// resizes the dialog to display additional options

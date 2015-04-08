@@ -68,6 +68,7 @@ protected:
 	void OnExtract();
 	void OnQuickFix();
 	void OnGenerate();
+	void OnBrowse();
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(ContextMenuHandler), CContextMenuHandler)

@@ -57,6 +57,10 @@ INDIGOPROVIDER_API LPOUTBUFFER Execute(LPCOMMANDPARAMS params, LPOPTIONS options
 			DeleteAndNull(outBuffer);
 			outBuffer = Perform(params, options);
 			break;
+
+		case cmdBrowse:
+			Browse(params, options);
+			break;
 	}
 
 	indigoFreeAllObjects();
@@ -787,6 +791,115 @@ LPOUTBUFFER Perform(LPCOMMANDPARAMS params, LPOPTIONS options)
 	return outBuffer;
 }
 
+//-----------------------------------------------------------------------------
+// <Browse>
+// Allows browsing through records in a multimol file.
+//-----------------------------------------------------------------------------
+void Browse(LPCOMMANDPARAMS params, LPOPTIONS options)
+{
+	LPBUFFER buffer = params->Buffer;
+	LPBROWSEPARAMS browseParams = (LPBROWSEPARAMS)params->Param;
+
+	int reader = -1;
+
+	bool isSDF = ((browseParams->SourceFormat == fmtSDFV2) || (browseParams->SourceFormat == fmtSDFV3));
+	bool isRDF = ((browseParams->SourceFormat == fmtRDFV2) || (browseParams->SourceFormat == fmtRDFV3));
+
+	if(isSDF) reader = indigoIterateSDFile(browseParams->SourceFile);
+	else if(isRDF) reader = indigoIterateRDFile(browseParams->SourceFile);
+	else if(browseParams->SourceFormat == fmtCML) reader = indigoIterateCMLFile(browseParams->SourceFile);
+	else if(browseParams->SourceFormat == fmtSMILES) reader = indigoIterateSmilesFile(browseParams->SourceFile);
+	else
+	{
+		pantheios::log_ERROR(_T("API-Extract> Source file format is NOT supported. Src File="), browseParams->SourceFile);
+		return;
+	}
+
+	int mol = -1;
+	while((mol = indigoNext(reader)) > 0)
+	{
+		BrowseEventArgs e;
+		e.MolData = new OUTBUFFER();
+		e.DataFormat = browseParams->SourceFormat;
+
+		// write each record to a buffer
+		int bufHandle = indigoWriteBuffer();
+		switch(browseParams->SourceFormat)
+		{
+			case fmtSDFV2:
+			case fmtSDFV3:
+				e.DataFormat = (browseParams->SourceFormat == fmtSDFV2) ? fmtMOLV2 : fmtMOLV3;
+				indigoSetOption("molfile-saving-mode", (browseParams->SourceFormat == fmtSDFV2) ? "2000" : "3000");
+				indigoSaveMolfile(mol, bufHandle);
+				break;
+
+			case fmtRDFV2:
+			case fmtRDFV3:
+				e.DataFormat = (browseParams->SourceFormat == fmtRDFV2) ? fmtRXNV2 : fmtRXNV3;
+				indigoSetOption("molfile-saving-mode", (browseParams->SourceFormat == fmtRDFV2) ? "2000" : "3000");
+				indigoSaveRxnfile(mol, bufHandle);
+				break;
+
+			case fmtCML:
+				{
+					const char* cml = indigoCml(mol);
+					ALLOC_AND_COPY(cml, e.MolData->pData, &e.MolData->DataLength);
+				}
+				break;
+
+			case fmtSMILES:
+				{
+					std::string smilesWithLF;
+					smilesWithLF = indigoSmiles(mol);
+					smilesWithLF.append(1, LF);
+					ALLOC_AND_COPY(smilesWithLF.c_str(), e.MolData->pData, &e.MolData->DataLength);
+				}
+				break;
+		}
+		
+		if (e.MolData != NULL)
+		{
+			// read buffer into an outbuffer object
+			int outSize = 0;
+			char* tempBuffer;
+			if ((indigoToBuffer(bufHandle, &tempBuffer, &outSize) > 0) && (outSize > 0))
+			{
+				e.MolData->pData = new char[outSize];
+				memcpy_s(e.MolData->pData, outSize, tempBuffer, outSize);
+				e.MolData->DataLength = outSize;
+			}
+		}
+
+		// get properties for this molecule
+		if(isSDF || isRDF)
+		{
+			int prop;
+			int propIter = indigoIterateProperties(mol);
+			while((prop = indigoNext(propIter)) > 0)
+			{
+				const char* propName = indigoName(prop);
+				const char* propValue = indigoGetProperty(mol, propName);
+				
+				size_t propNameSize = strlen(propName) + 1, propValueSize = strlen(propValue) + 1;
+
+				wchar_t* szPropName = new wchar_t[propNameSize];
+				wchar_t* szPropValue = new wchar_t[propValueSize];
+
+				// convert from ASCII to WIDE string
+				_snwprintf_s(szPropName, propNameSize, propNameSize, L"%hs", propName);
+				_snwprintf_s(szPropValue, propValueSize, propValueSize, L"%hs", propValue);
+				e.Properties.insert(std::make_pair(szPropName, szPropValue));
+			}
+		}
+
+		// call back into the calling code with record data
+		if(browseParams->callback != NULL)
+		{
+			browseParams->callback(browseParams->caller, &e);
+		}
+	}
+}
+
 #pragma region Installer Methods
 
 /** Refresh the icon cache to rebuilt the thumbnails */
@@ -872,6 +985,8 @@ int ReadBuffer(LPBUFFER buffer, ReturnObjectType* type)
 void SetIndigoOptions(LPOPTIONS options)
 {
 	if(options == NULL || !options->Changed) return;
+
+	indigoSetOptionXY("render-hdc-offset", options->HDC_offset_X, options->HDC_offset_Y);
 
 	// Issue #57: coloring disabled for thumbnails
 	indigoSetOptionBool("render-coloring", (options->RenderColoring && !options->IsThumbnail) ? 1 : 0);

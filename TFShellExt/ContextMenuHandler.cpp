@@ -5,6 +5,7 @@
 #include "ExtractDlg.h"
 #include "QuickFixDlg.h"
 #include "GenerateDlg.h"
+#include "BrowseDlg.h"
 
 typedef struct
 {
@@ -16,12 +17,13 @@ typedef struct
 // help text in c_HelpStrings at correct index position. The order of commands here
 // should exactly match the order in which the commands are inserted in shell menu.
 // See menuPos variable inside QueryContextMenu()
-enum CtxCommands { IDM_QUICKFIX, IDM_GENERATE, IDM_SAVE, IDM_COPY_CDXML, IDM_COPY_CML, IDM_COPY_EMF, IDM_COPY_INCHI, 
-	IDM_COPY_INCHIKEY, IDM_COPY_MOLV2000, IDM_COPY_MOLV3000, IDM_COPY_RXNV2000, IDM_COPY_RXNV3000, IDM_COPY_SMILES,
-	IDM_COPY, IDM_EXTRACT, IDM_ONLINEHELP, IDM_ABOUT };
+enum CtxCommands { IDM_BROWSE, IDM_QUICKFIX, IDM_GENERATE, IDM_SAVE, IDM_COPY_CDXML, IDM_COPY_CML, IDM_COPY_EMF, 
+	IDM_COPY_INCHI, IDM_COPY_INCHIKEY, IDM_COPY_MOLV2000, IDM_COPY_MOLV3000, IDM_COPY_RXNV2000, IDM_COPY_RXNV3000, 
+	IDM_COPY_SMILES, IDM_COPY, IDM_EXTRACT, IDM_ONLINEHELP, IDM_ABOUT };
 
 const HELPTEXT c_HelpStrings[] = 
 {
+	{"Browse structures in a multimol file", L"Browse structures in a multimol file"},
 	{"Apply quick fixes to a structure such as Aromatize, Cleanup etc", L"Apply quick fixes to a structure such as Aromatize, Cleanup etc"},
 	{"Generate new molecule from SMILES, InChI string", L"Generate new molecule from SMILES, InChI string"},
 	{"Save selected structure to disk in different formats", L"Save selected structure to disk in different formats"},
@@ -103,6 +105,14 @@ DWORD WINAPI CContextMenuHandler::ThreadProc(LPVOID lpParameter)
 
 	switch(params->CommandID)
 	{
+		case CtxCommands::IDM_BROWSE:
+			{
+				CBrowseDlg dlg((PTSTR)params->Param);
+				dlg.DoModal(NULL);
+				delete[] ((TCHAR*)params->Param);
+			}
+			break;
+
 		case CtxCommands::IDM_QUICKFIX:
 			{
 				ThumbFishDocument doc;
@@ -174,6 +184,12 @@ void CContextMenuHandler::OnGenerate()
 	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(CtxCommands::IDM_GENERATE, NULL, NULL))
 }
 
+void CContextMenuHandler::OnBrowse()
+{
+	CREATE_THREAD_FOR_UI(new COMMANDPARAMS(CtxCommands::IDM_BROWSE, NULL, m_Items[0]))
+	m_Items.clear();	// clear so that it is not freed
+}
+
 #pragma endregion
 
 #pragma region IContextMenu methods
@@ -219,10 +235,18 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 	UINT id = idCmdFirst;
 	bool isOneSingleFile = !multipleFiles && !multiMolFile && !isFolder && !emptyAreaClicked;
 
+	//TODO: DeleteObject(HBITMAP) for all bitmaps
+
+	// -- Browse
+	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (!multipleFiles && multiMolFile ? MF_ENABLED : MF_DISABLED), 
+		id++, _T("&Browse..."));
+	HBITMAP hbmQF = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_QUICKFIX));
+	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmQF, hbmQF);
+	
 	// -- QuickFix
 	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (isOneSingleFile ? MF_ENABLED : MF_DISABLED), 
 		id++, _T("&QuickFix..."));
-	HBITMAP hbmQF = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_QUICKFIX));
+	hbmQF = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_QUICKFIX));
 	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmQF, hbmQF);
 
 	// -- Generate
@@ -349,6 +373,10 @@ IFACEMETHODIMP CContextMenuHandler::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 	ChemFormat format = fmtUnknown;
 	switch(commandID)
 	{
+		case CtxCommands::IDM_BROWSE:
+			OnBrowse();
+			break;
+
 		case CtxCommands::IDM_QUICKFIX:
 			OnQuickFix();
 			break;

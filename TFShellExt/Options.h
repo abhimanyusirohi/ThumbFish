@@ -38,13 +38,16 @@ public:
 	char* OutWarning2;							// Chemical Warning 2
 	char* OutWarning3;							// Chemical Warning 3
 
+	short		HDC_offset_X;
+	short		HDC_offset_Y;
+
 public:
 	Options() : Changed(true), RenderMarginX(20), RenderMarginY(20), RenderColoring(true), RenderImplicitH(true),
 				RenderShowAtomID(false), RenderShowBondID(false), RenderAtomBondIDFromOne(true), 
 				RenderBaseColor(RGB(0, 0, 0)), RenderBackgroundColor(RGB(255, 255, 255)), RenderLabelMode(0),
 				RenderStereoStyle(1), RenderRelativeThickness(1.0), IsThumbnail(false), GridMaxMols(4), 
 				GridMaxReactions(2), RenderImageWidth(300), RenderImageHeight(300), MOLSavingMode(0), 
-				OutWarning1(NULL), OutWarning2(NULL), OutWarning3(NULL)
+				OutWarning1(NULL), OutWarning2(NULL), OutWarning3(NULL), HDC_offset_X(0), HDC_offset_Y(0)
 	{
 	}
 

@@ -260,6 +260,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp" />
+    <ClCompile Include="BrowseDlg.cpp" />
     <ClCompile Include="ContextMenuHandler.cpp" />
     <ClCompile Include="dllmain.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -320,6 +321,8 @@
   <ItemGroup>
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="atldlgpreviewctrlimpl.h" />
+    <ClInclude Include="BrowseDlg.h" />
+    <ClInclude Include="BrowseParam.h" />
     <ClInclude Include="Buffer.h" />
     <ClInclude Include="CommonUtils.h" />
     <ClInclude Include="ContextMenuHandler.h" />

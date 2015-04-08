@@ -198,9 +198,9 @@ void CExtractDlg::UpdateLinkText()
 	}
 }
 
-bool CExtractDlg::OnProgressChanged(LPVOID sender, CallbackEventArgs* e)
+bool CExtractDlg::OnProgressChanged(LPVOID instance, CallbackEventArgs* e)
 {
-	HWND hWndDlg = ((CExtractDlg*)sender)->m_hWnd;
+	HWND hWndDlg = ((CExtractDlg*)instance)->m_hWnd;
 
 	switch(e->type)
 	{
@@ -223,7 +223,7 @@ bool CExtractDlg::OnProgressChanged(LPVOID sender, CallbackEventArgs* e)
 
 				// copy to a local variable and remove file part from it
 				// params::folderPath contains "[folderPath]\[file%d].[ext]"
-				if(_tcscpy_s(folder, MAX_PATH, ((CExtractDlg*)sender)->m_params.folderPath) == 0)
+				if(_tcscpy_s(folder, MAX_PATH, ((CExtractDlg*)instance)->m_params.folderPath) == 0)
 				{
 					::PathRemoveFileSpec(folder);
 					int errCode = (int)ShellExecute(NULL, _T("open"), folder, NULL, NULL, SW_SHOWDEFAULT);
@@ -234,7 +234,7 @@ bool CExtractDlg::OnProgressChanged(LPVOID sender, CallbackEventArgs* e)
 				else
 				{
 					pantheios::log_ERROR(_T("CExtractDlg::OnProgressChanged> _tcscpy_s failed. folderPath="),
-						((CExtractDlg*)sender)->m_params.folderPath);
+						((CExtractDlg*)instance)->m_params.folderPath);
 				}
 			}
 			break;

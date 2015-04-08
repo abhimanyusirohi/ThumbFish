@@ -5,6 +5,11 @@
 #define LF		'\n'
 #define	CRLF	"\r\n"
 
+#define ONE_KB		1024
+#define FOUR_KB		4*ONE_KB
+#define HALF_KB		512
+#define QUARTER_KB	256
+
 #define TEQUAL(a,b)	(_tcsicmp(a, b) == 0)
 #define ALLOC_AND_COPY(src, dest, outlen) if(src != NULL) {		\
 					size_t len = strlen(src) + 1;				\
@@ -36,12 +41,13 @@ struct CallbackEventArgs
 	CallbackEventArgs() : total(0), processed(0), message(NULL), type(progressStart) {}
 };
 
-typedef bool (*ProgressCallback)(LPVOID sender, CallbackEventArgs* e);
+typedef bool (*ProgressCallback)(LPVOID instance, CallbackEventArgs* e);
 
 #include "Options.h"
 #include "Buffer.h"
 #include "CommonUtils.h"
 #include "ExtractParam.h"
+#include "BrowseParam.h"
 
 // Parameters required to execute a command
 typedef struct CommandParams
@@ -64,5 +70,5 @@ typedef struct DrawParams
 
 // API
 const enum Command { cmdVersion, cmdDraw, cmdGetProperties, cmdConvert, cmdExtract, cmdAromatize, cmdDearomatize, 
-					 cmdCleanup, cmdValidate, cmdNormalize, cmdFoldHydrogens, cmdUnfoldHydrogens };
+					 cmdCleanup, cmdValidate, cmdNormalize, cmdFoldHydrogens, cmdUnfoldHydrogens, cmdBrowse };
 typedef YOURS LPOUTBUFFER (__cdecl *ExecuteFuncType)(LPCOMMANDPARAMS command, LPOPTIONS options);
