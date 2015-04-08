@@ -338,16 +338,19 @@ int GetProperties(LPCOMMANDPARAMS params, LPOPTIONS options, TCHAR*** properties
 				SetNameValue(returnSearchNames ? _T("-") : _T("Layered Code"), temp, properties, index+=2);
 			}
 
-			//TODO: INCHI CALCULATION FAILS - malloc_dbg fails
-			const char* inchi = indigoInchiGetInchi(mol);
+			const char* pInchi = indigoInchiGetInchi(mol);
+			std::string inchi = (pInchi == NULL) ? "" : pInchi;
 			if(flags & propInChI)
 			{
-				_snwprintf_s(temp, 500, 500, L"%hs", inchi);
+				_snwprintf_s(temp, 500, 500, L"%hs", inchi.c_str());
 				SetNameValue(returnSearchNames ? _T("-") : _T("InChi"), temp, properties, index+=2);
 			}
 
-			//_snwprintf(temp, 500, L"%hs", indigoInchiGetInchiKey(inchi));
-			//SetNameValue(properties, 24, _T("InChi Key"), temp);
+			if (flags & propInChIKey)
+			{
+				_snwprintf(temp, 500, L"%hs", (inchi.length() == 0) ? "" : indigoInchiGetInchiKey(inchi.c_str()));
+				SetNameValue(returnSearchNames ? _T("-") : _T("InChiKey"), temp, properties, index += 2);
+			}
 
 			if(flags & propSSSR)
 			{

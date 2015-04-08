@@ -25,8 +25,8 @@ const enum PropFlags {
 */
 const INT64 FormatPropInfo[18][2] = { 
 	{ 0, 0 },	// fmtUnknown
-	{ 18, ULONG_MAX }, // fmtMOLV2 - all properties
-	{ 18, ULONG_MAX }, // fmtMOLV3 - all properties
+	{ 19, ULONG_MAX }, // fmtMOLV2 - all properties
+	{ 19, ULONG_MAX }, // fmtMOLV3 - all properties
 	{ 4, propName | propSmiles | propIsChiral | propDataVersion }, // fmtRXNV2
 	{ 4, propName | propSmiles | propIsChiral | propDataVersion }, // fmtRXNV3
 	{ 8, propName | propNumAtoms | propNumBonds | propHeavyAtoms | propSmiles | propCanonicalSmiles | propLayeredCode | propSSSR }, // extSMILES
