@@ -457,12 +457,13 @@ LPOUTBUFFER ConvertTo(LPCOMMANDPARAMS params, LPOPTIONS options)
 
 				case fmtINCHIKEY:
 					{
-						//TODO: Crashing code
-						const char* inchi = indigoInchiGetInchi(ptr);
-						if(inchi != NULL)
+						const char* pInchi = indigoInchiGetInchi(ptr);
+						if(pInchi != NULL)
 						{
-							const char* inchiKey = indigoInchiGetInchiKey(inchi);
-							ALLOC_AND_COPY(inchiKey, outbuf->pData, &outbuf->DataLength);
+							std::string inchi = pInchi;
+							const char* inchiKey = indigoInchiGetInchiKey(inchi.c_str());
+							if (inchiKey != NULL)
+								ALLOC_AND_COPY(inchiKey, outbuf->pData, &outbuf->DataLength);
 						}
 					}
 					break;

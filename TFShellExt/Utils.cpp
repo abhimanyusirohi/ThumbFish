@@ -324,7 +324,7 @@ HMENU Utils::CreateCopyMenu(ChemFormat srcFormat, UINT* idStart)
 	bool isMol = (srcFormat == fmtMOLV2) || (srcFormat == fmtMOLV3);
 	bool isRxn = (srcFormat == fmtRXNV2) || (srcFormat == fmtRXNV3);
 	bool isMolRxn = (srcFormat == fmtCML) || (srcFormat == fmtSMILES) || (srcFormat == fmtSMARTS);
-	bool isAllExceptSDFRDF = isMol || isRxn ||isMolRxn;
+	bool isAllExceptSDFRDF = isMol || isRxn || isMolRxn;
 
 	// reaction cannot be saved as CDXML due to an issue with Indigo
 	// https://github.com/ggasoftware/indigo/issues/9
@@ -335,9 +335,7 @@ HMENU Utils::CreateCopyMenu(ChemFormat srcFormat, UINT* idStart)
 	InsertMenu(hCopyAsMenu, 2, MF_BYPOSITION | (isAllExceptSDFRDF ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("EMF"));
 	InsertMenu(hCopyAsMenu, 3, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("INCHI"));
 
-	// cannot convert to INCHIKEY due to an issue with provider
-	// https://github.com/ggasoftware/indigo/issues/11
-	InsertMenu(hCopyAsMenu, 4, MF_BYPOSITION | MF_DISABLED, (*idStart)++, _T("INCHI KEY"));
+	InsertMenu(hCopyAsMenu, 4, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("INCHI KEY"));
 	InsertMenu(hCopyAsMenu, 6, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("MOL V2000"));
 	InsertMenu(hCopyAsMenu, 7, MF_BYPOSITION | ((isMol || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("MOL V3000"));
 	InsertMenu(hCopyAsMenu, 8, MF_BYPOSITION | ((isRxn || isMolRxn) ? MF_ENABLED : MF_DISABLED), (*idStart)++, _T("RXN V2000"));
