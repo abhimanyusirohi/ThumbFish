@@ -9,15 +9,22 @@ LRESULT CBrowseDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 {
 	CAxDialogImpl<CBrowseDlg>::OnInitDialog(uMsg, wParam, lParam, bHandled);
 		
+	// set listview options
 	ListView_SetExtendedListViewStyleEx(GetDlgItem(IDC_MOLLIST), LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT, 
 		LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
 
-	// spawn a new thread and start reading the source file
 	LPBROWSEPARAMS param = new BROWSEPARAMS();
 	sprintf_s(param->SourceFile, MAX_PATH, "%ls", m_srcFile);
 	param->SourceFormat = CommonUtils::GetFormatFromFileName(m_srcFile);
 	param->caller = this;
 	param->callback = (BrowseCallback)(&CBrowseDlg::OnRecord);
+
+	// set title with filename
+	wchar_t title[MAX_PATH];
+	swprintf_s(title, MAX_PATH, L"Browse [%s]", PathFindFileName(m_srcFile));
+	SetWindowText(title);
+
+	// spawn a new thread and start reading the source file
 	CloseHandle(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&CBrowseDlg::ThreadProc, param, 0, NULL));
 
 	bHandled = TRUE;
@@ -40,12 +47,19 @@ DWORD WINAPI CBrowseDlg::ThreadProc(LPVOID lpParameter)
 {
 	OPTIONS options;
 	BrowseParams* bParams = (BrowseParams*)lpParameter;
+	CBrowseDlg* pDlg = (CBrowseDlg*)bParams->caller;
+
+	wchar_t title[MAX_PATH];
+	pDlg->GetWindowText(title, MAX_PATH);	// save original title
+
+	HWND hWndPB = pDlg->GetDlgItem(IDC_LOADPROGRESS);
+	::ShowWindow(hWndPB, SW_SHOW);
+	SendMessage(hWndPB, (UINT)PBM_SETMARQUEE, (WPARAM)1, (LPARAM)NULL); // start rolling progress
 
 	COMMANDPARAMS params(cmdBrowse, NULL, bParams);
 	std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
 
 	// finally create colums and update the total record count for list
-	CBrowseDlg* pDlg = (CBrowseDlg*)bParams->caller;
 	HWND hWndListView = pDlg->GetDlgItem(IDC_MOLLIST);
 
 	// add colums using the record with max number of properties/columns
@@ -57,7 +71,6 @@ DWORD WINAPI CBrowseDlg::ThreadProc(LPVOID lpParameter)
     lvc.cx = 150;
 	lvc.fmt = LVCFMT_CENTER;
 	lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_SUBITEM;
-	//pDlg->m_ColIndexHeaderTextMap.insert(std::make_pair<int, WCHAR*>(iCol, it->first));
     ListView_InsertColumn(hWndListView, iCol++, &lvc);
 
 	MAP_WSWS map = pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties;
@@ -79,6 +92,11 @@ DWORD WINAPI CBrowseDlg::ThreadProc(LPVOID lpParameter)
     
 	// set record count
 	ListView_SetItemCountEx(hWndListView, pDlg->m_mols.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	ListView_SetColumnWidth(hWndListView, pDlg->m_ColIndexHeaderTextMap.size(), LVSCW_AUTOSIZE_USEHEADER);
+
+	// set title back to original
+	pDlg->SetWindowText(title);
+	::ShowWindow(hWndPB, SW_HIDE);
 
 	return 0;
 }
@@ -89,8 +107,10 @@ bool CBrowseDlg::OnRecord(LPVOID instance, BrowseEventArgs* e)
 	CBrowseDlg* pDlg = (CBrowseDlg*)instance;
 	_ASSERT(pDlg != NULL);
 
-	//TODO: Update progress
-	
+	wchar_t title[MAX_PATH];
+	swprintf_s(title, MAX_PATH, L"%d Molecules Loaded", pDlg->m_mols.size());
+	pDlg->SetWindowText(title);
+
 	// add to local storage
 	pDlg->m_mols.push_back(new MOLRECORD(*e));
 
@@ -178,7 +198,7 @@ LRESULT CBrowseDlg::OnDrawItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 		DRAWPARAMS drawParams(di->hDC, rect);
 		COMMANDPARAMS params((int)cmdDraw, &buffer, &drawParams);
 		options.IsThumbnail = false;
-		//options.RenderMarginX = options.RenderMarginY = 10;
+		options.RenderMarginX = options.RenderMarginY = 5;
 		options.HDC_offset_X = rect.left;
 		options.HDC_offset_Y = rect.top;
 		std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
@@ -216,4 +236,20 @@ LRESULT CBrowseDlg::OnMeasureItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 	}
 
 	return 1;
+}
+
+LRESULT CBrowseDlg::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	RECT formRect;
+	GetClientRect(&formRect);
+
+	// autosize picture box control to 40% of total height
+	HWND hWndList = GetDlgItem(IDC_MOLLIST);
+	::SetWindowPos(hWndList, NULL, 10, 10, (formRect.right - formRect.left) - 20,
+		(formRect.bottom - formRect.top) - 20, SWP_NOZORDER | SWP_NOMOVE);
+
+	// size the last column to fill
+	ListView_SetColumnWidth(GetDlgItem(IDC_MOLLIST), m_ColIndexHeaderTextMap.size(), LVSCW_AUTOSIZE_USEHEADER);
+
+	return 0;
 }
