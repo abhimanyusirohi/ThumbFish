@@ -2,15 +2,16 @@
 
 #include "stdafx.h"
 #include "BrowseDlg.h"
+#include <sys/stat.h>
 
 #include <sstream>
 
 LRESULT CBrowseDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	CAxDialogImpl<CBrowseDlg>::OnInitDialog(uMsg, wParam, lParam, bHandled);
-		
-	// set listview options
-	ListView_SetExtendedListViewStyleEx(GetDlgItem(IDC_MOLLIST), LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT, 
+
+	ResizeControls();
+	ListView_SetExtendedListViewStyleEx(GetDlgItem(IDC_MOLLIST), LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT,
 		LVS_EX_GRIDLINES | LVS_EX_FULLROWSELECT);
 
 	LPBROWSEPARAMS param = new BROWSEPARAMS();
@@ -25,21 +26,29 @@ LRESULT CBrowseDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	SetWindowText(title);
 
 	// spawn a new thread and start reading the source file
-	CloseHandle(CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&CBrowseDlg::ThreadProc, param, 0, NULL));
+	m_threadHandle = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)&CBrowseDlg::ThreadProc, param, 0, NULL);
 
 	bHandled = TRUE;
 	return 1;  // Let the system set the focus
 }
 
-LRESULT CBrowseDlg::OnClickedOK(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+LRESULT CBrowseDlg::OnClickedCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	EndDialog(wID);
+	// check if the thread is running and notify user
+	bool threadRunning = (WaitForSingleObject(m_threadHandle, 0) != WAIT_OBJECT_0);
+
+	if (threadRunning)
+		MessageBox(L"Cancel molecule loading operation before closing this dialog.",
+			L"ThumbFish", MB_ICONWARNING | MB_OK);
+	else
+		EndDialog(wID);
+
 	return 0;
 }
 
-LRESULT CBrowseDlg::OnClickedCancel(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+LRESULT CBrowseDlg::OnCancelLoading(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
 {
-	EndDialog(wID);
+	m_cancelLoading = true;
 	return 0;
 }
 
@@ -52,51 +61,29 @@ DWORD WINAPI CBrowseDlg::ThreadProc(LPVOID lpParameter)
 	wchar_t title[MAX_PATH];
 	pDlg->GetWindowText(title, MAX_PATH);	// save original title
 
+	// set file size as max range for progress bar
+	struct _stat64i32 st;
+	bool fileExists = (_wstat(pDlg->m_srcFile, &st) == 0);
+	if (!fileExists) return 0;
+	long fileSize = st.st_size;
+
+	// init and show progress controls
 	HWND hWndPB = pDlg->GetDlgItem(IDC_LOADPROGRESS);
 	::ShowWindow(hWndPB, SW_SHOW);
-	SendMessage(hWndPB, (UINT)PBM_SETMARQUEE, (WPARAM)1, (LPARAM)NULL); // start rolling progress
+	SendMessage(hWndPB, (UINT)PBM_SETRANGE32, (WPARAM)0, (LPARAM)fileSize); // progress range
+	::ShowWindow(pDlg->GetDlgItem(IDC_BROWSE_CANCELLOAD), SW_SHOW);
 
 	COMMANDPARAMS params(cmdBrowse, NULL, bParams);
 	std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
 
-	// finally create colums and update the total record count for list
-	HWND hWndListView = pDlg->GetDlgItem(IDC_MOLLIST);
+	// set title back to original (with mol count)
+	wchar_t titleNew[MAX_PATH];
+	swprintf_s(titleNew, MAX_PATH, L"%s (%d)", title, pDlg->m_mols.size());
+	pDlg->SetWindowText(titleNew);
 
-	// add colums using the record with max number of properties/columns
-	size_t numColumns = pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties.size();
-
-	int iCol = 0;
-	LVCOLUMN lvc;
-    lvc.iSubItem = iCol;
-    lvc.cx = 150;
-	lvc.fmt = LVCFMT_CENTER;
-	lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_SUBITEM;
-    ListView_InsertColumn(hWndListView, iCol++, &lvc);
-
-	MAP_WSWS map = pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties;
-	for (MAP_WSWS::iterator it = map.begin(); it != map.end(); ++it, iCol++)
-    {
-		LVCOLUMN lvc;
-        lvc.iSubItem = iCol;
-        lvc.cx = 100;
-		lvc.fmt = LVCFMT_LEFT;
-		lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
-        lvc.pszText = it->first;
-		
-		pDlg->m_ColIndexHeaderTextMap.insert(std::make_pair(iCol, it->first));
-
-        // Insert the columns into the list view.
-        if (ListView_InsertColumn(hWndListView, iCol, &lvc) == -1)
-            return FALSE;
-    }
-    
-	// set record count
-	ListView_SetItemCountEx(hWndListView, pDlg->m_mols.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
-	ListView_SetColumnWidth(hWndListView, pDlg->m_ColIndexHeaderTextMap.size(), LVSCW_AUTOSIZE_USEHEADER);
-
-	// set title back to original
-	pDlg->SetWindowText(title);
+	// hide progress and cancel button
 	::ShowWindow(hWndPB, SW_HIDE);
+	::ShowWindow(pDlg->GetDlgItem(IDC_BROWSE_CANCELLOAD), SW_HIDE);
 
 	return 0;
 }
@@ -107,24 +94,92 @@ bool CBrowseDlg::OnRecord(LPVOID instance, BrowseEventArgs* e)
 	CBrowseDlg* pDlg = (CBrowseDlg*)instance;
 	_ASSERT(pDlg != NULL);
 
+	// add to local storage
+	pDlg->m_mols.push_back(new MOLRECORD(*e));
+
 	wchar_t title[MAX_PATH];
 	swprintf_s(title, MAX_PATH, L"%d Molecules Loaded", pDlg->m_mols.size());
 	pDlg->SetWindowText(title);
 
-	// add to local storage
-	pDlg->m_mols.push_back(new MOLRECORD(*e));
+	HWND hWndPB = pDlg->GetDlgItem(IDC_LOADPROGRESS);
+	pDlg->m_totalBytesLoaded += e->MolData->DataLength;
+	SendMessage(hWndPB, (UINT)PBM_SETPOS, (WPARAM)pDlg->m_totalBytesLoaded, (LPARAM)0);
 
 	// compare last item property count with saved item one and updated saved
 	size_t lastIndex = pDlg->m_mols.size() - 1;
-	if(pDlg->m_mols[lastIndex]->Properties.size() > pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties.size())
+	if (pDlg->m_mols[lastIndex]->Properties.size() > pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties.size())
+	{
+		pDlg->m_columnCountChanged = true;
 		pDlg->m_recordWithMaxProps = (int)lastIndex;
+	}
 
-	//TODO: Test this
 	// periodically update the virtual list view count after every 100 records
-	if((pDlg->m_mols.size() % 100) == 0)
-		ListView_SetItemCountEx(pDlg->GetDlgItem(IDC_MOLLIST), pDlg->m_mols.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	if (((pDlg->m_mols.size() % 100) == 0) || pDlg->m_cancelLoading)
+	{
+		HWND hWndListView = pDlg->GetDlgItem(IDC_MOLLIST);
 
-	return true;
+		// create new columns if there are new columns
+		if (pDlg->m_columnCountChanged)
+		{
+			MAP_WSWS map = pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties;
+			int iCol = (int)pDlg->m_ColIndexHeaderTextMap.size();
+
+			// create structure column as first column only once
+			if (!pDlg->m_structureColAdded)
+			{
+				LVCOLUMN lvc;
+				lvc.iSubItem = iCol;
+				lvc.cx = 150;
+				lvc.fmt = LVCFMT_CENTER;
+				lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_SUBITEM;
+				ListView_InsertColumn(hWndListView, iCol++, &lvc);
+				pDlg->m_structureColAdded = true;
+			}
+
+			// add colums using the record with max number of properties/columns
+			for (MAP_WSWS::iterator it = map.begin(); it != map.end(); ++it)
+			{
+				bool columnExists = false;
+
+				// go through the existing columns and check if the column 
+				// with this name has already been created
+				for (std::map<int, WCHAR*>::iterator it2 = pDlg->m_ColIndexHeaderTextMap.begin();
+					it2 != pDlg->m_ColIndexHeaderTextMap.end(); it2++)
+				{
+					if (it2->second == it->first)
+					{
+						columnExists = true;
+						break;
+					}
+				}
+
+				if (!columnExists)
+				{
+					LVCOLUMN lvc;
+					lvc.iSubItem = iCol;
+					lvc.cx = 100;
+					lvc.fmt = LVCFMT_LEFT;
+					lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+					lvc.pszText = it->first;
+
+					pDlg->m_ColIndexHeaderTextMap.insert(std::make_pair(iCol, it->first));
+
+					// Insert the columns into the list view.
+					if (ListView_InsertColumn(hWndListView, iCol++, &lvc) == -1)
+						return FALSE;
+				}
+			}
+
+			// autosize the last column to fit
+			ListView_SetColumnWidth(hWndListView, pDlg->m_ColIndexHeaderTextMap.size(), LVSCW_AUTOSIZE_USEHEADER);
+			pDlg->m_columnCountChanged = false;
+		}
+
+		// set record count
+		ListView_SetItemCountEx(hWndListView, pDlg->m_mols.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+	}
+
+	return !pDlg->m_cancelLoading;
 }
 
 LRESULT CBrowseDlg::OnListGetDispInfo(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
@@ -240,16 +295,20 @@ LRESULT CBrowseDlg::OnMeasureItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 LRESULT CBrowseDlg::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	RECT formRect;
-	GetClientRect(&formRect);
-
-	// autosize picture box control to 40% of total height
-	HWND hWndList = GetDlgItem(IDC_MOLLIST);
-	::SetWindowPos(hWndList, NULL, 10, 10, (formRect.right - formRect.left) - 20,
-		(formRect.bottom - formRect.top) - 20, SWP_NOZORDER | SWP_NOMOVE);
+	ResizeControls();
 
 	// size the last column to fill
 	ListView_SetColumnWidth(GetDlgItem(IDC_MOLLIST), m_ColIndexHeaderTextMap.size(), LVSCW_AUTOSIZE_USEHEADER);
 
 	return 0;
+}
+
+void CBrowseDlg::ResizeControls()
+{
+	RECT formRect;
+	GetClientRect(&formRect);
+
+	HWND hWndList = GetDlgItem(IDC_MOLLIST);
+	::SetWindowPos(hWndList, NULL, 10, 40, (formRect.right - formRect.left) - 20,
+		(formRect.bottom - formRect.top) - 50, SWP_NOZORDER);
 }

@@ -822,7 +822,8 @@ void Browse(LPCOMMANDPARAMS params, LPOPTIONS options)
 	}
 
 	int mol = -1;
-	while((mol = indigoNext(reader)) > 0)
+	bool cancel = false;
+	while(((mol = indigoNext(reader)) > 0) && !cancel)
 	{
 		BrowseEventArgs e;
 		e.MolData = new OUTBUFFER();
@@ -901,7 +902,7 @@ void Browse(LPCOMMANDPARAMS params, LPOPTIONS options)
 		// call back into the calling code with record data
 		if(browseParams->callback != NULL)
 		{
-			browseParams->callback(browseParams->caller, &e);
+			cancel = !browseParams->callback(browseParams->caller, &e);
 		}
 	}
 }
