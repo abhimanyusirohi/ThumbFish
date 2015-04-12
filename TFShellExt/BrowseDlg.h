@@ -13,7 +13,33 @@ class CBrowseDlg :
 	public CAxDialogImpl<CBrowseDlg>
 {
 private:
-	typedef BrowseEventArgs MOLRECORD, *LPMOLRECORD;
+
+	class MolRecord : public BrowseEventArgs
+	{
+	public:
+		MolRecord(BrowseEventArgs& b)
+		{
+			this->MolData = b.MolData;
+			this->Properties = b.Properties;
+			this->DataFormat = b.DataFormat;
+		}
+
+		~MolRecord()
+		{
+			if (MolData->pData != NULL)
+				delete[] MolData->pData;
+
+			// delete all property strings
+			for (MAP_WSWS::iterator it = this->Properties.begin(); it != this->Properties.end(); ++it)
+			{
+				delete[] it->first;
+				delete[] it->second;
+			}
+
+			delete this->MolData;
+		}
+	};
+	typedef MolRecord MOLRECORD, *LPMOLRECORD;
 
 	int m_rowHeight;
 	bool m_cancelLoading;
@@ -23,7 +49,7 @@ private:
 	size_t m_totalBytesLoaded;
 
 	TCHAR m_srcFile[MAX_PATH];
-	std::vector<LPMOLRECORD> m_mols;
+	std::vector<std::unique_ptr<MOLRECORD>> m_mols;
 	int m_recordWithMaxProps;
 	std::map<int, WCHAR*> m_ColIndexHeaderTextMap;
 

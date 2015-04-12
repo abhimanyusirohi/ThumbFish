@@ -84,6 +84,8 @@ DWORD WINAPI CBrowseDlg::ThreadProc(LPVOID lpParameter)
 	// hide progress and cancel button
 	::ShowWindow(hWndPB, SW_HIDE);
 	::ShowWindow(pDlg->GetDlgItem(IDC_BROWSE_CANCELLOAD), SW_HIDE);
+	
+	delete bParams;
 
 	return 0;
 }
@@ -95,10 +97,11 @@ bool CBrowseDlg::OnRecord(LPVOID instance, BrowseEventArgs* e)
 	_ASSERT(pDlg != NULL);
 
 	// add to local storage
-	pDlg->m_mols.push_back(new MOLRECORD(*e));
+	pDlg->m_mols.push_back(std::make_unique<MOLRECORD>(*(new MOLRECORD(*e))));
+	size_t molCount = pDlg->m_mols.size();
 
 	wchar_t title[MAX_PATH];
-	swprintf_s(title, MAX_PATH, L"%d Molecules Loaded", pDlg->m_mols.size());
+	swprintf_s(title, MAX_PATH, L"%d Molecules Loaded", molCount);
 	pDlg->SetWindowText(title);
 
 	HWND hWndPB = pDlg->GetDlgItem(IDC_LOADPROGRESS);
@@ -106,79 +109,74 @@ bool CBrowseDlg::OnRecord(LPVOID instance, BrowseEventArgs* e)
 	SendMessage(hWndPB, (UINT)PBM_SETPOS, (WPARAM)pDlg->m_totalBytesLoaded, (LPARAM)0);
 
 	// compare last item property count with saved item one and updated saved
-	size_t lastIndex = pDlg->m_mols.size() - 1;
+	size_t lastIndex = molCount - 1;
 	if (pDlg->m_mols[lastIndex]->Properties.size() > pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties.size())
 	{
 		pDlg->m_columnCountChanged = true;
 		pDlg->m_recordWithMaxProps = (int)lastIndex;
 	}
 
-	// periodically update the virtual list view count after every 100 records
-	if (((pDlg->m_mols.size() % 100) == 0) || pDlg->m_cancelLoading)
+	HWND hWndListView = pDlg->GetDlgItem(IDC_MOLLIST);
+
+	// create new columns if there are new columns
+	if (pDlg->m_columnCountChanged)
 	{
-		HWND hWndListView = pDlg->GetDlgItem(IDC_MOLLIST);
+		MAP_WSWS map = pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties;
+		int iCol = (int)pDlg->m_ColIndexHeaderTextMap.size();
 
-		// create new columns if there are new columns
-		if (pDlg->m_columnCountChanged)
+		// create structure column as first column only once
+		if (!pDlg->m_structureColAdded)
 		{
-			MAP_WSWS map = pDlg->m_mols[pDlg->m_recordWithMaxProps]->Properties;
-			int iCol = (int)pDlg->m_ColIndexHeaderTextMap.size();
+			LVCOLUMN lvc;
+			lvc.iSubItem = iCol;
+			lvc.cx = 150;
+			lvc.fmt = LVCFMT_CENTER;
+			lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_SUBITEM;
+			ListView_InsertColumn(hWndListView, iCol++, &lvc);
+			pDlg->m_structureColAdded = true;
+		}
 
-			// create structure column as first column only once
-			if (!pDlg->m_structureColAdded)
+		// add colums using the record with max number of properties/columns
+		for (MAP_WSWS::iterator it = map.begin(); it != map.end(); ++it)
+		{
+			bool columnExists = false;
+
+			// go through the existing columns and check if the column 
+			// with this name has already been created
+			for (std::map<int, WCHAR*>::iterator it2 = pDlg->m_ColIndexHeaderTextMap.begin();
+				it2 != pDlg->m_ColIndexHeaderTextMap.end(); it2++)
+			{
+				if (it2->second == it->first)
+				{
+					columnExists = true;
+					break;
+				}
+			}
+
+			if (!columnExists)
 			{
 				LVCOLUMN lvc;
 				lvc.iSubItem = iCol;
-				lvc.cx = 150;
-				lvc.fmt = LVCFMT_CENTER;
-				lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_SUBITEM;
-				ListView_InsertColumn(hWndListView, iCol++, &lvc);
-				pDlg->m_structureColAdded = true;
+				lvc.cx = 100;
+				lvc.fmt = LVCFMT_LEFT;
+				lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
+				lvc.pszText = it->first;
+
+				pDlg->m_ColIndexHeaderTextMap.insert(std::make_pair(iCol, it->first));
+
+				// Insert the columns into the list view.
+				if (ListView_InsertColumn(hWndListView, iCol++, &lvc) == -1)
+					return FALSE;
 			}
-
-			// add colums using the record with max number of properties/columns
-			for (MAP_WSWS::iterator it = map.begin(); it != map.end(); ++it)
-			{
-				bool columnExists = false;
-
-				// go through the existing columns and check if the column 
-				// with this name has already been created
-				for (std::map<int, WCHAR*>::iterator it2 = pDlg->m_ColIndexHeaderTextMap.begin();
-					it2 != pDlg->m_ColIndexHeaderTextMap.end(); it2++)
-				{
-					if (it2->second == it->first)
-					{
-						columnExists = true;
-						break;
-					}
-				}
-
-				if (!columnExists)
-				{
-					LVCOLUMN lvc;
-					lvc.iSubItem = iCol;
-					lvc.cx = 100;
-					lvc.fmt = LVCFMT_LEFT;
-					lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM;
-					lvc.pszText = it->first;
-
-					pDlg->m_ColIndexHeaderTextMap.insert(std::make_pair(iCol, it->first));
-
-					// Insert the columns into the list view.
-					if (ListView_InsertColumn(hWndListView, iCol++, &lvc) == -1)
-						return FALSE;
-				}
-			}
-
-			// autosize the last column to fit
-			ListView_SetColumnWidth(hWndListView, pDlg->m_ColIndexHeaderTextMap.size(), LVSCW_AUTOSIZE_USEHEADER);
-			pDlg->m_columnCountChanged = false;
 		}
 
-		// set record count
-		ListView_SetItemCountEx(hWndListView, pDlg->m_mols.size(), LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
+		// autosize the last column to fit
+		ListView_SetColumnWidth(hWndListView, pDlg->m_ColIndexHeaderTextMap.size(), LVSCW_AUTOSIZE_USEHEADER);
+		pDlg->m_columnCountChanged = false;
 	}
 
+	// set record count
+	ListView_SetItemCountEx(hWndListView, molCount, LVSICF_NOINVALIDATEALL | LVSICF_NOSCROLL);
 	return !pDlg->m_cancelLoading;
 }
 
