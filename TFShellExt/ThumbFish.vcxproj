@@ -377,6 +377,9 @@
   <ItemGroup>
     <Midl Include="ThumbFish.idl" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="browse.bmp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -235,25 +235,23 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 	UINT id = idCmdFirst;
 	bool isOneSingleFile = !multipleFiles && !multiMolFile && !isFolder && !emptyAreaClicked;
 
-	//TODO: DeleteObject(HBITMAP) for all bitmaps
-
 	// -- Browse
 	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (!multipleFiles && multiMolFile ? MF_ENABLED : MF_DISABLED), 
 		id++, _T("&Browse..."));
-	HBITMAP hbmQF = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_QUICKFIX));
-	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmQF, hbmQF);
+	HBITMAP hbmIcon = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_BROWSE));
+	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmIcon, hbmIcon);
 	
 	// -- QuickFix
 	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (isOneSingleFile ? MF_ENABLED : MF_DISABLED), 
 		id++, _T("&QuickFix..."));
-	hbmQF = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_QUICKFIX));
-	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmQF, hbmQF);
+	hbmIcon = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_QUICKFIX));
+	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmIcon, hbmIcon);
 
 	// -- Generate
 	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (emptyAreaClicked ? MF_ENABLED : MF_DISABLED), 
 		id++, _T("&Generate..."));
-	hbmQF = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_GENERATE));
-	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmQF, hbmQF);
+	hbmIcon = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_GENERATE));
+	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmIcon, hbmIcon);
 
 	// -- Save Structure
 	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (isOneSingleFile ? MF_ENABLED : MF_DISABLED), 
