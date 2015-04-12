@@ -247,7 +247,7 @@ LRESULT CBrowseDlg::OnDrawItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 		DRAWPARAMS drawParams(di->hDC, rect);
 		COMMANDPARAMS params((int)cmdDraw, &buffer, &drawParams);
 		options.IsThumbnail = false;
-		options.RenderMarginX = options.RenderMarginY = 5;
+		options.RenderMarginX = options.RenderMarginY = 10;
 		options.HDC_offset_X = rect.left;
 		options.HDC_offset_Y = rect.top;
 		std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
@@ -309,10 +309,31 @@ LRESULT CBrowseDlg::OnSize(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandl
 
 void CBrowseDlg::ResizeControls()
 {
-	RECT formRect;
-	GetClientRect(&formRect);
+	RECT rect;
+	GetClientRect(&rect);
 
+	int formWidth = (rect.right - rect.left);
+	int formHeight = (rect.bottom - rect.top);
+
+	// resize listview
 	HWND hWndList = GetDlgItem(IDC_MOLLIST);
-	::SetWindowPos(hWndList, NULL, 10, 40, (formRect.right - formRect.left) - 20,
-		(formRect.bottom - formRect.top) - 50, SWP_NOZORDER);
+	::SetWindowPos(hWndList, NULL, 10, 40, formWidth - 20, formHeight - 50, SWP_NOZORDER);
+
+	// find button
+	HWND hWndFind = GetDlgItem(IDC_BROWSE_FIND);
+	::GetClientRect(hWndFind, &rect);
+	int findWidth = (rect.right - rect.left);
+	::SetWindowPos(hWndFind, NULL, formWidth - findWidth - 10, 12, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+
+	// find edit box
+	HWND hWndFindEdit = GetDlgItem(IDC_BROWSE_FIND_EDIT);
+	::GetClientRect(hWndFindEdit, &rect);
+	int findEditWidth = (rect.right - rect.left);
+	::SetWindowPos(hWndFindEdit, NULL, formWidth - findWidth - findEditWidth - 20, 12, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+
+	// row height slider
+	HWND hWndSlider = GetDlgItem(IDC_BROWSE_ROWHEIGHT);
+	::GetClientRect(hWndSlider, &rect);
+	int sliderWidth = (rect.right - rect.left);
+	::SetWindowPos(hWndSlider, NULL, formWidth - findWidth - findEditWidth - sliderWidth - 20, 12, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
 }
