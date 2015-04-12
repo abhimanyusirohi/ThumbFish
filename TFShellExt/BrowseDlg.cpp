@@ -233,10 +233,6 @@ LRESULT CBrowseDlg::OnDrawItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 			options.RenderBackgroundColor = crOldBkColor;
 		}
 
-		// restore original
-		SetTextColor(di->hDC, crOldTextColor);
-		SetBkColor(di->hDC, crOldBkColor);
-
 		RECT rect;
 		HWND lv = di->hwndItem;
 
@@ -255,6 +251,16 @@ LRESULT CBrowseDlg::OnDrawItem(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bH
 		options.HDC_offset_X = rect.left;
 		options.HDC_offset_Y = rect.top;
 		std::auto_ptr<OUTBUFFER> outBuffer(pExecuteFunc(&params, &options));
+
+		// Draw molecule number on molecule
+		wchar_t molNum[20];
+		swprintf_s(molNum, 20, L"%d", di->itemID + 1);
+		SetTextColor(di->hDC, RGB(205, 201, 201));
+		DrawText(di->hDC, molNum, -1, &rect, DT_LEFT | DT_BOTTOM);
+
+		// restore original
+		SetTextColor(di->hDC, crOldTextColor);
+		SetBkColor(di->hDC, crOldBkColor);
 
 		// Draw other columns
 		WCHAR text[QUARTER_KB];
