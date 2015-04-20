@@ -276,7 +276,7 @@ IFACEMETHODIMP CContextMenuHandler::QueryContextMenu(
 	#pragma endregion
 
 	// Extract Molecules - only enabled when a SINGLE MULTIMOL file is selected
-	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (isOneSingleFile ? MF_ENABLED : MF_DISABLED), id++, _T("&Extract Molecules..."));
+	InsertMenu(hSubmenu, menuPos, MF_BYPOSITION | (!multipleFiles && multiMolFile ? MF_ENABLED : MF_DISABLED), id++, _T("&Extract Molecules..."));
 	HBITMAP hbmExtract = LoadBitmap(_AtlBaseModule.m_hInst, MAKEINTRESOURCE(IDB_EXTRACT));
 	SetMenuItemBitmaps(hSubmenu, menuPos++, MF_BYPOSITION, hbmExtract, hbmExtract);
 
