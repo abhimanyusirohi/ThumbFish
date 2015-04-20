@@ -91,8 +91,13 @@ bool Draw(LPCOMMANDPARAMS params, LPOPTIONS options)
 			bool isRDF = ((buffer->DataFormat == fmtRDFV2) || (buffer->DataFormat == fmtRDFV3));
 
 			SetIndigoOptions(options);
-			indigoSetOptionXY("render-image-size", drawParams->targetRect.right - drawParams->targetRect.left,
-				drawParams->targetRect.bottom - drawParams->targetRect.top);
+
+			// extra calculations to adjust the structure after updating Cairo library
+			int width = drawParams->targetRect.right - drawParams->targetRect.left;
+			int height = drawParams->targetRect.bottom - drawParams->targetRect.top;
+			width -= options->RenderMarginX;
+			height -= options->RenderMarginY;
+			indigoSetOptionXY("render-image-size", width, height);
 
 			// required because the render-backgroundcolor options fails
 			HBRUSH bgBrush = ::CreateSolidBrush(options->RenderBackgroundColor);
