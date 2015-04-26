@@ -123,6 +123,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A2F5F7BB405648EF8CBB06FA8813931E"
+        "OwnerKey" = "8:_D5AFB5F5D37844A595106B093DE52398"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AD5AEA21EF6C4FCDA22292F609437FCE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -130,6 +136,12 @@
         "Entry"
         {
         "MsmKey" = "8:_B90444AA029A4C229A1245C2CF6EE335"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B9C8F342C5FE444EAC8F9FC2AB81CE6F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -354,7 +366,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\test.smarts"
             "TargetName" = "8:test.smarts"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -374,7 +386,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Caffeine.mol"
             "TargetName" = "8:Caffeine.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -394,7 +406,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Adrenaline.smiles"
             "TargetName" = "8:Adrenaline.smiles"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -434,7 +446,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Nonose.mol"
             "TargetName" = "8:Nonose.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -494,7 +506,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Benzene.mol"
             "TargetName" = "8:Benzene.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -514,7 +526,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\ketcher.mol"
             "TargetName" = "8:ketcher.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -534,7 +546,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Water.mol"
             "TargetName" = "8:Water.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -554,7 +566,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Sample.cml"
             "TargetName" = "8:Sample.cml"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -574,7 +586,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Ozone.mol"
             "TargetName" = "8:Ozone.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -594,7 +606,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Urea.mol"
             "TargetName" = "8:Urea.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -669,12 +681,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B9C8F342C5FE444EAC8F9FC2AB81CE6F"
+            {
+            "SourcePath" = "8:..\\..\\SampleFiles\\FunnyMols.sdf"
+            "TargetName" = "8:FunnyMols.sdf"
+            "Tag" = "8:"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CBB73D0DAA7A4D69884F4E5D84EAE0A8"
             {
             "SourcePath" = "8:..\\..\\SampleFiles\\Aspirin.mol"
             "TargetName" = "8:Aspirin.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -694,7 +726,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Glucose.mol"
             "TargetName" = "8:Glucose.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -714,7 +746,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Adrenaline.mol"
             "TargetName" = "8:Adrenaline.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -734,7 +766,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\bad.mol"
             "TargetName" = "8:bad.mol"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -774,7 +806,7 @@
             "SourcePath" = "8:..\\..\\SampleFiles\\Sugars.sdf"
             "TargetName" = "8:Sugars.sdf"
             "Tag" = "8:"
-            "Folder" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Folder" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -835,17 +867,6 @@
         }
         "Folder"
         {
-            "{1525181F-901A-416C-8A58-119130FE478E}:_704BC50C7B694C1E814D50E38AAE58D8"
-            {
-            "Name" = "8:#1919"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Property" = "8:ProgramMenuFolder"
-                "Folders"
-                {
-                }
-            }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_735A5559741C4962BD116D9158ABD294"
             {
             "DefaultLocation" = "8:[ProgramFiles64Folder]\\ThumbFish"
@@ -856,7 +877,30 @@
             "Property" = "8:TARGETDIR"
                 "Folders"
                 {
-                    "{9EF0B969-E518-4E46-987F-47570745A589}:_7A56923DF70B4983A976B71959B23B39"
+                }
+            }
+            "{1525181F-901A-416C-8A58-119130FE478E}:_7462FC081F2E44CA8D985F13CBB1C1A3"
+            {
+            "Name" = "8:#1916"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:DesktopFolder"
+                "Folders"
+                {
+                }
+            }
+            "{994432C3-9487-495D-8656-3E829A8DBDDE}:_B6ECBFA031F04FBAA3D7B0428931BC74"
+            {
+            "DefaultLocation" = "8:[CommonAppDataFolder]\\"
+            "Name" = "8:CommonAppData"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:COMMONAPPDATAFOLDER"
+                "Folders"
+                {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_973A63E55A8342E5A1A1AD1EAD996DC1"
                     {
                     "Name" = "8:Sample Files"
                     "AlwaysCreate" = "11:TRUE"
@@ -880,17 +924,6 @@
                     }
                 }
             }
-            "{1525181F-901A-416C-8A58-119130FE478E}:_7462FC081F2E44CA8D985F13CBB1C1A3"
-            {
-            "Name" = "8:#1916"
-            "AlwaysCreate" = "11:FALSE"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Property" = "8:DesktopFolder"
-                "Folders"
-                {
-                }
-            }
         }
         "LaunchCondition"
         {
@@ -906,16 +939,16 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:ThumbFish Beta.3"
-        "ProductCode" = "8:{C6E7BD4D-B09E-4BDE-BCF0-4B87AEFA0EF0}"
-        "PackageCode" = "8:{CFFDB7B0-2BCA-4307-9809-80C9C839F486}"
+        "ProductName" = "8:ThumbFish 1.0"
+        "ProductCode" = "8:{D5EA354B-8146-452E-ACB6-24B2A6C0BE34}"
+        "PackageCode" = "8:{A43D3AD7-AC45-4E22-B6F9-8CC710E63BF3}"
         "UpgradeCode" = "8:{AE9A3E2B-C477-49EE-9B90-6E6557A7861E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.3"
+        "ProductVersion" = "8:1.0"
         "Manufacturer" = "8:A9S6"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.github.com/abhimanyusirohi/ThumbFish"
@@ -1036,7 +1069,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_7A56923DF70B4983A976B71959B23B39"
+            "Target" = "8:_973A63E55A8342E5A1A1AD1EAD996DC1"
             "Folder" = "8:_7462FC081F2E44CA8D985F13CBB1C1A3"
             "WorkingFolder" = "8:_735A5559741C4962BD116D9158ABD294"
             "Icon" = "8:_B90444AA029A4C229A1245C2CF6EE335"
@@ -1544,12 +1577,26 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A2F5F7BB405648EF8CBB06FA8813931E"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:microsoft_vc120_crt_x64.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_3284516114FA4F1E8A825D13562C63C7"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\..\\Providers\\IndigoProvider\\x64\\Release\\Provider.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_735A5559741C4962BD116D9158ABD294"
@@ -1577,7 +1624,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D5AFB5F5D37844A595106B093DE52398"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\..\\build\\x64\\Release\\ThumbFish.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_735A5559741C4962BD116D9158ABD294"
