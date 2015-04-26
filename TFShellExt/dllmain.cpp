@@ -46,6 +46,10 @@ void ExitInstance()
 		FreeLibrary(dllHandle);
 
 	dllHandle = NULL;
+
+#if _DEBUG
+	_CrtDumpMemoryLeaks();
+#endif
 }
 
 // DLL Entry Point
