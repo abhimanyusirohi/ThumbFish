@@ -324,16 +324,19 @@ void CBrowseDlg::ResizeControls()
 	::GetClientRect(hWndFind, &rect);
 	int findWidth = (rect.right - rect.left);
 	::SetWindowPos(hWndFind, NULL, formWidth - findWidth - 10, 12, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+	::UpdateWindow(hWndFind);
 
 	// find edit box
 	HWND hWndFindEdit = GetDlgItem(IDC_BROWSE_FIND_EDIT);
 	::GetClientRect(hWndFindEdit, &rect);
 	int findEditWidth = (rect.right - rect.left);
 	::SetWindowPos(hWndFindEdit, NULL, formWidth - findWidth - findEditWidth - 20, 12, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+	::UpdateWindow(hWndFindEdit);
 
 	// row height slider
 	HWND hWndSlider = GetDlgItem(IDC_BROWSE_ROWHEIGHT);
 	::GetClientRect(hWndSlider, &rect);
 	int sliderWidth = (rect.right - rect.left);
 	::SetWindowPos(hWndSlider, NULL, formWidth - findWidth - findEditWidth - sliderWidth - 20, 12, 0, 0, SWP_NOZORDER | SWP_NOSIZE);
+	::UpdateWindow(hWndSlider);
 }

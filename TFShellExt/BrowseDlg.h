@@ -54,7 +54,7 @@ private:
 	std::map<int, WCHAR*> m_ColIndexHeaderTextMap;
 
 public:
-	CBrowseDlg(PTSTR sourceFile) : m_recordWithMaxProps(0), m_rowHeight(100), m_columnCountChanged(true), 
+	CBrowseDlg(PTSTR sourceFile) : m_recordWithMaxProps(0), m_rowHeight(120), m_columnCountChanged(true), 
 		m_structureColAdded(false), m_totalBytesLoaded(0), m_cancelLoading(false), m_threadHandle(NULL)
 	{
 		_tcscpy_s(m_srcFile, MAX_PATH, sourceFile);
