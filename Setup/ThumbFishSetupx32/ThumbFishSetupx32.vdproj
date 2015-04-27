@@ -63,6 +63,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_39B279FD0E5D3A314D71B996ABA6B208"
+        "OwnerKey" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_439EE357064D4A82BA7B615A8E288963"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -131,6 +137,18 @@
         {
         "MsmKey" = "8:_9AA54E069B514C2281F1F418917B2B17"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9AA54E069B514C2281F1F418917B2B17"
+        "OwnerKey" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9AA54E069B514C2281F1F418917B2B17"
+        "OwnerKey" = "8:_EDA54E2EF11E40AEAE5ABAD46D784150"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -459,6 +477,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39B279FD0E5D3A314D71B996ABA6B208"
+            {
+            "SourcePath" = "8:MSIMG32.dll"
+            "TargetName" = "8:MSIMG32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_439EE357064D4A82BA7B615A8E288963"
@@ -941,7 +979,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ThumbFish 1.0"
         "ProductCode" = "8:{12A7384C-63EB-4271-8C46-A62ED3F64A59}"
-        "PackageCode" = "8:{3510F149-183F-4994-81F4-D898FE480C16}"
+        "PackageCode" = "8:{9E57F0C2-101B-4F1D-8300-30E0F062758A}"
         "UpgradeCode" = "8:{CFFB64CB-6904-4E7F-BC8B-51284C53725E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

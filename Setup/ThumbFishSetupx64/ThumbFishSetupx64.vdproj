@@ -141,6 +141,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C462338ACCAD1700DD8DBF882965B0BD"
+        "OwnerKey" = "8:_3284516114FA4F1E8A825D13562C63C7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_CBB73D0DAA7A4D69884F4E5D84EAE0A8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -185,6 +191,18 @@
         {
         "MsmKey" = "8:_F1F0C4C11F854A5A816C4FDE025ED587"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F1F0C4C11F854A5A816C4FDE025ED587"
+        "OwnerKey" = "8:_D5AFB5F5D37844A595106B093DE52398"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F1F0C4C11F854A5A816C4FDE025ED587"
+        "OwnerKey" = "8:_3284516114FA4F1E8A825D13562C63C7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -701,6 +719,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C462338ACCAD1700DD8DBF882965B0BD"
+            {
+            "SourcePath" = "8:MSIMG32.dll"
+            "TargetName" = "8:MSIMG32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_735A5559741C4962BD116D9158ABD294"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CBB73D0DAA7A4D69884F4E5D84EAE0A8"
             {
             "SourcePath" = "8:..\\..\\SampleFiles\\Aspirin.mol"
@@ -941,7 +979,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ThumbFish 1.0"
         "ProductCode" = "8:{D5EA354B-8146-452E-ACB6-24B2A6C0BE34}"
-        "PackageCode" = "8:{A43D3AD7-AC45-4E22-B6F9-8CC710E63BF3}"
+        "PackageCode" = "8:{3EFC8DE9-BF94-4BF0-8426-54D1E0633814}"
         "UpgradeCode" = "8:{AE9A3E2B-C477-49EE-9B90-6E6557A7861E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
