@@ -129,6 +129,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9AA54E069B514C2281F1F418917B2B17"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9C83E52763E34771900DBDFEED40BDF6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -213,7 +219,7 @@
         "InstallerBootstrapper" = "3:2"
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
-            "Enabled" = "11:TRUE"
+            "Enabled" = "11:FALSE"
             "PromptEnabled" = "11:TRUE"
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
@@ -1571,12 +1577,26 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_9AA54E069B514C2281F1F418917B2B17"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "SourcePath" = "8:C:\\Program Files (x86)\\Common Files\\Merge Modules\\Microsoft_VC120_CRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_90BD6F7B50C24EA1B4A40B3C890C6E11"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\..\\Providers\\IndigoProvider\\Win32\\Release\\Provider.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
@@ -1604,7 +1624,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_EDA54E2EF11E40AEAE5ABAD46D784150"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\..\\build\\Win32\\Release\\ThumbFish.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
