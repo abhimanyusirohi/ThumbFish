@@ -196,12 +196,6 @@
         "Entry"
         {
         "MsmKey" = "8:_F1F0C4C11F854A5A816C4FDE025ED587"
-        "OwnerKey" = "8:_D5AFB5F5D37844A595106B093DE52398"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F1F0C4C11F854A5A816C4FDE025ED587"
         "OwnerKey" = "8:_3284516114FA4F1E8A825D13562C63C7"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -940,7 +934,7 @@
                 {
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_973A63E55A8342E5A1A1AD1EAD996DC1"
                     {
-                    "Name" = "8:Sample Files"
+                    "Name" = "8:ThumbFish Sample Files"
                     "AlwaysCreate" = "11:TRUE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
@@ -965,6 +959,13 @@
         }
         "LaunchCondition"
         {
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_0E2490B0DBCD4E9BAEA99052C0C3C85C"
+            {
+            "Name" = "8:Is64Bit"
+            "Condition" = "8:VersionNT64"
+            "Message" = "8:This setup will only work on 64-bit versions of Windows. Please use the 32-bit setup for 32-bit Windows. Do you want to open the ThumbFish project page to download 32-bit installer?"
+            "InstallUrl" = "8:http://abhimanyusirohi.github.io/ThumbFish"
+            }
         }
         "Locator"
         {
@@ -979,7 +980,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ThumbFish 1.0"
         "ProductCode" = "8:{D5EA354B-8146-452E-ACB6-24B2A6C0BE34}"
-        "PackageCode" = "8:{3EFC8DE9-BF94-4BF0-8426-54D1E0633814}"
+        "PackageCode" = "8:{6D753EC3-6A38-40EB-81B1-8247ACB10372}"
         "UpgradeCode" = "8:{AE9A3E2B-C477-49EE-9B90-6E6557A7861E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1634,7 +1635,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_3284516114FA4F1E8A825D13562C63C7"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\..\\Providers\\IndigoProvider\\x64\\Release\\Provider.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_735A5559741C4962BD116D9158ABD294"
@@ -1662,7 +1663,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_D5AFB5F5D37844A595106B093DE52398"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\..\\build\\x64\\Release\\ThumbFish.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_735A5559741C4962BD116D9158ABD294"

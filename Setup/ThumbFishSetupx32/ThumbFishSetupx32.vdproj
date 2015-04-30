@@ -63,12 +63,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_39B279FD0E5D3A314D71B996ABA6B208"
-        "OwnerKey" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_439EE357064D4A82BA7B615A8E288963"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -137,18 +131,6 @@
         {
         "MsmKey" = "8:_9AA54E069B514C2281F1F418917B2B17"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9AA54E069B514C2281F1F418917B2B17"
-        "OwnerKey" = "8:_90BD6F7B50C24EA1B4A40B3C890C6E11"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9AA54E069B514C2281F1F418917B2B17"
-        "OwnerKey" = "8:_EDA54E2EF11E40AEAE5ABAD46D784150"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -477,26 +459,6 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_39B279FD0E5D3A314D71B996ABA6B208"
-            {
-            "SourcePath" = "8:MSIMG32.dll"
-            "TargetName" = "8:MSIMG32.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_439EE357064D4A82BA7B615A8E288963"
@@ -929,7 +891,7 @@
                 {
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_66088D01416F4215A9AAB683CD646A08"
                     {
-                    "Name" = "8:Sample Files"
+                    "Name" = "8:ThumbFish Sample Files"
                     "AlwaysCreate" = "11:TRUE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
@@ -965,6 +927,13 @@
         }
         "LaunchCondition"
         {
+            "{836E08B8-0285-4809-BA42-01DB6754A45D}:_27E7BB0707304F0AB2724CB9DAE3C9B3"
+            {
+            "Name" = "8:Is32Bit"
+            "Condition" = "8:Not VersionNT64"
+            "Message" = "8:This setup will only work on 32-bit versions of Windows. Please use the 64-bit setup for 64-bit Windows. Do you want to open the ThumbFish project page to download 64-bit installer?"
+            "InstallUrl" = "8:http://abhimanyusirohi.github.io/ThumbFish"
+            }
         }
         "Locator"
         {
@@ -979,7 +948,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:ThumbFish 1.0"
         "ProductCode" = "8:{12A7384C-63EB-4271-8C46-A62ED3F64A59}"
-        "PackageCode" = "8:{9E57F0C2-101B-4F1D-8300-30E0F062758A}"
+        "PackageCode" = "8:{E1765461-2B81-4E92-97FD-216024EC8D44}"
         "UpgradeCode" = "8:{CFFB64CB-6904-4E7F-BC8B-51284C53725E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -1634,7 +1603,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_90BD6F7B50C24EA1B4A40B3C890C6E11"
             {
-            "SourcePath" = "8:..\\..\\Providers\\IndigoProvider\\Win32\\Release\\Provider.dll"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
@@ -1662,7 +1631,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_EDA54E2EF11E40AEAE5ABAD46D784150"
             {
-            "SourcePath" = "8:..\\..\\build\\Win32\\Release\\ThumbFish.dll"
+            "SourcePath" = "8:"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_10EC9B76DE2D42C8BB705270CCDCC62A"
