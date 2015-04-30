@@ -3,7 +3,7 @@
 ThumbFish is a simple utility for chemists and people working with chemical structure files. It integrates with Windows Operating System and provides structure Thumbnail, Preview, Search and other useful features. ThumbFish is currently only available for Windows OS.
 
 ThumbFish uses the following open source components:
-* [Indigo (1.1.11)](http://www.ggasoftware.com/opensource/indigo) is an Open Source Organic Chemistry Toolkit developed by GGA Software to read and render structure files.
+* [Indigo (1.1.12+)](http://www.ggasoftware.com/opensource/indigo) is an Open Source Organic Chemistry Toolkit developed by GGA Software to read and render structure files. The current version uses Indigo's latest code as on 4Apr15.
 * [Pantheios (1.0.1 beta 214)](http://pantheios.org) is an Open Source Logging API library.
 * [GoogleTest (1.7.0)] (https://code.google.com/p/googletest/) Google's C++ Testing Framework.
 
