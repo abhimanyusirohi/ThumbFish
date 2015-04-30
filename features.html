@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="ThumbFish is a Shell Extension Handler for Windows OS that generates thumbnails,
+provide molecule preview (with properties), molecule search and other useful features all integrated inside Windows Explorer.">
+<link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+<link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+<link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<link rel="stylesheet" href="javascripts/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+<script type="text/javascript" src="javascripts/fancybox/jquery.fancybox.pack.js"></script>
+
+<!--[if lt IE 9]>
+<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+<title>ThumbFish - Generate chemical structure thumbnails, preview and search molecules inside Windows Explorer (mol, rxn, sdf, rdf, cml)</title>
+<script>
+(function (i, s, o, g, r, a, m) { i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () { (i[r].q = i[r].q || []).push(arguments) }, i[r].l = 1 * new Date(); a = s.createElement(o), m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m) })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga'); ga('create', 'UA-51329802-1', 'abhimanyusirohi.github.io'); ga('send', 'pageview');
+
+$(document).ready(function () {
+$('.fancybox').fancybox();
+});
+</script>
+
+</head>
+
+<body>
+<header>
+<div class="inner">
+<h1>ThumbFish</h1>
+<a href="https://github.com/abhimanyusirohi/ThumbFish" class="button"><small>View project on</small>GitHub</a>
+</div>
+</header>
+
+<div id="content-wrapper">
+<div class="inner clearfix">
+
+<aside id="sidebar">
+<br />
+<ul style="font-size: medium; list-style-type: circle">
+<li><a href="index.html">Home</a></li>
+<li><a href="#features">Features</a>
+<ul style="list-style-type: circle; margin-bottom: 0px">
+    <li><a href="#browse-feature">Browse</a></li>
+    <li><a href="#extract-feature">Extract</a></li>
+    <li><a href="#generate-feature">Generate</a></li>
+    <li><a href="#quickfix-feature">Quick Fix</a></li>
+</ul>
+</li>
+</ul>
+
+<table style="border: none">
+<tr>
+<td style="border: none;">
+<img src="images/blogspot.png" />
+</td>
+<td style="border: none; text-align: left; vertical-align: middle; font-size: medium">
+<a href="https://thumbfish.blogspot.com" target="_blank">Product Updates Blog</a>
+</td>
+</tr>
+</table>
+<hr />
+
+<a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/neptune-beta3/ThumbFishSetupx64.msi" class="button">
+<small>Release ONE.DOT.ZERO</small>64-bit
+</a>
+
+<a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/neptune-beta3/ThumbFishSetupx32.msi" class="button">
+<small>Release ONE.DOT.ZERO</small>32-bit
+</a>
+
+<p>
+Please enter any bugs directly in GitHub <a href="https://github.com/abhimanyusirohi/ThumbFish/issues/new" target="_blank">here</a>.<br />
+Send your suggestions and feedback to <a href="mailto:abhimanyusirohi@gmail.com">abhimanyusirohi@gmail.com</a>
+</p>
+</aside>
+
+<section id="main-content">
+    <div style="float: right">
+    <img src="images/logo.png" width="104" height="56" alt="ThumbFish" title="ThumbFish" style="padding: 0px; border:none" />
+    </div>
+
+    <a id="features"><h1>Features</h1></a>
+    <br/>
+    <a id="browse-feature"><h2>Browse Molecules</h2></a>
+    <p>
+        Browse feature is available in the ThumbFish context-menu when the user right-click on a multi-molecule file such as SDF in Windows Explorer. It displays
+        a dialog and loads the file in a multi-column list containing molecule in FIRST column and molecule record properties in other columns. The nice thing about 
+        the browser is that it loads the molecule in background and allows thousands of molecules to be loaded without blocking the user interface. 
+        <u>Note that this feature is only enabled when a single multi-molecule file (SDF, RDF, CML, SMILES) is selected.</u>
+    </p>
+    <img src="images/BrowseDlg.png" alt="Browse Molecules" title="Browse Molecules" />
+    <br />
+    <br />
+    <a id="extract-feature"><h2>Extract Molecules</h2></a>
+    <p>Extract feature is available in the ThumbFish context-menu when the user right-click on a supported chemical file in Windows Explorer. This feature can be used to 
+        extract molecules from a multi-molecule file. The extracted molecules can be converted to different formats on the fly and saved as separate files. For example a number
+        of MOL files can be extracted from a SDF file. <u>Note that this feature is only enabled when a single multi-molecule file (SDF, RDF, CML, SMILES) is selected.</u>
+    </p>
+    <img src="images/extract.png" alt="Extract Molecules" title="Extract Molecules"/>
+    <p>The extract dialog follows the "Statement UI" format which is <a href="http://thumbfish.blogspot.in/2014/11/statement-user-interface-sui.html" target="_blank">described on the product blog</a>. Basically, Statement UI describes the operation using statements and 
+        parts of it are configurable. The above dialog has five configurable parts. You can click on any of the links and change the options. The configurable links can
+        display a menu, open a dialog or expand the extract dialog to display an area for additional input such as shown in the dialog above.
+    </p>
+    <br />
+    <a id="generate-feature"><h2>Generate Molecule</h2></a>
+    <p>
+        Generate feature is available in the ThumbFish context-menu when the user <u>right-click on an empty area inside a folder</u>. This feature can be used to create a new 
+        molecule from SMILES or InChi string. It displays the generated molecule in the display area as the user enters the string. The generated molecule can then be saved 
+        to any of the supported formats.
+    </p>
+    <img src="images/GenerateDlg.png" alt="Generate Molecule" title="Generate Molecule" />
+
+    <br />
+    <a id="quickfix-feature"><h2>QuickFix</h2></a>
+    <p>
+        QuickFix feature is available in the ThumbFish context-menu when the user right-click on a supported chemical file in Windows Explorer. This feature can be used to apply
+        different options such as Aromatize/De-aromatize, Fold/Unfold Hydrogens, Cleanup, Normalize and Validate. Applied changes can be saved to the original file.
+    </p>
+    <img src="images/QuickFixDlg.png" alt="QuickFix" title="QuickFix" />
+
+</section>
+</div>
+</div>
+</body>
+</html>

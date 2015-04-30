@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
 <meta charset='utf-8'>
@@ -52,11 +52,7 @@ $('.fancybox').fancybox();
 <li><a href="#shandler">Search Handler</a></li>
 <li><a href="#chandler">Context-Menu Handler</a></li>
 </ul>
-<li><a href="#features">Features</a>
-<ul style="list-style-type: circle; margin-bottom: 0px">
-    <li><a href="#extract-feature">Extract Molecules</a></li>
-</ul>
-</li>
+<li><a href="features.html">Features</a></li>
 <li><a href="#known-limitations">Known Limitations</a></li>
 </ul>
 
@@ -72,13 +68,13 @@ $('.fancybox').fancybox();
 </table>
 <hr />
 
-<a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/neptune-beta3/ThumbFishSetupx64.msi" class="button">
-<small>ThumbFish Beta.3</small>64-bit
-</a>
+    <a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/release-1.0/ThumbFishSetupx64.msi" class="button">
+        <small>Release ONE.DOT.ZERO</small>64-bit
+    </a>
 
-<a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/neptune-beta3/ThumbFishSetupx32.msi" class="button">
-<small>ThumbFish Beta.3</small>32-bit
-</a>
+    <a href="https://github.com/abhimanyusirohi/ThumbFish/releases/download/release-1.0/ThumbFishSetupx32.msi" class="button">
+        <small>Release ONE.DOT.ZERO</small>32-bit
+    </a>
 
 <p>
 Please enter any bugs directly in GitHub <a href="https://github.com/abhimanyusirohi/ThumbFish/issues/new" target="_blank">here</a>.<br />
@@ -149,7 +145,7 @@ ThumbFish contains the following Shell Extension Handlers for Windows OS:
 <li><b>Search Handler</b>: Searches for a structure based on its properties</li>
 <li><b>Context-Menu Handler</b>: Provides additional useful options on supported structure files</li>
 </ul>
-ThumbFish is currently ONLY supported on Windows Vista and above:
+ThumbFish is ONLY supported on Windows Vista and above:
 <table style="background-color: lightblue"><tr><td width="200px">Windows Vista SP2</td><td width="200px">Windows 7 SP1</td><td width="200px">Windows 8.1</td></tr></table>
     <br />
 <a id="gettingstarted">
@@ -287,24 +283,11 @@ ThumbFish context-menu is integrated into the Window Explorer context-menu and p
     <i>Export Molecules</i> command works on multi-molecule files such as SDF and can be used to extract molecules in different formats as separate files.<br />
 <br />
 <img src="images/contextmenu.png" alt="Context Menu" title="Context Menu"/>
-<a id="features"><h1>Features</h1></a>
-<a id="extract-feature"><h2>Extract Molecules</h2></a>
-    <p>Extract Molecule feature is available in the ThumbFish Context-Menu when you right-click on a supported chemical file in Windows Explorer. This feature can be used to 
-        extract molecules from a multi-molecule file. The extracted molecules can be converted to different formats on the fly and saved as separate files. For example a number
-        of MOL files can be extracted from a SDF file. This feature is only enabled when a single multi-molecule file (SDF, RDF, CML, SMILES) is selected.
-    </p>
-<img src="images/extract.png" alt="Extract Molecules" title="Extract Molecules"/>
-    <p>The extract dialog follows the "Statement UI" format which is <a href="http://thumbfish.blogspot.in/2014/11/statement-user-interface-sui.html" target="_blank">described on the product blog</a>. Basically, Statement UI describes the operation using statements and 
-        parts of it are configurable. The above dialog has five configurable parts. You can click on any of the links and change the options. The configurable links can
-        display a menu, open a dialog or expand the extract dialog to display an area for additional input such as shown in the dialog above.
-    </p>
 <a id="known-limitations"><h1>Known Limitations</h1></a>
 <ol>
 <li>Copying structure as Enhanced Metafile (EMF) Picture does not display atom labels.</li>
 <li>When a structure is saved using the "Save Structure" command in Preview Handler then it can only be saved in user's AppData\LocalLow directory.
 This is because the Preview Handler runs in a low integrity mode under Windows and does not have access to other locations.</li>
-<li>The Copy Structure As >> InChi Key command is NOT operational. The command has been intentionally disabled due to
-<a href="https://github.com/ggasoftware/indigo/issues/11">an issue associated with the Indigo provider.</a></li>
 <li>The SaveAs >> Connection Table (.ct) command saves a <u>prettified</u> connection table and not the standard MDLCT one. The standard one saves a line length
 character and then the actual line so it may contain NULL characters. Prettified one is human readable as it contains simple data lines ending with a CRLF.</li>
 <li>Saving Reaction file as CDXML or CML is not supported due to issues in the provider.</li>
